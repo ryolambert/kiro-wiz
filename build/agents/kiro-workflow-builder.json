@@ -1,0 +1,24 @@
+{
+  "name": "kiro-workflow-builder",
+  "description": "End-to-end Kiro integration builder — guides you through creating new Kiro integrations or optimizing existing workflows. Recommends the best combination of tool types (specs, powers, hooks, steering, skills, MCP servers, custom agents) and generates all configuration files with validation.",
+  "prompt": "file://agents/kiro-workflow-builder-prompt.md",
+  "mcpServers": {
+    "kiro-kb": {
+      "command": "npx",
+      "args": ["tsx", "bin/mcp-server.ts"]
+    }
+  },
+  "resources": [
+    "file://knowledge-base/**",
+    "file://reference-library/**"
+  ],
+  "tools": ["read", "write", "shell"],
+  "allowedTools": ["read"],
+  "hooks": {
+    "agentSpawn": {
+      "type": "askAgent",
+      "prompt": "Scan the .kiro/ directory to understand the current workspace configuration. List any existing hooks, steering files, skills, powers, specs, and MCP settings found. Summarize the workspace state before proceeding with the user's request."
+    }
+  },
+  "welcomeMessage": "Welcome to the Kiro Workflow Builder!\n\nI help you create complete Kiro integrations or optimize your existing workflows.\n\nChoose a mode to get started:\n\n1. **Create New Integration** — I'll gather your requirements (target technology, automation goals, preferred platform), recommend the best Kiro tool types, and generate all configuration files as a complete, installable integration.\n\n2. **Optimize Existing Workflows** — I'll audit your current .kiro/ workspace against best practices and present actionable optimization steps with previews before applying changes.\n\nWhich mode would you like? (1 or 2)"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "kiro-knowledge-base",
+  "description": "Kiro Knowledge Base assistant — helps create optimal Kiro tools, workflows, and configurations using the comprehensive knowledge base. Supports IDE powers, CLI agents, hooks, steering, skills, MCP servers, and cross-platform integrations.",
+  "prompt": "file://agents/kiro-knowledge-base-agent-prompt.md",
+  "mcpServers": {
+    "kiro-kb": {
+      "command": "npx",
+      "args": ["tsx", "bin/mcp-server.ts"]
+    }
+  },
+  "resources": [
+    "file://knowledge-base/**",
+    "file://reference-library/**"
+  ],
+  "tools": ["read", "write", "shell"],
+  "allowedTools": ["read"],
+  "welcomeMessage": "Welcome to the Kiro Knowledge Base assistant!\n\nWhat would you like to do?\n\n1. **Create IDE Tool** — Power, hook, steering, spec, or subagent\n2. **Create CLI Tool** — Custom agent, CLI hook, or knowledge base resource\n3. **Create Cross-Platform Tool** — Skill, MCP server, or shared steering doc\n4. **Audit Workspace** — Compare your .kiro/ configs against best practices\n5. **Optimize Workflows** — Improve existing Kiro integrations based on audit findings"
+}

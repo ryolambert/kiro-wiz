@@ -1,0 +1,42 @@
+---
+title: "Enterprise billing - CLI - Docs - Kiro"
+sourceUrl: "https://kiro.dev/docs/cli/enterprise/billing/"
+category: "cli"
+lastUpdated: "2026-02-07T05:52:31.429Z"
+---
+# Enterprise billing
+
+---
+
+When you subscribe your team to Kiro, you can choose from the following service tiers:  **Kiro Pro**, **Kiro Pro+**, and **Kiro Power**. Depending on usage patterns, higher level tiers will give users more credits to use with Kiro.
+
+Credits are consumed fractionally based on each request. Simple edits and shorter prompts will use fewer credits than complex, lengthy tasks. This means that fractional credits will give you more value from your credit allocation.
+
+## Tier comparison
+
+| Tier | Credits | Overage |
+| --- | --- | --- |
+| Pro | 1,000 | Opt-in |
+| Pro+ | 2,000 | Opt-in |
+| Power | 10,000 | Opt-in |
+
+You are billed monthly for each user that you subscribe to Kiro. For more information, see [Kiro pricing](https://kiro.dev/pricing/).
+
+## I've subscribed a user twice. Will I be double-billed?
+
+It depends.
+
+If a user is subscribed twice *under the same Kiro profile* (for example, in two different groups), then you will *not* be charged twice. Instead, you will pay the subscription price of the highest tier assigned to the user. Example: If Alice is subscribed at the Pro tier in group A, and the Pro+ tier in group B, then you will pay the Pro+ tier price for Alice.
+
+If a user is subscribed twice under *different Kiro profiles* (for example, in two different AWS Regions), then you will be charged twice. Example: If Bob is subscribed in Profile A in Europe (Frankfurt) and Profile B in US East (N. Virginia), then you will be charged twice for Bob.
+
+## Proration considerations
+
+- If you unsubscribe a user mid-month, you will pay for the last month in full. The cancellation takes effect at the beginning of the following month.
+- If you upgrade a subscription mid-month, you will be refunded for the lower-tier subscription, and you will be charged in full for the higher-tier subscription.
+- If you downgrade a subscription mid-month, you will pay in full for the higher-tier subscription, and you will be charged for the lower-tier subscription starting the following month.
+
+## Viewing your bill
+
+- You can view your bill in the AWS console's Billing and Cost Management service. The Kiro expenses are listed on the Charges by service tab, under Kiro. For more information about the Billing and Cost Management service, see What is AWS Billing and Cost Management? in the AWS Billing User Guide.
+- You can identify the cost of Kiro subscriptions for specific users with resource IDs through AWS Billing and Cost Management. To do so, in the Billing and Cost Management console, under Data Exports, create either a standard data export or a legacy CUR export with the Include resource IDs option selected. To learn more, refer to Creating data exports in the AWS Data Exports User Guide.

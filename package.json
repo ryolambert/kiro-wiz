@@ -1,0 +1,46 @@
+{
+  "name": "kiro-knowledge-base",
+  "version": "0.1.0",
+  "description": "Self-updating Kiro knowledge base with MCP documentation server",
+  "type": "module",
+  "bin": {
+    "crawl": "./bin/crawl.ts",
+    "compile": "./bin/compile.ts",
+    "detect-changes": "./bin/detect-changes.ts",
+    "audit": "./bin/audit.ts",
+    "validate-skill": "./bin/validate-skill.ts",
+    "mcp-server": "./bin/mcp-server.ts",
+    "scaffold": "./bin/scaffold.ts"
+  },
+  "scripts": {
+    "setup": "npm install",
+    "build": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "crawl": "tsx bin/crawl.ts",
+    "compile": "tsx bin/compile.ts",
+    "detect-changes": "tsx bin/detect-changes.ts",
+    "audit": "tsx bin/audit.ts",
+    "validate-skill": "tsx bin/validate-skill.ts",
+    "mcp-server": "tsx bin/mcp-server.ts",
+    "scaffold": "tsx bin/scaffold.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "cheerio": "^1.2.0",
+    "js-yaml": "^4.1.1"    
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.15.0",
+    "@vitest/coverage-v8": "^3.2.1",
+    "fast-check": "^4.1.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

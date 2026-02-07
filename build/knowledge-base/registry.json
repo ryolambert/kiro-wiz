@@ -1,0 +1,2026 @@
+[
+  {
+    "url": "https://kiro.dev/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:57.538Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/about/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:57.569Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/pricing/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:57.639Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/faq/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:57.707Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/downloads/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:57.782Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:57.972Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/changelog/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.182Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/license/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.206Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/autonomous-agent/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.264Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/startups/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.322Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/startups/terms-2025/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.403Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/enterprise/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.455Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/cli/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.515Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/powers/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.613Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/powers/submit/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.635Z",
+    "lastmod": "2026-02-06T22:39:28.175Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.765Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/getting-started/installation/",
+    "category": "getting-started",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:58.933Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/getting-started/authentication/",
+    "category": "getting-started",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:59.072Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/getting-started/first-project/",
+    "category": "getting-started",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:59.208Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/editor/interface/",
+    "category": "editor",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:59.352Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/editor/keyboard-shortcuts/",
+    "category": "editor",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:59.569Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/editor/codebase-indexing/",
+    "category": "editor",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:59.706Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/editor/source-control/",
+    "category": "editor",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:59.847Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/editor/multi-root-workspaces/",
+    "category": "editor",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:51:59.982Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/editor/kiroignore/",
+    "category": "editor",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:00.122Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/editor/extension-registry/",
+    "category": "editor",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:00.239Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/specs/",
+    "category": "specs",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:00.369Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/specs/concepts/",
+    "category": "specs",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:00.553Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/specs/correctness/",
+    "category": "specs",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:00.790Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/specs/best-practices/",
+    "category": "specs",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:01.039Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:01.220Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/model-selection/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:01.414Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/autopilot/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:01.640Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/vibe/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:01.846Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/slash-commands/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:02.090Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/terminal/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:02.291Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/dev-servers/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:02.494Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/diagnostics/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:02.699Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/notifications/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:02.929Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/checkpoints/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:03.196Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/summarization/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:03.393Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/subagents/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:03.658Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/chat/webtools/",
+    "category": "chat",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:03.883Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/powers/",
+    "category": "powers",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:04.065Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/powers/installation/",
+    "category": "powers",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:04.377Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/powers/create/",
+    "category": "powers",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:04.606Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/hooks/",
+    "category": "hooks",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:04.844Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/hooks/types/",
+    "category": "hooks",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:05.022Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/hooks/actions/",
+    "category": "hooks",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:05.241Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/hooks/examples/",
+    "category": "hooks",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:05.430Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/hooks/management/",
+    "category": "hooks",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:05.605Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/hooks/best-practices/",
+    "category": "hooks",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:05.790Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/hooks/troubleshooting/",
+    "category": "hooks",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:05.993Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/steering/",
+    "category": "steering",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:06.141Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/skills/",
+    "category": "skills",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:06.286Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/mcp/",
+    "category": "mcp",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:06.467Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/mcp/configuration/",
+    "category": "mcp",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:06.677Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/mcp/servers/",
+    "category": "mcp",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:06.961Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/mcp/usage/",
+    "category": "mcp",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:07.204Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/mcp/security/",
+    "category": "mcp",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:07.501Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:07.674Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/languages-and-frameworks/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:07.892Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/languages-and-frameworks/typescript-javascript-guide/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:08.158Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/languages-and-frameworks/python-guide/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:08.404Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/languages-and-frameworks/java-guide/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:08.628Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:08.902Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/00-setup/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:09.150Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/01-improve-the-homepage/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:09.426Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/02-physics-bug/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:09.673Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/03-interactions-bug/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:09.964Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/04-dry-code-refactor/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:10.181Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/05-using-specs-for-complex-work/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:10.482Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/06-managing-assets-with-agent-hooks/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:10.718Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/07-extending-kiro-with-mcp/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:11.016Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/learn-by-playing/99-conclusion/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:11.208Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/guides/migrating-from-vscode/",
+    "category": "guides",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:11.393Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:11.646Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/upgrading/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:11.885Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/downgrading/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:12.124Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/cancelling/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:12.337Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/overages/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:12.570Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/managing/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:12.727Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/proactive-usage-notifications/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:13.151Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/managing-taxes/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:13.321Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/contact-support/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:13.513Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/deleting-account/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:13.785Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/billing/related-questions/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:13.975Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/getting-started/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:14.184Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/subscribe/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:14.402Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/subscription-management/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:14.559Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/supported-regions/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:14.850Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/monitor-and-track/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:15.056Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/monitor-and-track/dashboard/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:15.299Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/monitor-and-track/user-activity/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:15.602Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/monitor-and-track/prompt-logging/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:15.881Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/settings/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:16.078Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/billing/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:16.299Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/iam/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:16.574Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/enterprise/concepts/",
+    "category": "enterprise",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:16.782Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/troubleshooting/",
+    "category": "unknown",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:17.020Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/privacy-and-security/",
+    "category": "privacy-and-security",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:17.272Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/privacy-and-security/data-protection/",
+    "category": "privacy-and-security",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:17.466Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/privacy-and-security/code-references/",
+    "category": "privacy-and-security",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:17.682Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/privacy-and-security/compliance-validation/",
+    "category": "privacy-and-security",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:17.888Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/privacy-and-security/infrastructure-security/",
+    "category": "privacy-and-security",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:18.077Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/privacy-and-security/firewalls/",
+    "category": "privacy-and-security",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:18.323Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/privacy-and-security/vpc-endpoints/",
+    "category": "privacy-and-security",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:18.521Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:18.641Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/installation/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:18.888Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/authentication/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:19.053Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:19.169Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/model-selection/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:19.386Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/session-management/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:19.626Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/subagents/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:19.815Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/planning-agent/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:20.009Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/help-agent/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:20.175Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/manage-prompts/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:20.447Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/context/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:20.612Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/responding/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:20.841Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/permissions/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:21.092Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/git-aware-selection/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:21.484Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/images/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:21.697Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/security/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:21.890Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/configuration/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:22.176Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/chat/diff-tools/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:22.418Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/custom-agents/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:22.635Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/custom-agents/creating/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:22.800Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/custom-agents/configuration-reference/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:23.069Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/custom-agents/examples/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:23.281Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/custom-agents/troubleshooting/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:23.575Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/mcp/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:23.707Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/mcp/configuration/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:23.927Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/mcp/registry/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:24.151Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/mcp/examples/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:24.355Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/mcp/security/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:24.622Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/mcp/governance/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:24.853Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/steering/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:25.030Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/acp/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:25.271Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/experimental/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:25.515Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/experimental/knowledge-management/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:25.716Z",
+    "lastmod": "2026-02-06T22:39:28.177Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/experimental/tangent-mode/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:25.992Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/experimental/todo-lists/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:26.228Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/experimental/thinking/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:26.499Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/experimental/checkpointing/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:26.775Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/experimental/delegate/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:27.063Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/hooks/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:27.260Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/autocomplete/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:27.461Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/code-intelligence/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:27.681Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/billing/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:27.956Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/billing/subscription-portal/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:28.180Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/billing/managing-taxes/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:28.486Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/billing/related-questions/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:28.711Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/billing/contact-support/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:28.995Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/getting-started/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:29.228Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/subscribe/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:29.513Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/subscription-management/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:29.724Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/supported-regions/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:29.926Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/monitor-and-track/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:30.143Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/monitor-and-track/dashboard/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:30.394Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/monitor-and-track/user-activity/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:30.642Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/monitor-and-track/prompt-logging/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:30.933Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/settings/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:31.114Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/billing/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:31.429Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/iam/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:31.635Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/enterprise/concepts/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:31.846Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/privacy-and-security/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:32.173Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/privacy-and-security/data-protection/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:32.385Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/privacy-and-security/compliance-validation/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:32.675Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/privacy-and-security/infrastructure-security/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:32.893Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/privacy-and-security/firewalls/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:33.174Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/privacy-and-security/vpc-endpoints/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:33.382Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/reference/cli-commands/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:33.631Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/reference/slash-commands/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:33.947Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/reference/built-in-tools/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:34.233Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/reference/exit-codes/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:34.450Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/reference/settings/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:34.667Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/cli/migrating-from-q/",
+    "category": "cli",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:34.861Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:35.119Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/setup/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:35.333Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/using-the-agent/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:35.534Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/using-the-agent/chatting/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:35.797Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/using-the-agent/creating-tasks/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:35.995Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/sandbox/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:36.217Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/sandbox/internet-access/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:36.430Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/sandbox/environment-variables/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:36.690Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/sandbox/mcp/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:36.923Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/sandbox/environment-configuration/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:37.214Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/github/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:37.426Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/docs/autonomous-agent/data-protection/",
+    "category": "autonomous-agent",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:37.625Z",
+    "lastmod": "2026-02-06T22:39:28.178Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/opus-4-6/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:37.816Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/refactoring-made-right/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:37.999Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/custom-subagents-skills-and-enterprise-controls/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:38.144Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/kiro-adopts-acp/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:38.409Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/run-all-tasks/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:38.573Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/empowering-kiro-with-ide-diagnostics/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:38.804Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/property-based-testing-fixed-security-bug/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:39.004Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/multi-root-workspaces/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:39.322Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/introducing-powers/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:39.484Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/introducing-kiro-autonomous-agent/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:39.678Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/introducing-opus-45/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:39.923Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/general-availability/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:40.126Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/property-based-testing/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:40.381Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/introducing-kiro-cli/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:40.602Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/introducing-checkpointing/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:40.885Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/one-year-free-for-startups-2025/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:41.053Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/making-credits-go-further/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:41.257Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/stop-repeating-yourself/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:41.455Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/kiroween-2025/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:41.623Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/introducing-remote-mcp/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:41.789Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/teaching-kiro-new-tricks-with-agent-steering-and-mcp/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:41.981Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/multimodal-development-with-kiro-from-design-to-done/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:42.179Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/waitlist-is-over/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:42.343Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/how-i-stopped-worrying-about-readme-files/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:42.592Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/new-pricing-plans-and-auto/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:42.772Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/free-until-september-15/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:42.981Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/important-pricing-updates/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:43.155Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/pricing-plans-are-live/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:43.329Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/unlock-your-development-productivity-with-kiro-and-mcp/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:43.528Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/understanding-kiro-pricing-specs-vibes-usage-tracking/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:43.732Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/pricing-waitlist-updates/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:43.915Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/this-is-fine-really/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:44.178Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/automate-your-development-workflow-with-agent-hooks/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:44.391Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/how-kiro-helped-me-code-a-game/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:44.613Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/kiro-and-the-future-of-software-development/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:44.784Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/from-chat-to-specs-deep-dive/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:45.099Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/code-with-kiro-hackathon/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:45.357Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/blog/introducing-kiro/",
+    "category": "blog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:45.625Z",
+    "lastmod": "2026-02-06T22:39:28.197Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/changelog/claude-opus-4-6-support/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-9/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/1-25/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/1-24/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-8/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/1-23/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/claude-opus-4-5-support-for-aws-iam-identity-center-users/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/1-22/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-7/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/introducing-kiro-autonomous-agent/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/1-21/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/claude-opus-4-5-support/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": "2026-02-07T05:52:47.898Z",
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "active"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-6/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/1-20/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-5/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-4/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-3/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-2-68/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-2-59/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-2-38/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-2-13/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://kiro.dev/changelog/0-1/",
+    "category": "changelog",
+    "source": "sitemap",
+    "lastCrawled": null,
+    "lastmod": "2026-02-06T22:39:28.205Z",
+    "status": "failed"
+  },
+  {
+    "url": "https://agentskills.io/home",
+    "category": "agent-skills-spec",
+    "source": "agentskills",
+    "lastCrawled": "2026-02-07T05:52:50.148Z",
+    "lastmod": null,
+    "status": "active"
+  },
+  {
+    "url": "https://agentskills.io/what-are-skills",
+    "category": "agent-skills-spec",
+    "source": "agentskills",
+    "lastCrawled": "2026-02-07T05:52:50.342Z",
+    "lastmod": null,
+    "status": "active"
+  },
+  {
+    "url": "https://agentskills.io/specification",
+    "category": "agent-skills-spec",
+    "source": "agentskills",
+    "lastCrawled": "2026-02-07T05:52:50.568Z",
+    "lastmod": null,
+    "status": "active"
+  },
+  {
+    "url": "https://agentskills.io/integrate-skills",
+    "category": "agent-skills-spec",
+    "source": "agentskills",
+    "lastCrawled": "2026-02-07T05:52:50.736Z",
+    "lastmod": null,
+    "status": "active"
+  }
+]

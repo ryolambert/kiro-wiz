@@ -1,0 +1,12 @@
+{
+  "name": "Kiro Knowledge Base Update",
+  "version": "1",
+  "description": "Manually trigger change detection for kiro.dev documentation updates and re-crawl new or modified URLs",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run the Kiro Knowledge Base change detector to check for documentation updates:\n1. Execute the change detector via `npx tsx bin/detect-changes.ts` from the tools/kiro-knowledge-base/ directory\n2. Compare the kiro.dev/sitemap.xml against the URL registry for new or modified URLs using lastmod timestamps\n3. Check kiro.dev/changelog for new entries since the last recorded timestamp\n4. For any new or modified URLs detected, trigger re-crawling via `npx tsx bin/crawl.ts --url <url>` for each changed URL\n5. After re-crawling, recompile the master reference via `npx tsx bin/compile.ts` to incorporate updated content\n6. Report a summary of changes: new URLs added, modified URLs re-crawled, and any errors encountered"
+  }
+}
