@@ -1,168 +1,125 @@
-# Kiro Knowledge Base
+# Kiro Wiz
 
-Self-updating knowledge base and MCP documentation server
-for Kiro IDE, CLI, and Autonomous Agent tooling.
+Unified CLI, TUI, and MCP server for the Kiro ecosystem — scaffold generators, workspace auditing, knowledge base sync, and tool recommendations.
 
-Crawls [kiro.dev](https://kiro.dev) and
-[agentskills.io](https://agentskills.io), parses content
-into structured markdown, compiles a master reference, and
-serves it via an MCP server consumed by both the IDE power
-and CLI agents.
-
-## Prerequisites
-
-- Node.js >= 20
-- npm
-
-## Setup
+## Quick Start
 
 ```bash
-cd tools/kiro-knowledge-base
-npm install
+cd ~/.kiro/tools/kiro-wiz
+bun install
+
+# Launch interactive TUI
+bun run dev
+
+# Or use CLI subcommands
+bun run dev -- scaffold hook my-hook
+bun run dev -- audit
+bun run dev -- sync --all
+bun run dev -- query hooks
+bun run dev -- recommend "enforce code review standards"
+bun run dev -- validate .kiro/agents/my-agent.json
+bun run dev -- install --scope local
+
+# Start MCP server
+bun run dev:mcp
 ```
+
+## Interface Modes
+
+| Mode | Invocation | Description |
+|------|-----------|-------------|
+| TUI | `kiro-wiz` (no args) | Interactive terminal UI with menus |
+| CLI | `kiro-wiz <command>` | Scriptable subcommands |
+| MCP | `kiro-wiz --mcp` | MCP server for agent integration |
 
 ## CLI Commands
 
-All commands run via `npx tsx`:
+```
+kiro-wiz scaffold <type> <name>   Scaffold a Kiro tool
+kiro-wiz audit [path]             Audit workspace for best practices
+kiro-wiz sync --all               Sync knowledge base from kiro.dev
+kiro-wiz query [search-term]      Search the knowledge base
+kiro-wiz install [--scope ...]    Install pre-built configs
+kiro-wiz validate <file>          Validate a Kiro config file
+kiro-wiz recommend <use-case>     Get tool recommendations
+```
+
+### Scaffold Types
+
+`spec`, `hook`, `steering-doc`, `skill`, `power`, `mcp-server`, `custom-agent`, `autonomous-agent`, `subagent`, `context-provider`
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `--mcp` | Start as MCP server (stdio) |
+| `--tui` | Force TUI mode |
+| `--dry-run` | Preview without writing files |
+| `--scope local\|global` | Install scope |
+| `--force` | Overwrite existing files |
+| `--help` | Show help |
+
+## MCP Tools
+
+When running as MCP server, 9 tools are available:
+
+| Tool | Description |
+|------|-------------|
+| `scaffold_tool` | Generate tool scaffolds |
+| `install_tool` | Install scaffolded files |
+| `audit_workspace` | Scan for best practices |
+| `sync_knowledge_base` | Crawl and update KB |
+| `query_knowledge_base` | Search KB |
+| `validate_config` | Validate configs |
+| `get_decision_matrix` | Tool selection matrix |
+| `get_template` | Get scaffold templates |
+| `get_platform_guide` | Platform guidance |
+
+## Kiro IDE Integration
+
+### Power
+
+The `powers/kiro-wiz/` directory contains a Kiro IDE power that exposes all MCP tools to agents. Configure it in your agent's `mcpServers` field.
+
+### Hook
+
+`.kiro/hooks/kb-sync.kiro.hook` — manually triggered hook for KB sync.
+
+### Steering
+
+`.kiro/steering/kiro-wiz-context.md` — always-included context for agents working in this workspace.
+
+## Architecture
+
+```
+src/main.ts          → Unified entry point (TUI / CLI / MCP)
+src/cli/router.ts    → CLI subcommand dispatcher
+src/cli/commands/    → 8 command handlers
+src/tui/             → OpenTUI React terminal UI
+lib/                 → 28 core modules (shared by all interfaces)
+powers/kiro-wiz/     → Kiro IDE power integration
+```
+
+## Development
 
 ```bash
-# Crawl documentation sources
-npm run crawl -- --all             # crawl all registered URLs
-npm run crawl -- --url <url>       # crawl a single URL
-npm run crawl -- --category hooks  # crawl by category
-
-# Compile knowledge base
-npm run compile              # build master-reference.md
-                             # and reference library
-
-# Detect changes in upstream docs
-npm run detect-changes
-
-# Audit a workspace against best practices
-npm run audit                        # audit current dir
-npm run audit -- --workspace /path   # audit target dir
-
-# Validate an Agent Skills spec directory
-npm run validate-skill -- /path/to/skill
-
-# Start the MCP documentation server
-npm run mcp-server                   # stdio (default)
-npm run mcp-server -- --http         # HTTP/SSE transport
-npm run mcp-server -- --http --port 8080
+bun install          # Install dependencies
+bun run dev          # Run in dev mode
+bun run test         # Run tests
+bun run build        # Build for distribution
 ```
 
-## Testing
+## Pre-built Configs
+
+Install best-practice configs to your workspace:
 
 ```bash
-npm test              # run all tests (vitest)
-npm run test:coverage # with v8 coverage
-npm run test:watch    # watch mode
+kiro-wiz install --scope local    # → .kiro/ in current directory
+kiro-wiz install --scope global   # → ~/.kiro/
 ```
 
-574 tests across 27 files covering unit tests and
-property-based tests (fast-check).
+Includes: agents, steering docs, skills, and reference material.
 
-## Project Structure
+## Scope Precedence
 
-```
-tools/kiro-knowledge-base/
-├── bin/                  # CLI entry points
-│   ├── crawl.ts
-│   ├── compile.ts
-│   ├── detect-changes.ts
-│   ├── audit.ts
-│   ├── validate-skill.ts
-│   └── mcp-server.ts
-├── lib/                  # Core modules
-│   ├── types.ts          # Shared type definitions
-│   ├── urlRegistry.ts    # URL registry + categorization
-│   ├── crawler.ts        # HTTP fetcher with retry
-│   ├── contentParser.ts  # HTML → markdown parser
-│   ├── knowledgeBase.ts  # File system storage
-│   ├── compiler.ts       # Master reference compiler
-│   ├── referenceLibrary.ts  # Best practices + templates
-│   ├── changeDetector.ts # Sitemap diff detection
-│   ├── toolingAdvisor.ts # Tool recommendations
-│   ├── configGenerator.ts   # Config generation + validation
-│   ├── skillsValidator.ts   # Agent Skills spec validation
-│   ├── workspaceAuditor.ts  # Workspace config auditor
-│   ├── scaffoldingEngine.ts # Tool scaffolding engine
-│   ├── workflowBuilder.ts   # Integration plan builder
-│   └── mcpServer.ts      # MCP documentation server
-├── tests/lib/            # Unit + property-based tests
-├── powers/kiro-knowledge-base/
-│   ├── POWER.md          # IDE power manifest
-│   ├── mcp.json          # MCP server config for IDE
-│   └── steering/         # Workflow-specific guides
-├── agents/               # CLI agent configs
-│   ├── kiro-knowledge-base-agent.json
-│   └── kiro-workflow-builder.json
-└── knowledge-base/       # Generated output (gitignored)
-```
-
-## MCP Server Tools
-
-The MCP server exposes 7 tools:
-
-| Tool                   | Description                        |
-| ---------------------- | ---------------------------------- |
-| `query_knowledge_base` | Search docs by topic or tool type  |
-| `get_decision_matrix`  | Compare all 10 Kiro tool types     |
-| `get_template`         | Starter template for a tool type   |
-| `scaffold_tool`        | Guided scaffolding for new tools   |
-| `validate_config`      | Schema validation per tool type    |
-| `audit_workspace`      | Audit configs against best practices |
-| `get_platform_guide`   | Platform-specific setup guide      |
-
-## Using as an IDE Power
-
-Copy or symlink `powers/kiro-knowledge-base/` into your
-project's `custom-powers/` directory. The `mcp.json` starts
-the MCP server automatically when the power is activated.
-
-## Using as a CLI Agent
-
-Reference `agents/kiro-knowledge-base-agent.json` in your
-CLI agent configuration. The agent connects to the same MCP
-server backend as the IDE power.
-
-## Pipeline Overview
-
-```
-kiro.dev/sitemap.xml
-        │
-        ▼
-  URL Registry ──► Crawler ──► Content Parser
-        │                            │
-        │                            ▼
-        │                     Knowledge Base (markdown files)
-        │                            │
-        ▼                            ▼
-  Change Detector            Compiler + Reference Library
-                                     │
-                                     ▼
-                              MCP Documentation Server
-                               ╱              ╲
-                         IDE Power        CLI Agents
-```
-
-## Kiro Tool Types
-
-The knowledge base covers all 10 Kiro tool types:
-
-| Tool Type          | Platform  |
-| ------------------ | --------- |
-| `spec`             | IDE only  |
-| `hook`             | Both      |
-| `steering-doc`     | Both      |
-| `skill`            | Both      |
-| `power`            | IDE only  |
-| `mcp-server`       | Both      |
-| `custom-agent`     | CLI only  |
-| `autonomous-agent` | Cloud     |
-| `subagent`         | IDE only  |
-| `context-provider` | IDE only  |
-
-## License
-
-Private — internal tooling.
+Local (`.kiro/`) overrides global (`~/.kiro/`) for agents, settings, and MCP configs.

@@ -28,6 +28,26 @@ import {
   install,
   previewInstall,
 } from './fileInstaller';
+import {
+  load as loadRegistry,
+  save as saveRegistry,
+  getActive,
+  getByCategory,
+  updateLastCrawled,
+  markFailed,
+  seedSitemapUrls,
+  seedAgentSkillsUrls,
+} from './urlRegistry';
+import { fetchWithRetry } from './crawler';
+import { parseHtml } from './contentParser';
+import {
+  write as writeKb,
+  urlToSlug,
+  urlToCategory,
+  updateIndex,
+} from './knowledgeBase';
+import { fetchSitemap } from './changeDetector';
+import type { RegistryEntry, UrlCategory } from './types';
 
 // ─── Cache Types ───────────────────────────────────────────
 
@@ -332,7 +352,7 @@ function scaffoldTool(
           content: JSON.stringify(
             {
               mcpServers: {
-                'kiro-kb': {
+                'kiro-wiz': {
                   command: 'node',
                   args: ['lib/mcpServer'],
                 },
@@ -424,7 +444,7 @@ export class KiroMcpServer {
 
     this.server = new Server(
       {
-        name: 'kiro-knowledge-base',
+        name: 'kiro-wiz',
         version: '0.1.0',
       },
       {
@@ -689,6 +709,26 @@ export class KiroMcpServer {
               required: ['toolType', 'options', 'installTarget'],
             },
           },
+          {
+            name: 'sync_knowledge_base',
+            description:
+              'Sync the local knowledge base by crawling kiro.dev documentation. ' +
+              'Can sync all URLs, a specific URL, or a specific category.',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                mode: {
+                  type: 'string',
+                  description: 'Sync mode: all (default), url, or category',
+                  enum: ['all', 'url', 'category'],
+                },
+                target: {
+                  type: 'string',
+                  description: 'URL or category name (required for url/category modes)',
+                },
+              },
+            },
+          },
         ],
       })
     );
@@ -872,6 +912,62 @@ export class KiroMcpServer {
                     ),
                   },
                 ],
+              };
+            }
+
+            case 'sync_knowledge_base': {
+              const syncArgs = args as { mode?: string; target?: string };
+              const mode = syncArgs.mode ?? 'all';
+              const registryPath = path.resolve(this.config.basePath, 'knowledge-base/registry.json');
+              const kbBaseDir = path.resolve(this.config.basePath, 'knowledge-base');
+
+              let entries: RegistryEntry[];
+              try { entries = await loadRegistry(registryPath); } catch { entries = []; }
+
+              if (entries.length === 0 && mode === 'all') {
+                try {
+                  const sitemap = await fetchSitemap('https://kiro.dev/sitemap.xml');
+                  entries = seedSitemapUrls(entries, sitemap.map(e => ({ url: e.url, lastmod: e.lastmod })));
+                } catch { /* ignore */ }
+                entries = seedAgentSkillsUrls(entries);
+                await saveRegistry(entries, registryPath);
+              }
+
+              let targets: RegistryEntry[];
+              if (mode === 'url' && syncArgs.target) {
+                targets = entries.filter(e => e.url === syncArgs.target);
+              } else if (mode === 'category' && syncArgs.target) {
+                targets = getByCategory(getActive(entries), syncArgs.target as UrlCategory);
+              } else {
+                targets = getActive(entries);
+              }
+
+              const results: string[] = [];
+              for (const target of targets) {
+                try {
+                  const result = await fetchWithRetry(target.url);
+                  const parsed = parseHtml(result.html);
+                  await writeKb({
+                    slug: urlToSlug(target.url),
+                    category: urlToCategory(target.url),
+                    title: parsed.title,
+                    content: parsed.markdown,
+                    sourceUrl: target.url,
+                    lastUpdated: new Date().toISOString(),
+                  }, kbBaseDir);
+                  entries = updateLastCrawled([...entries], target.url);
+                  results.push(`✓ ${urlToCategory(target.url)}/${urlToSlug(target.url)}`);
+                } catch (err) {
+                  entries = markFailed([...entries], target.url);
+                  results.push(`✗ ${target.url}: ${err instanceof Error ? err.message : String(err)}`);
+                }
+              }
+
+              await saveRegistry(entries, registryPath);
+              await updateIndex(kbBaseDir);
+
+              return {
+                content: [{ type: 'text', text: `Synced ${targets.length} URLs:\n${results.join('\n')}` }],
               };
             }
 

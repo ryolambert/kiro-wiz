@@ -6,7 +6,7 @@ import { validate } from './configGenerator.js';
 
 // ─── Constants ─────────────────────────────────────────────
 
-export const MCP_DOC_SERVER_NAME = 'kiro-kb';
+export const MCP_DOC_SERVER_NAME = 'kiro-wiz';
 export const MCP_DOC_SERVER_COMMAND = 'npx';
 export const MCP_DOC_SERVER_ARGS = [
   'tsx',

@@ -1,0 +1,12 @@
+{
+  "name": "KB Sync Hook",
+  "version": "1.0.0",
+  "description": "Sync the Kiro knowledge base from kiro.dev documentation",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run the kiro-wiz sync command to refresh the knowledge base. Execute: `bun run src/main.ts sync --all` to crawl all active URLs from kiro.dev, parse HTML to markdown, store entries in knowledge-base/, update the registry with crawl timestamps, and regenerate the knowledge base index."
+  }
+}

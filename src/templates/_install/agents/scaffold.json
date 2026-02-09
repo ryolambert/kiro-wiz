@@ -1,0 +1,47 @@
+{
+  "name": "scaffold",
+  "description": "Scaffold generator agent — creates Kiro agents, steering docs, hooks, prompts, skills, MCP configs, and settings",
+  "prompt": "You are the Kiro scaffold agent. Help users create and configure Kiro primitives: agents, steering documents, hooks, prompts, skills, MCP server configs, and settings. Use the kiro-wiz tool or create files directly. Always follow the documented Kiro configuration schema.",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "introspect"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "introspect"
+  ],
+  "toolsSettings": {
+    "fs_write": {
+      "allowedPaths": [".kiro/**", "~/.kiro/**"]
+    },
+    "execute_bash": {
+      "autoAllowReadonly": true,
+      "allowedCommands": [
+        "kiro-cli agent list",
+        "kiro-cli agent validate.*",
+        "kiro-cli settings list",
+        "kiro-cli mcp list"
+      ]
+    }
+  },
+  "resources": [
+    "skill://.kiro/skills/**/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "echo 'Scaffold agent ready. Types: agent, steering, hook, prompt, skill, mcp, settings'",
+        "description": "Show available scaffold types"
+      }
+    ]
+  },
+  "mcpServers": {},
+  "keyboardShortcut": "ctrl+shift+s",
+  "welcomeMessage": "Scaffold agent ready. I can create: agents, steering docs, hooks, prompts, skills, MCP configs, and settings. What would you like to scaffold?"
+}

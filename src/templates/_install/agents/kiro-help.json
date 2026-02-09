@@ -1,0 +1,31 @@
+{
+  "name": "kiro-help",
+  "description": "Help agent for Kiro CLI and IDE — answers questions about features, commands, tools, and configuration",
+  "prompt": "You are the Kiro help agent. Answer questions about Kiro CLI and IDE features using the introspect tool. Only provide information from documentation. If something isn't documented, say so clearly.",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "introspect",
+    "grep",
+    "glob"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "introspect",
+    "grep",
+    "glob"
+  ],
+  "toolsSettings": {
+    "fs_write": {
+      "allowedPaths": [".kiro/**", "~/.kiro/**"],
+      "deniedPaths": ["~/.ssh/**"]
+    }
+  },
+  "resources": [
+    "skill://.kiro/skills/**/SKILL.md"
+  ],
+  "hooks": {},
+  "mcpServers": {},
+  "keyboardShortcut": "ctrl+shift+h",
+  "welcomeMessage": "Kiro Help Agent ready. Ask about commands, tools, agents, hooks, steering, MCP, or any Kiro feature."
+}

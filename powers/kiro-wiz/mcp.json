@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kiro-wiz": {
+      "command": "bun",
+      "args": ["run", "~/.kiro/tools/kiro-wiz/src/main.ts", "--mcp"],
+      "env": {}
+    }
+  }
+}
