@@ -52,7 +52,7 @@ export function AuditScreen({ onBack: _onBack }: Props) {
           <strong>🔍 Audit</strong>
         </text>
         <text fg="#555555"> — Workspace best practices</text>
-        <text fg="#444444">{'\n'}  ESC to go back</text>
+        <text fg="#444444">{'\n'} ESC to go back</text>
       </box>
 
       {loading ? (
@@ -61,9 +61,19 @@ export function AuditScreen({ onBack: _onBack }: Props) {
         <text fg="#FF4444">{status}</text>
       ) : (
         <>
-          <box style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', padding: 1, marginBottom: 1 }}>
+          <box
+            style={{
+              border: true,
+              borderStyle: 'rounded',
+              borderColor: '#333333',
+              padding: 1,
+              marginBottom: 1,
+            }}
+          >
             <text>
-              📊 Scanned {report.scannedFiles.length} files — {report.findings.length} findings ({report.summary.critical} critical, {report.summary.recommended} recommended, {report.summary.optional} optional)
+              📊 Scanned {report.scannedFiles.length} files — {report.findings.length} findings (
+              {report.summary.critical} critical, {report.summary.recommended} recommended,{' '}
+              {report.summary.optional} optional)
             </text>
           </box>
           <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }} focused>
@@ -72,8 +82,8 @@ export function AuditScreen({ onBack: _onBack }: Props) {
                 <text fg={SEVERITY_COLORS[f.severity] ?? '#AAAAAA'}>
                   {SEVERITY_ICONS[f.severity] ?? '·'} [{f.severity}] [{f.category}] {f.message}
                 </text>
-                {f.file && <text fg="#555555">   📄 {f.file}</text>}
-                <text fg="#666666">   → {f.suggestion}</text>
+                {f.file && <text fg="#555555"> 📄 {f.file}</text>}
+                <text fg="#666666"> → {f.suggestion}</text>
               </box>
             ))}
             {report.findings.length === 0 && (

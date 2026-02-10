@@ -33,7 +33,15 @@ describe('Keyboard fix verification', () => {
     });
 
     test('no screen uses process.exit directly', () => {
-      const screens = ['MainMenu.tsx', 'ScaffoldScreen.tsx', 'AuditScreen.tsx', 'SyncScreen.tsx', 'QueryScreen.tsx', 'RecommendScreen.tsx', 'ValidateScreen.tsx'];
+      const screens = [
+        'MainMenu.tsx',
+        'ScaffoldScreen.tsx',
+        'AuditScreen.tsx',
+        'SyncScreen.tsx',
+        'QueryScreen.tsx',
+        'RecommendScreen.tsx',
+        'ValidateScreen.tsx',
+      ];
       for (const screen of screens) {
         const src = readScreen(screen);
         expect(src).not.toContain('process.exit');
@@ -49,7 +57,13 @@ describe('Keyboard fix verification', () => {
     });
 
     test('all input components have focused prop', () => {
-      const screens = ['ScaffoldScreen.tsx', 'QueryScreen.tsx', 'RecommendScreen.tsx', 'ValidateScreen.tsx', 'SyncScreen.tsx'];
+      const screens = [
+        'ScaffoldScreen.tsx',
+        'QueryScreen.tsx',
+        'RecommendScreen.tsx',
+        'ValidateScreen.tsx',
+        'SyncScreen.tsx',
+      ];
       for (const screen of screens) {
         const src = readScreen(screen);
         // Every <input should have focused
@@ -103,7 +117,13 @@ describe('Keyboard fix verification', () => {
     });
 
     test('screens have consistent header pattern', () => {
-      const screens = ['AuditScreen.tsx', 'SyncScreen.tsx', 'QueryScreen.tsx', 'RecommendScreen.tsx', 'ValidateScreen.tsx'];
+      const screens = [
+        'AuditScreen.tsx',
+        'SyncScreen.tsx',
+        'QueryScreen.tsx',
+        'RecommendScreen.tsx',
+        'ValidateScreen.tsx',
+      ];
       for (const screen of screens) {
         const src = readScreen(screen);
         expect(src).toContain('ESC to go back');

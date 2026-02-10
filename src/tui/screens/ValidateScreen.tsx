@@ -42,9 +42,18 @@ export function ValidateScreen({ onBack: _onBack }: Props) {
           <strong>✅ Validate</strong>
         </text>
         <text fg="#555555"> — Check a Kiro config file</text>
-        <text fg="#444444">{'\n'}  ESC to go back</text>
+        <text fg="#444444">{'\n'} ESC to go back</text>
       </box>
-      <box title="File path" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 60 }}>
+      <box
+        title="File path"
+        style={{
+          border: true,
+          borderStyle: 'rounded',
+          borderColor: '#333333',
+          height: 3,
+          width: 60,
+        }}
+      >
         <input
           placeholder=".kiro/agents/my-agent.json"
           focused
@@ -54,7 +63,11 @@ export function ValidateScreen({ onBack: _onBack }: Props) {
       </box>
 
       {loading && <Spinner label="Validating..." />}
-      {error && <text fg="#FF4444">{'  '}❌ {error}</text>}
+      {error && (
+        <text fg="#FF4444">
+          {'  '}❌ {error}
+        </text>
+      )}
 
       {result && (
         <box style={{ marginTop: 1 }}>

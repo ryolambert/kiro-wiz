@@ -1,4 +1,4 @@
-import { describe, expect, test, afterEach } from 'bun:test';
+import { afterEach, describe, expect, test } from 'bun:test';
 import { testRender } from '@opentui/react/test-utils';
 import { ValidateScreen } from '../../src/tui/screens/ValidateScreen.js';
 

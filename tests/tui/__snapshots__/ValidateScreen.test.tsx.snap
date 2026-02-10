@@ -5,7 +5,7 @@ exports[`ValidateScreen matches snapshot 1`] = `
  ✅ Validate                                                                    
   — Check a Kiro config file                                                    
                                                                                 
-   ESC to go back                                                               
+  ESC to go back                                                                
                                                                                 
  ╭─File path────────────────────────────────────────────────╮                   
  │.kiro/agents/my-agent.json                                │                   

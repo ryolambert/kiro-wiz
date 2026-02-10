@@ -1,4 +1,4 @@
-import { describe, expect, test, afterEach, mock } from 'bun:test';
+import { afterEach, describe, expect, mock, test } from 'bun:test';
 import { testRender } from '@opentui/react/test-utils';
 
 // Mock the workspace auditor

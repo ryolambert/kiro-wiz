@@ -38,9 +38,9 @@ export function QueryScreen({ onBack: _onBack }: Props) {
             <strong>📄 {selected.title}</strong>
           </text>
           <text fg="#555555">
-            {'\n'}  Source: {selected.sourceUrl} | Updated: {selected.lastUpdated}
+            {'\n'} Source: {selected.sourceUrl} | Updated: {selected.lastUpdated}
           </text>
-          <text fg="#444444">{'\n'}  ESC to go back</text>
+          <text fg="#444444">{'\n'} ESC to go back</text>
         </box>
         <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }} focused>
           <text>{selected.content}</text>
@@ -56,14 +56,23 @@ export function QueryScreen({ onBack: _onBack }: Props) {
           <strong>📖 Query KB</strong>
         </text>
         <text fg="#555555"> — Search knowledge base ({results.length} entries)</text>
-        <text fg="#444444">{'\n'}  ESC to go back</text>
+        <text fg="#444444">{'\n'} ESC to go back</text>
       </box>
 
       {loading ? (
         <Spinner label="Loading knowledge base..." />
       ) : (
         <>
-          <box title="Search" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 50 }}>
+          <box
+            title="Search"
+            style={{
+              border: true,
+              borderStyle: 'rounded',
+              borderColor: '#333333',
+              height: 3,
+              width: 50,
+            }}
+          >
             <input
               placeholder="Filter..."
               focused
@@ -80,11 +89,14 @@ export function QueryScreen({ onBack: _onBack }: Props) {
           <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' }, marginTop: 1 }}>
             {results.map((r, i) => (
               <text key={i} fg="#AAAAAA">
-                {'  '}{r.category}/{r.file}
+                {'  '}
+                {r.category}/{r.file}
               </text>
             ))}
             {results.length === 0 && (
-              <text fg="#666666">{'  '}No entries found. Run "kiro-wiz sync --all" to populate.</text>
+              <text fg="#666666">
+                {'  '}No entries found. Run "kiro-wiz sync --all" to populate.
+              </text>
             )}
           </scrollbox>
         </>

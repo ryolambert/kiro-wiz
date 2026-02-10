@@ -21,14 +21,30 @@ export function MainMenu({ onSelect }: Props) {
 
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
-      <box style={{ border: true, borderStyle: 'rounded', borderColor: '#00FFAA', padding: 1, marginBottom: 1 }}>
+      <box
+        style={{
+          border: true,
+          borderStyle: 'rounded',
+          borderColor: '#00FFAA',
+          padding: 1,
+          marginBottom: 1,
+        }}
+      >
         <text fg="#00FFAA">
           <strong>⚡ kiro-wiz</strong>
         </text>
         <text fg="#555555"> — Kiro Ecosystem Wizard</text>
       </box>
-      <text fg="#555555">  ↑↓ navigate · Enter select · Ctrl+C quit</text>
-      <box style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', marginTop: 1, height: 18 }}>
+      <text fg="#555555"> ↑↓ navigate · Enter select · Ctrl+C quit</text>
+      <box
+        style={{
+          border: true,
+          borderStyle: 'rounded',
+          borderColor: '#333333',
+          marginTop: 1,
+          height: 18,
+        }}
+      >
         <select
           style={{ height: 16 }}
           options={MENU_OPTIONS}

@@ -102,14 +102,29 @@ export function SyncScreen({ onBack: _onBack }: Props) {
           <strong>🔄 Sync KB</strong>
         </text>
         <text fg="#555555"> — Crawl kiro.dev documentation</text>
-        <text fg="#444444">{'\n'}  ESC to go back</text>
+        <text fg="#444444">{'\n'} ESC to go back</text>
       </box>
 
       {running && <Spinner label={status} />}
-      {!running && status && <text fg={status.startsWith('Error') ? '#FF4444' : '#00FF00'}>{'  '}{status}</text>}
+      {!running && status && (
+        <text fg={status.startsWith('Error') ? '#FF4444' : '#00FF00'}>
+          {'  '}
+          {status}
+        </text>
+      )}
 
       {!running && logs.length === 0 && (
-        <box title="Start" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 40, marginTop: 1 }}>
+        <box
+          title="Start"
+          style={{
+            border: true,
+            borderStyle: 'rounded',
+            borderColor: '#333333',
+            height: 3,
+            width: 40,
+            marginTop: 1,
+          }}
+        >
           <input placeholder="Press Enter to sync..." focused onSubmit={doSync} />
         </box>
       )}
@@ -121,7 +136,8 @@ export function SyncScreen({ onBack: _onBack }: Props) {
               key={i}
               fg={log.startsWith('✓') ? '#00FF00' : log.startsWith('✗') ? '#FF4444' : '#AAAAAA'}
             >
-              {'  '}{log}
+              {'  '}
+              {log}
             </text>
           ))}
         </scrollbox>

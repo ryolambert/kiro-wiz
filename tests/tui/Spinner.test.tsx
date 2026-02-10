@@ -1,4 +1,4 @@
-import { describe, expect, test, afterEach } from 'bun:test';
+import { afterEach, describe, expect, test } from 'bun:test';
 import { testRender } from '@opentui/react/test-utils';
 import { Spinner } from '../../src/tui/components/Spinner.js';
 
@@ -31,7 +31,10 @@ describe('Spinner', () => {
   });
 
   test('renders with custom color without crashing', async () => {
-    testSetup = await testRender(<Spinner color="#FF0000" label="Error..." />, { width: 40, height: 5 });
+    testSetup = await testRender(<Spinner color="#FF0000" label="Error..." />, {
+      width: 40,
+      height: 5,
+    });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain('Error...');
   });

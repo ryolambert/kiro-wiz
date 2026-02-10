@@ -17,9 +17,18 @@ export function RecommendScreen({ onBack: _onBack }: Props) {
           <strong>💡 Recommend</strong>
         </text>
         <text fg="#555555"> — Describe your use case</text>
-        <text fg="#444444">{'\n'}  ESC to go back</text>
+        <text fg="#444444">{'\n'} ESC to go back</text>
       </box>
-      <box title="Use case" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 60 }}>
+      <box
+        title="Use case"
+        style={{
+          border: true,
+          borderStyle: 'rounded',
+          borderColor: '#333333',
+          height: 3,
+          width: 60,
+        }}
+      >
         <input
           placeholder="e.g. enforce code review standards..."
           focused
@@ -35,9 +44,12 @@ export function RecommendScreen({ onBack: _onBack }: Props) {
           {results.map((r, i) => (
             <box key={i} style={{ marginBottom: 1 }}>
               <text fg="#00FFAA">
-                <strong>  🔧 {r.toolType}</strong>
+                <strong> 🔧 {r.toolType}</strong>
               </text>
-              <text fg="#AAAAAA">{'     '}{r.rationale}</text>
+              <text fg="#AAAAAA">
+                {'     '}
+                {r.rationale}
+              </text>
             </box>
           ))}
         </scrollbox>

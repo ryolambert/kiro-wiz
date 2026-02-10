@@ -55,7 +55,7 @@ export function ScaffoldScreen({ onBack }: Props) {
         <strong>🔧 Scaffold{toolType ? ` ${toolType}` : ''}</strong>
       </text>
       <text fg="#555555"> — {subtitle}</text>
-      <text fg="#444444">{'\n'}  ESC to go back</text>
+      <text fg="#444444">{'\n'} ESC to go back</text>
     </box>
   );
 
@@ -86,7 +86,16 @@ export function ScaffoldScreen({ onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         {header('Enter name')}
-        <box title="Name" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 50 }}>
+        <box
+          title="Name"
+          style={{
+            border: true,
+            borderStyle: 'rounded',
+            borderColor: '#333333',
+            height: 3,
+            width: 50,
+          }}
+        >
           <input
             placeholder="my-tool-name"
             focused
@@ -104,7 +113,16 @@ export function ScaffoldScreen({ onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         {header('Enter description')}
-        <box title="Description" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 60 }}>
+        <box
+          title="Description"
+          style={{
+            border: true,
+            borderStyle: 'rounded',
+            borderColor: '#333333',
+            height: 3,
+            width: 60,
+          }}
+        >
           <input
             placeholder="Brief description..."
             focused
@@ -150,14 +168,24 @@ export function ScaffoldScreen({ onBack }: Props) {
         <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' }, marginTop: 1 }} focused>
           {preview.installedFiles.map((f, i) => (
             <text key={i} fg="#AAAAAA">
-              {'  📄 '}{f.relativePath}
+              {'  📄 '}
+              {f.relativePath}
             </text>
           ))}
         </scrollbox>
         <box style={{ marginTop: 1 }}>
           <text fg="#FFFF00">Press Enter to install, ESC to cancel</text>
         </box>
-        <box title="Confirm" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, marginTop: 1 }}>
+        <box
+          title="Confirm"
+          style={{
+            border: true,
+            borderStyle: 'rounded',
+            borderColor: '#333333',
+            height: 3,
+            marginTop: 1,
+          }}
+        >
           <input
             placeholder="Press Enter to confirm..."
             focused
@@ -187,7 +215,7 @@ export function ScaffoldScreen({ onBack }: Props) {
         </text>
       </box>
       <text>{status}</text>
-      <text fg="#444444">{'\n'}  Press ESC to return to menu</text>
+      <text fg="#444444">{'\n'} Press ESC to return to menu</text>
     </box>
   );
 }
