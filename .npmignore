@@ -1,0 +1,39 @@
+# Development files
+src/
+tests/
+.kiro/
+build/
+*.test.ts
+*.test.js
+vitest.config.ts
+tsconfig.json
+
+# Build artifacts
+*.tsbuildinfo
+coverage/
+
+# Development tools
+.vscode/
+.cursor/
+.DS_Store
+*.log
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Docs (keep README)
+docs/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Environment
+.env*
+!.env.example

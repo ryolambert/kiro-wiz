@@ -1,25 +1,48 @@
 {
   "name": "kiro-wiz",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Kiro scaffold generator — create agents, hooks, prompts, steering docs, skills, MCP configs, and settings for CLI and IDE",
   "type": "module",
-  "main": "dist/main.js",
+  "main": "dist/main.ts",
   "bin": {
-    "kiro-wiz": "dist/main.js"
+    "kiro-wiz": "dist/main.ts"
+  },
+  "files": [
+    "dist",
+    "lib",
+    "powers",
+    "src/templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryolambert/kiro-wiz.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ryolambert/kiro-wiz/issues"
+  },
+  "homepage": "https://github.com/ryolambert/kiro-wiz#readme",
+  "author": "Ryo Lambert",
+  "engines": {
+    "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "bun run src/main.ts",
     "dev:tui": "bun run src/main.ts --tui",
     "dev:mcp": "bun run src/main.ts --mcp",
-    "build": "bun build src/main.ts --outdir dist --target node --format esm --external @opentui/core --external @opentui/react --external react --external @modelcontextprotocol/sdk --external cheerio --external js-yaml",
+    "build": "mkdir -p dist && cp -r src/* dist/ && cp -r lib dist/ && chmod +x dist/main.ts",
     "build:legacy": "node build.js",
+    "prepublishOnly": "npm run clean && npm run build && npm test",
     "install:local": "bun run src/main.ts install --scope local",
     "install:global": "bun run src/main.ts install --scope global",
     "clean": "rm -rf dist",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "release": "semantic-release",
+    "release:dry": "semantic-release --dry-run"
   },
-  "keywords": ["kiro", "cli", "ide", "agent", "scaffold", "mcp", "tui"],
+  "keywords": [ "kiro", "cli", "ide", "agent", "scaffold", "mcp", "tui" ],
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
@@ -30,11 +53,16 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.15.0",
     "@types/react": "^19.0.0",
     "@vitest/coverage-v8": "^3.2.1",
     "fast-check": "^4.1.1",
+    "semantic-release": "^24.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "vitest": "^3.2.1"
