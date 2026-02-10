@@ -1,6 +1,6 @@
 {
   "name": "kiro-wiz",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Kiro scaffold generator — create agents, hooks, prompts, steering docs, skills, MCP configs, and settings for CLI and IDE",
   "type": "module",
   "bin": {
