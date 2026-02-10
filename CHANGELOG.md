@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/ryolambert/kiro-wiz/compare/v1.1.0...v1.2.0) (2026-02-10)
+
+
+### Bug Fixes
+
+* patch tests & linting errors ([8d603dc](https://github.com/ryolambert/kiro-wiz/commit/8d603dc21affdd0949755c84a64a4d82e5066281))
+
+
+### Features
+
+* **ui:** fix tui navigation & add enhancements ([2e8cc18](https://github.com/ryolambert/kiro-wiz/commit/2e8cc18ab7e8cc804d34f0d6eb2a17fc696b1c0e))
+
 # [1.1.0](https://github.com/ryolambert/kiro-wiz/compare/v1.0.0...v1.1.0) (2026-02-10)
 
 
