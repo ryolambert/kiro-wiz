@@ -1,7 +1,9 @@
-name: Release
+name: CI & Release
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
 
 permissions:
@@ -11,7 +13,19 @@ permissions:
   id-token: write
 
 jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run test
+      - run: bun run build
+
   release:
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,9 +40,6 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - run: bun install --frozen-lockfile
-
-      - run: bun run test
-
       - run: bun run build
 
       - name: Release
@@ -37,3 +48,50 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
+
+  binaries:
+    needs: release
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: linux-x64
+            artifact: kiro-wiz-linux-x64
+          - target: linux-arm64
+            artifact: kiro-wiz-linux-arm64
+          - target: darwin-x64
+            artifact: kiro-wiz-darwin-x64
+          - target: darwin-arm64
+            artifact: kiro-wiz-darwin-arm64
+          - target: windows-x64
+            artifact: kiro-wiz-windows-x64.exe
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+
+      - name: Read version
+        id: version
+        run: echo "version=$(node -p 'require(\"./package.json\").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Build binary
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          bun build src/main.ts --compile \
+            --target=bun-${{ matrix.target }} \
+            --outfile dist/${{ matrix.artifact }} \
+            --define PKG_VERSION="\"$VERSION\""
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          files: dist/${{ matrix.artifact }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

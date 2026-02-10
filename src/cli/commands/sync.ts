@@ -8,12 +8,12 @@ import {
   markFailed,
   seedSitemapUrls,
   seedAgentSkillsUrls,
-} from '../../lib/urlRegistry.js';
-import { fetchWithRetry } from '../../lib/crawler.js';
-import { parseHtml } from '../../lib/contentParser.js';
-import { write, urlToSlug, urlToCategory, updateIndex } from '../../lib/knowledgeBase.js';
-import { fetchSitemap } from '../../lib/changeDetector.js';
-import type { RegistryEntry, UrlCategory } from '../../lib/types.js';
+} from '../../../lib/urlRegistry.js';
+import { fetchWithRetry } from '../../../lib/crawler.js';
+import { parseHtml } from '../../../lib/contentParser.js';
+import { write, urlToSlug, urlToCategory, updateIndex } from '../../../lib/knowledgeBase.js';
+import { fetchSitemap } from '../../../lib/changeDetector.js';
+import type { RegistryEntry, UrlCategory } from '../../../lib/types.js';
 
 const REGISTRY_PATH = resolve('knowledge-base/registry.json');
 const KB_BASE_DIR = resolve('knowledge-base');

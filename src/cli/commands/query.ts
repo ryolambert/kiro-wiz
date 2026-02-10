@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { list, read } from '../../lib/knowledgeBase.js';
+import { list, read } from '../../../lib/knowledgeBase.js';
 
 const KB_BASE_DIR = resolve('knowledge-base');
 

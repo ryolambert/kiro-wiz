@@ -3,7 +3,7 @@ import {
   compareAgainstBestPractices,
   generateReport,
   formatReportMarkdown,
-} from '../../lib/workspaceAuditor.js';
+} from '../../../lib/workspaceAuditor.js';
 
 export async function run(args: string[], _flags: Set<string>): Promise<void> {
   const workspace = args[0] ?? process.cwd();

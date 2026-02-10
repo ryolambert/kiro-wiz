@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+declare const PKG_VERSION: string;
+
 import { resolve } from 'node:path';
 
 const args = process.argv.slice(2);
@@ -22,7 +24,8 @@ async function main(): Promise<void> {
 
   // Version
   if (flags.has('--version') || flags.has('-v')) {
-    console.log('kiro-wiz 1.0.0');
+    const v = typeof PKG_VERSION !== 'undefined' ? PKG_VERSION : '0.0.0-development';
+    console.log(`kiro-wiz ${v}`);
     return;
   }
 

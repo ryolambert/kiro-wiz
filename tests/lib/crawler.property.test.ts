@@ -144,6 +144,8 @@ const arbCategory7: fc.Arbitrary<UrlCategory> = fc.constantFrom(
   ...URL_CATEGORIES
 );
 
+const arbValidDate = fc.date({ min: new Date('2000-01-01'), max: new Date('2030-01-01') });
+
 const arbRegistryEntry7: fc.Arbitrary<RegistryEntry> = fc.record({
   url: fc.webUrl(),
   category: arbCategory7,
@@ -152,10 +154,10 @@ const arbRegistryEntry7: fc.Arbitrary<RegistryEntry> = fc.record({
     'agentskills' as const,
     'manual' as const
   ),
-  lastCrawled: fc.option(fc.date().map((d) => d.toISOString()), {
+  lastCrawled: fc.option(arbValidDate.map((d) => d.toISOString()), {
     nil: null,
   }),
-  lastmod: fc.option(fc.date().map((d) => d.toISOString()), {
+  lastmod: fc.option(arbValidDate.map((d) => d.toISOString()), {
     nil: null,
   }),
   status: fc.constantFrom(

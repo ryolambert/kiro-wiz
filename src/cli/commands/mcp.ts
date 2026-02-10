@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { createMcpServer } from '../../lib/mcpServer.js';
+import { createMcpServer } from '../../../lib/mcpServer.js';
 
 export async function runMcp(args: string[]): Promise<void> {
   let transport: 'stdio' | 'http' = 'stdio';

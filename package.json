@@ -1,15 +1,14 @@
 {
   "name": "kiro-wiz",
-  "version": "0.1.0",
+  "version": "0.0.0-development",
   "description": "Kiro scaffold generator — create agents, hooks, prompts, steering docs, skills, MCP configs, and settings for CLI and IDE",
   "type": "module",
-  "main": "dist/main.ts",
+  "main": "dist/main.js",
   "bin": {
-    "kiro-wiz": "dist/main.ts"
+    "kiro-wiz": "dist/main.js"
   },
   "files": [
     "dist",
-    "lib",
     "powers",
     "src/templates",
     "README.md",
@@ -31,18 +30,27 @@
     "dev": "bun run src/main.ts",
     "dev:tui": "bun run src/main.ts --tui",
     "dev:mcp": "bun run src/main.ts --mcp",
-    "build": "mkdir -p dist && cp -r src/* dist/ && cp -r lib dist/ && chmod +x dist/main.ts",
-    "build:legacy": "node build.js",
-    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "build": "bun run scripts/build.ts",
+    "build:linux-x64": "bun build src/main.ts --compile --target=bun-linux-x64 --outfile dist/kiro-wiz-linux-x64 --define PKG_VERSION='\"0.0.0\"'",
+    "build:linux-arm64": "bun build src/main.ts --compile --target=bun-linux-arm64 --outfile dist/kiro-wiz-linux-arm64 --define PKG_VERSION='\"0.0.0\"'",
+    "build:darwin-x64": "bun build src/main.ts --compile --target=bun-darwin-x64 --outfile dist/kiro-wiz-darwin-x64 --define PKG_VERSION='\"0.0.0\"'",
+    "build:darwin-arm64": "bun build src/main.ts --compile --target=bun-darwin-arm64 --outfile dist/kiro-wiz-darwin-arm64 --define PKG_VERSION='\"0.0.0\"'",
+    "build:windows-x64": "bun build src/main.ts --compile --target=bun-windows-x64 --outfile dist/kiro-wiz-windows-x64 --define PKG_VERSION='\"0.0.0\"'",
+    "prepublishOnly": "bun run clean && bun run build",
     "install:local": "bun run src/main.ts install --scope local",
     "install:global": "bun run src/main.ts install --scope global",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
+    "lint": "biome lint",
+    "lint:fix": "biome lint --fix",
+    "format": "biome format --write",
+    "format:check": "biome format",
+    "check": "biome check",
     "release": "semantic-release",
     "release:dry": "semantic-release --dry-run"
   },
-  "keywords": [ "kiro", "cli", "ide", "agent", "scaffold", "mcp", "tui" ],
+  "keywords": ["kiro", "cli", "ide", "agent", "scaffold", "mcp", "tui"],
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
@@ -53,6 +61,7 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
     "@semantic-release/changelog": "^6.0.3",
@@ -66,5 +75,8 @@
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "vitest": "^3.2.1"
-  }
+  },
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ]
 }

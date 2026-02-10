@@ -1,7 +1,7 @@
-import { scaffoldTool } from '../../lib/scaffoldingEngine.js';
-import { previewInstall, install } from '../../lib/fileInstaller.js';
-import type { KiroToolType, ScaffoldOptions } from '../../lib/types.js';
-import { KIRO_TOOL_TYPES } from '../../lib/types.js';
+import { scaffoldTool } from '../../../lib/scaffoldingEngine.js';
+import { previewInstall, install } from '../../../lib/fileInstaller.js';
+import type { KiroToolType, ScaffoldOptions } from '../../../lib/types.js';
+import { KIRO_TOOL_TYPES } from '../../../lib/types.js';
 
 export async function run(args: string[], flags: Set<string>): Promise<void> {
   const type = args[0] as KiroToolType;

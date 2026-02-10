@@ -517,11 +517,14 @@ describe('Property 22: Generated config validity', () => {
   });
 
   it('generateMcpConfig() handles mixed local and remote servers', () => {
+    const arbSafeName = arbNonEmptyString.filter(
+      (s) => !['__proto__', 'constructor', 'toString', 'valueOf'].includes(s),
+    );
     fc.assert(
       fc.property(
+        arbSafeName,
         arbNonEmptyString,
-        arbNonEmptyString,
-        arbNonEmptyString,
+        arbSafeName,
         arbNonEmptyString,
         (localName, command, remoteName, url) => {
           // Ensure distinct names

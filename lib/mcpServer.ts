@@ -1,10 +1,10 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types';
-import type { CallToolRequest } from '@modelcontextprotocol/sdk/types';
+} from '@modelcontextprotocol/sdk/types.js';
+import type { CallToolRequest } from '@modelcontextprotocol/sdk/types.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type {

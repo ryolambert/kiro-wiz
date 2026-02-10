@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { validate } from '../../lib/configGenerator.js';
+import { validate } from '../../../lib/configGenerator.js';
 
 export async function run(args: string[], _flags: Set<string>): Promise<void> {
   const filePath = args[0];
