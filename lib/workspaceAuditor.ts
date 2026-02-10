@@ -3,12 +3,12 @@ import * as path from 'node:path';
 import type { AuditFinding, AuditReport } from './types';
 import { SEVERITY_LEVELS } from './types';
 import {
-  checkSteering,
   checkHook,
-  checkSkill,
-  checkPower,
   checkMcpConfig,
+  checkPower,
   checkSettings,
+  checkSkill,
+  checkSteering,
 } from './workspaceAuditorChecks';
 
 // ─── Glob Patterns ─────────────────────────────────────────
@@ -47,11 +47,7 @@ const SCAN_PATTERNS: ScanPattern[] = [
   },
 ];
 
-const SINGLE_FILES = [
-  '.kiro/settings/mcp.json',
-  '.kiro/settings/settings.json',
-  'AGENTS.md',
-];
+const SINGLE_FILES = ['.kiro/settings/mcp.json', '.kiro/settings/settings.json', 'AGENTS.md'];
 
 // ─── File Discovery ────────────────────────────────────────
 
@@ -64,10 +60,7 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
-async function findMatchingFiles(
-  basePath: string,
-  scanPattern: ScanPattern
-): Promise<string[]> {
+async function findMatchingFiles(basePath: string, scanPattern: ScanPattern): Promise<string[]> {
   const dirPath = path.join(basePath, scanPattern.dir);
   const found: string[] = [];
 
@@ -87,16 +80,9 @@ async function findMatchingFiles(
       });
       for (const entry of entries) {
         if (entry.isFile() && scanPattern.pattern.test(entry.name)) {
-          found.push(
-            path.relative(basePath, path.join(dirPath, entry.name))
-          );
-        } else if (
-          entry.isDirectory() &&
-          scanPattern.dir === '.kiro/specs'
-        ) {
-          found.push(
-            path.relative(basePath, path.join(dirPath, entry.name))
-          );
+          found.push(path.relative(basePath, path.join(dirPath, entry.name)));
+        } else if (entry.isDirectory() && scanPattern.dir === '.kiro/specs') {
+          found.push(path.relative(basePath, path.join(dirPath, entry.name)));
         }
       }
     } catch {
@@ -111,7 +97,7 @@ async function walkDirectory(
   dirPath: string,
   basePath: string,
   pattern: RegExp,
-  results: string[]
+  results: string[],
 ): Promise<void> {
   try {
     const entries = await fs.readdir(dirPath, {
@@ -132,9 +118,7 @@ async function walkDirectory(
 
 // ─── Scan ──────────────────────────────────────────────────
 
-export async function scan(
-  workspacePath: string
-): Promise<string[]> {
+export async function scan(workspacePath: string): Promise<string[]> {
   const scannedFiles: string[] = [];
 
   for (const pattern of SCAN_PATTERNS) {
@@ -156,7 +140,7 @@ export async function scan(
 
 export async function compareAgainstBestPractices(
   workspacePath: string,
-  scannedFiles: string[]
+  scannedFiles: string[],
 ): Promise<AuditFinding[]> {
   const findings: AuditFinding[] = [];
 
@@ -169,10 +153,7 @@ export async function compareAgainstBestPractices(
   return findings;
 }
 
-async function checkFile(
-  fullPath: string,
-  relativePath: string
-): Promise<AuditFinding[]> {
+async function checkFile(fullPath: string, relativePath: string): Promise<AuditFinding[]> {
   // Spec directories are just tracked, not validated
   if (relativePath.startsWith('.kiro/specs/')) {
     try {
@@ -210,10 +191,7 @@ async function checkFile(
   if (relativePath.endsWith('/SKILL.md') || relativePath.includes('/skills/')) {
     const parts = relativePath.split('/');
     const skillIdx = parts.indexOf('skills');
-    const dirName =
-      skillIdx >= 0 && skillIdx + 1 < parts.length
-        ? parts[skillIdx + 1]
-        : '';
+    const dirName = skillIdx >= 0 && skillIdx + 1 < parts.length ? parts[skillIdx + 1] : '';
     return checkSkill(relativePath, content, dirName);
   }
 
@@ -236,10 +214,7 @@ async function checkFile(
   return [];
 }
 
-function checkAgentsMd(
-  filePath: string,
-  content: string
-): AuditFinding[] {
+function checkAgentsMd(filePath: string, content: string): AuditFinding[] {
   const findings: AuditFinding[] = [];
 
   if (content.trim().length === 0) {
@@ -248,8 +223,7 @@ function checkAgentsMd(
       category: 'agents',
       message: 'AGENTS.md is empty',
       file: filePath,
-      suggestion:
-        'Add agent instructions to AGENTS.md for workspace-level guidance',
+      suggestion: 'Add agent instructions to AGENTS.md for workspace-level guidance',
       kbRef: null,
     });
   }
@@ -259,10 +233,7 @@ function checkAgentsMd(
 
 // ─── Report Generation ─────────────────────────────────────
 
-export function generateReport(
-  findings: AuditFinding[],
-  scannedFiles: string[]
-): AuditReport {
+export function generateReport(findings: AuditFinding[], scannedFiles: string[]): AuditReport {
   const summary = { critical: 0, recommended: 0, optional: 0 };
 
   for (const finding of findings) {
@@ -272,9 +243,7 @@ export function generateReport(
   return { findings, summary, scannedFiles };
 }
 
-export function formatReportMarkdown(
-  report: AuditReport
-): string {
+export function formatReportMarkdown(report: AuditReport): string {
   const lines: string[] = [
     '# Workspace Audit Report',
     '',
@@ -287,20 +256,13 @@ export function formatReportMarkdown(
   ];
 
   for (const severity of SEVERITY_LEVELS) {
-    const grouped = report.findings.filter(
-      (f) => f.severity === severity
-    );
+    const grouped = report.findings.filter((f) => f.severity === severity);
     if (grouped.length === 0) continue;
 
-    lines.push(
-      `## ${severity.charAt(0).toUpperCase() + severity.slice(1)}`,
-      ''
-    );
+    lines.push(`## ${severity.charAt(0).toUpperCase() + severity.slice(1)}`, '');
 
     for (const finding of grouped) {
-      lines.push(
-        `- **[${finding.category}]** ${finding.message}`
-      );
+      lines.push(`- **[${finding.category}]** ${finding.message}`);
       if (finding.file) {
         lines.push(`  - File: \`${finding.file}\``);
       }
@@ -313,33 +275,18 @@ export function formatReportMarkdown(
   }
 
   if (report.findings.length === 0) {
-    lines.push(
-      '## No Issues Found',
-      '',
-      'All scanned configurations follow best practices.',
-      ''
-    );
+    lines.push('## No Issues Found', '', 'All scanned configurations follow best practices.', '');
   }
 
-  lines.push(
-    '## Scanned Files',
-    '',
-    ...report.scannedFiles.map((f) => `- \`${f}\``),
-    ''
-  );
+  lines.push('## Scanned Files', '', ...report.scannedFiles.map((f) => `- \`${f}\``), '');
 
   return lines.join('\n');
 }
 
 // ─── Full Audit (convenience) ──────────────────────────────
 
-export async function audit(
-  workspacePath: string
-): Promise<AuditReport> {
+export async function audit(workspacePath: string): Promise<AuditReport> {
   const scannedFiles = await scan(workspacePath);
-  const findings = await compareAgainstBestPractices(
-    workspacePath,
-    scannedFiles
-  );
+  const findings = await compareAgainstBestPractices(workspacePath, scannedFiles);
   return generateReport(findings, scannedFiles);
 }

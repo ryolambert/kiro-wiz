@@ -1,8 +1,8 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import fc from 'fast-check';
 import { mkdtemp, rm } from 'node:fs/promises';
-import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import fc from 'fast-check';
+import { afterEach, describe, expect, it } from 'vitest';
 import { compile, serialize } from '../../lib/compiler.js';
 import { write } from '../../lib/knowledgeBase.js';
 import type { KnowledgeBaseEntry, UrlCategory } from '../../lib/types.js';
@@ -66,48 +66,37 @@ function dedup(entries: KnowledgeBaseEntry[]): KnowledgeBaseEntry[] {
 const dirs: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(
-    dirs.map((d) => rm(d, { recursive: true, force: true }))
-  );
+  await Promise.all(dirs.map((d) => rm(d, { recursive: true, force: true })));
   dirs.length = 0;
 });
 
 describe('Property 11: Compilation content coverage', () => {
-  it(
-    'every written entry content appears in the compiled reference',
-    async () => {
-      await fc.assert(
-        fc.asyncProperty(
-          fc.array(arbEntry, { minLength: 1, maxLength: 8 }),
-          async (rawEntries) => {
-            const entries = dedup(rawEntries);
-            if (entries.length === 0) return;
+  it('every written entry content appears in the compiled reference', async () => {
+    await fc.assert(
+      fc.asyncProperty(fc.array(arbEntry, { minLength: 1, maxLength: 8 }), async (rawEntries) => {
+        const entries = dedup(rawEntries);
+        if (entries.length === 0) return;
 
-            const tmpDir = await mkdtemp(
-              join(tmpdir(), 'kb-prop11-')
-            );
-            dirs.push(tmpDir);
+        const tmpDir = await mkdtemp(join(tmpdir(), 'kb-prop11-'));
+        dirs.push(tmpDir);
 
-            for (const entry of entries) {
-              await write(entry, tmpDir);
-            }
+        for (const entry of entries) {
+          await write(entry, tmpDir);
+        }
 
-            const compiled = await compile(tmpDir);
-            const output = serialize(compiled);
+        const compiled = await compile(tmpDir);
+        const output = serialize(compiled);
 
-            for (const entry of entries) {
-              expect(
-                output.includes(entry.content),
-                `Content missing for ${entry.category}/${entry.slug}: "${entry.content.slice(0, 40)}..."`
-              ).toBe(true);
-            }
-          }
-        ),
-        { numRuns: 50 }
-      );
-    },
-    60_000
-  );
+        for (const entry of entries) {
+          expect(
+            output.includes(entry.content),
+            `Content missing for ${entry.category}/${entry.slug}: "${entry.content.slice(0, 40)}..."`,
+          ).toBe(true);
+        }
+      }),
+      { numRuns: 50 },
+    );
+  }, 60_000);
 });
 
 /**
@@ -120,71 +109,56 @@ describe('Property 11: Compilation content coverage', () => {
  */
 
 describe('Property 12: Table of contents completeness', () => {
-  it(
-    'TOC contains an entry for every section title and every TOC anchor maps to a heading',
-    async () => {
-      await fc.assert(
-        fc.asyncProperty(
-          fc.array(arbEntry, { minLength: 1, maxLength: 8 }),
-          async (rawEntries) => {
-            const entries = dedup(rawEntries);
-            if (entries.length === 0) return;
+  it('TOC contains an entry for every section title and every TOC anchor maps to a heading', async () => {
+    await fc.assert(
+      fc.asyncProperty(fc.array(arbEntry, { minLength: 1, maxLength: 8 }), async (rawEntries) => {
+        const entries = dedup(rawEntries);
+        if (entries.length === 0) return;
 
-            const tmpDir = await mkdtemp(
-              join(tmpdir(), 'kb-prop12-')
+        const tmpDir = await mkdtemp(join(tmpdir(), 'kb-prop12-'));
+        dirs.push(tmpDir);
+
+        for (const entry of entries) {
+          await write(entry, tmpDir);
+        }
+
+        const compiled = await compile(tmpDir);
+        const output = serialize(compiled);
+
+        const tocTitles = new Set(compiled.toc.map((t) => t.title));
+
+        // 1) Every section/subsection title appears in the TOC
+        for (const section of compiled.sections) {
+          expect(tocTitles.has(section.title), `Section "${section.title}" missing from TOC`).toBe(
+            true,
+          );
+
+          for (const sub of section.subsections) {
+            expect(tocTitles.has(sub.title), `Subsection "${sub.title}" missing from TOC`).toBe(
+              true,
             );
-            dirs.push(tmpDir);
-
-            for (const entry of entries) {
-              await write(entry, tmpDir);
-            }
-
-            const compiled = await compile(tmpDir);
-            const output = serialize(compiled);
-
-            const tocTitles = new Set(
-              compiled.toc.map((t) => t.title)
-            );
-
-            // 1) Every section/subsection title appears in the TOC
-            for (const section of compiled.sections) {
-              expect(
-                tocTitles.has(section.title),
-                `Section "${section.title}" missing from TOC`
-              ).toBe(true);
-
-              for (const sub of section.subsections) {
-                expect(
-                  tocTitles.has(sub.title),
-                  `Subsection "${sub.title}" missing from TOC`
-                ).toBe(true);
-              }
-            }
-
-            // 2) Every TOC anchor corresponds to a heading in
-            //    the serialized markdown
-            const headingPattern = /^#{1,6}\s+(.+)$/gm;
-            const headings = new Set<string>();
-            let match: RegExpExecArray | null;
-            while (
-              (match = headingPattern.exec(output)) !== null
-            ) {
-              headings.add(match[1]);
-            }
-
-            for (const tocEntry of compiled.toc) {
-              expect(
-                headings.has(tocEntry.title),
-                `TOC anchor "${tocEntry.anchor}" (title: "${tocEntry.title}") has no matching heading`
-              ).toBe(true);
-            }
           }
-        ),
-        { numRuns: 50 }
-      );
-    },
-    60_000
-  );
+        }
+
+        // 2) Every TOC anchor corresponds to a heading in
+        //    the serialized markdown
+        const headingPattern = /^#{1,6}\s+(.+)$/gm;
+        const headings = new Set<string>();
+        let match: RegExpExecArray | null;
+        while ((match = headingPattern.exec(output)) !== null) {
+          headings.add(match[1]);
+        }
+
+        for (const tocEntry of compiled.toc) {
+          expect(
+            headings.has(tocEntry.title),
+            `TOC anchor "${tocEntry.anchor}" (title: "${tocEntry.title}") has no matching heading`,
+          ).toBe(true);
+        }
+      }),
+      { numRuns: 50 },
+    );
+  }, 60_000);
 });
 
 /**
@@ -218,43 +192,35 @@ describe('Property 13: Decision matrix completeness per tool type', () => {
 
         const returnedTypes = matrix.map((e) => e.toolType);
         for (const tt of toolTypes) {
-          expect(
-            returnedTypes.includes(tt),
-            `Missing entry for tool type "${tt}"`
-          ).toBe(true);
+          expect(returnedTypes.includes(tt), `Missing entry for tool type "${tt}"`).toBe(true);
         }
 
         // 2) Each entry has all required non-empty fields
         for (const entry of matrix) {
-          expect(
-            entry.whatItIs.trim().length > 0,
-            `whatItIs empty for "${entry.toolType}"`
-          ).toBe(true);
+          expect(entry.whatItIs.trim().length > 0, `whatItIs empty for "${entry.toolType}"`).toBe(
+            true,
+          );
 
-          expect(
-            entry.whenToUse.trim().length > 0,
-            `whenToUse empty for "${entry.toolType}"`
-          ).toBe(true);
+          expect(entry.whenToUse.trim().length > 0, `whenToUse empty for "${entry.toolType}"`).toBe(
+            true,
+          );
 
           expect(
             entry.whenNotToUse.trim().length > 0,
-            `whenNotToUse empty for "${entry.toolType}"`
+            `whenNotToUse empty for "${entry.toolType}"`,
           ).toBe(true);
 
-          expect(
-            entry.alternatives.length > 0,
-            `alternatives empty for "${entry.toolType}"`
-          ).toBe(true);
+          expect(entry.alternatives.length > 0, `alternatives empty for "${entry.toolType}"`).toBe(
+            true,
+          );
 
           expect(
-            (VALID_PLATFORMS as readonly string[]).includes(
-              entry.platform
-            ),
-            `Invalid platform "${entry.platform}" for "${entry.toolType}"`
+            (VALID_PLATFORMS as readonly string[]).includes(entry.platform),
+            `Invalid platform "${entry.platform}" for "${entry.toolType}"`,
           ).toBe(true);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -267,17 +233,13 @@ describe('Property 13: Decision matrix completeness per tool type', () => {
 
         for (const tt of KIRO_TOOL_TYPES) {
           const entry = matrix.find((e) => e.toolType === tt);
-          expect(
-            entry,
-            `Missing entry for "${tt}" when called with null`
-          ).toBeDefined();
+          expect(entry, `Missing entry for "${tt}" when called with null`).toBeDefined();
         }
       }),
-      { numRuns: 1 }
+      { numRuns: 1 },
     );
   });
 });
-
 
 /**
  * **Feature: kiro-knowledge-base, Property 14: Master reference round-trip**
@@ -306,104 +268,76 @@ const arbRoundTripEntry: fc.Arbitrary<KnowledgeBaseEntry> = fc.record({
 });
 
 describe('Property 14: Master reference round-trip', () => {
-  it(
-    'deserialize(serialize(ref)) preserves decision matrix, quick reference, and section structure',
-    async () => {
-      await fc.assert(
-        fc.asyncProperty(
-          fc.array(arbRoundTripEntry, { minLength: 1, maxLength: 8 }),
-          async (rawEntries) => {
-            const entries = dedup(rawEntries);
-            if (entries.length === 0) return;
+  it('deserialize(serialize(ref)) preserves decision matrix, quick reference, and section structure', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.array(arbRoundTripEntry, { minLength: 1, maxLength: 8 }),
+        async (rawEntries) => {
+          const entries = dedup(rawEntries);
+          if (entries.length === 0) return;
 
-            const tmpDir = await mkdtemp(
-              join(tmpdir(), 'kb-prop14-')
-            );
-            dirs.push(tmpDir);
+          const tmpDir = await mkdtemp(join(tmpdir(), 'kb-prop14-'));
+          dirs.push(tmpDir);
 
-            for (const entry of entries) {
-              await write(entry, tmpDir);
-            }
+          for (const entry of entries) {
+            await write(entry, tmpDir);
+          }
 
-            const compiled = await compile(tmpDir);
-            const markdown = serialize(compiled);
-            const restored = deserialize(markdown);
+          const compiled = await compile(tmpDir);
+          const markdown = serialize(compiled);
+          const restored = deserialize(markdown);
 
-            // 1) Decision matrix entries match
-            expect(restored.decisionMatrix).toHaveLength(
-              compiled.decisionMatrix.length
-            );
-            for (let i = 0; i < compiled.decisionMatrix.length; i++) {
-              const orig = compiled.decisionMatrix[i];
-              const rest = restored.decisionMatrix[i];
-              expect(rest.toolType).toBe(orig.toolType);
-              expect(rest.whatItIs).toBe(orig.whatItIs);
-              expect(rest.whenToUse).toBe(orig.whenToUse);
-              expect(rest.whenNotToUse).toBe(orig.whenNotToUse);
-              expect(rest.alternatives).toEqual(orig.alternatives);
-              expect(rest.platform).toBe(orig.platform);
-            }
+          // 1) Decision matrix entries match
+          expect(restored.decisionMatrix).toHaveLength(compiled.decisionMatrix.length);
+          for (let i = 0; i < compiled.decisionMatrix.length; i++) {
+            const orig = compiled.decisionMatrix[i];
+            const rest = restored.decisionMatrix[i];
+            expect(rest.toolType).toBe(orig.toolType);
+            expect(rest.whatItIs).toBe(orig.whatItIs);
+            expect(rest.whenToUse).toBe(orig.whenToUse);
+            expect(rest.whenNotToUse).toBe(orig.whenNotToUse);
+            expect(rest.alternatives).toEqual(orig.alternatives);
+            expect(rest.platform).toBe(orig.platform);
+          }
 
-            // 2) Quick reference entries match
-            expect(restored.quickReference).toHaveLength(
-              compiled.quickReference.length
-            );
-            for (let i = 0; i < compiled.quickReference.length; i++) {
-              const orig = compiled.quickReference[i];
-              const rest = restored.quickReference[i];
-              expect(rest.scenario).toBe(orig.scenario);
-              expect(rest.recommendedTools).toEqual(
-                orig.recommendedTools
-              );
-              expect(rest.rationale).toBe(orig.rationale);
-            }
+          // 2) Quick reference entries match
+          expect(restored.quickReference).toHaveLength(compiled.quickReference.length);
+          for (let i = 0; i < compiled.quickReference.length; i++) {
+            const orig = compiled.quickReference[i];
+            const rest = restored.quickReference[i];
+            expect(rest.scenario).toBe(orig.scenario);
+            expect(rest.recommendedTools).toEqual(orig.recommendedTools);
+            expect(rest.rationale).toBe(orig.rationale);
+          }
 
-            // 3) Section titles and tool types match
-            expect(restored.sections).toHaveLength(
-              compiled.sections.length
-            );
-            for (let i = 0; i < compiled.sections.length; i++) {
-              const origSec = compiled.sections[i];
-              const restSec = restored.sections[i];
-              expect(restSec.title).toBe(origSec.title);
-              expect(restSec.toolType).toBe(origSec.toolType);
+          // 3) Section titles and tool types match
+          expect(restored.sections).toHaveLength(compiled.sections.length);
+          for (let i = 0; i < compiled.sections.length; i++) {
+            const origSec = compiled.sections[i];
+            const restSec = restored.sections[i];
+            expect(restSec.title).toBe(origSec.title);
+            expect(restSec.toolType).toBe(origSec.toolType);
 
-              // Subsection titles and tool types match
-              expect(restSec.subsections).toHaveLength(
-                origSec.subsections.length
-              );
-              for (
-                let j = 0;
-                j < origSec.subsections.length;
-                j++
-              ) {
-                const origSub = origSec.subsections[j];
-                const restSub = restSec.subsections[j];
-                expect(restSub.title).toBe(origSub.title);
-                expect(restSub.toolType).toBe(origSub.toolType);
-              }
-            }
-
-            // 4) TOC entries match
-            expect(restored.toc).toHaveLength(
-              compiled.toc.length
-            );
-            for (let i = 0; i < compiled.toc.length; i++) {
-              expect(restored.toc[i].title).toBe(
-                compiled.toc[i].title
-              );
-              expect(restored.toc[i].anchor).toBe(
-                compiled.toc[i].anchor
-              );
-              expect(restored.toc[i].level).toBe(
-                compiled.toc[i].level
-              );
+            // Subsection titles and tool types match
+            expect(restSec.subsections).toHaveLength(origSec.subsections.length);
+            for (let j = 0; j < origSec.subsections.length; j++) {
+              const origSub = origSec.subsections[j];
+              const restSub = restSec.subsections[j];
+              expect(restSub.title).toBe(origSub.title);
+              expect(restSub.toolType).toBe(origSub.toolType);
             }
           }
-        ),
-        { numRuns: 50 }
-      );
-    },
-    60_000
-  );
+
+          // 4) TOC entries match
+          expect(restored.toc).toHaveLength(compiled.toc.length);
+          for (let i = 0; i < compiled.toc.length; i++) {
+            expect(restored.toc[i].title).toBe(compiled.toc[i].title);
+            expect(restored.toc[i].anchor).toBe(compiled.toc[i].anchor);
+            expect(restored.toc[i].level).toBe(compiled.toc[i].level);
+          }
+        },
+      ),
+      { numRuns: 50 },
+    );
+  }, 60_000);
 });

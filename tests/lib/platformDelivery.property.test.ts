@@ -1,9 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import {
-  generatePower,
-  generateAgent,
-} from '../../lib/configGenerator.js';
+import { describe, expect, it } from 'vitest';
+import { generateAgent, generatePower } from '../../lib/configGenerator.js';
 import type { McpServerConfig } from '../../lib/types.js';
 
 // ─── Arbitraries ───────────────────────────────────────────
@@ -13,22 +10,17 @@ const arbNonEmptyString: fc.Arbitrary<string> = fc
   .filter((s) => s.trim().length > 0);
 
 const arbAlphaString: fc.Arbitrary<string> = fc.string({
-  unit: fc.constantFrom(
-    ...'abcdefghijklmnopqrstuvwxyz'.split('')
-  ),
+  unit: fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz'.split('')),
   minLength: 1,
   maxLength: 20,
 });
 
-const arbKeywords: fc.Arbitrary<string[]> = fc.array(
-  arbNonEmptyString,
-  { minLength: 1, maxLength: 5 }
-);
+const arbKeywords: fc.Arbitrary<string[]> = fc.array(arbNonEmptyString, {
+  minLength: 1,
+  maxLength: 5,
+});
 
-const arbArgs: fc.Arbitrary<string[]> = fc.array(
-  arbNonEmptyString,
-  { minLength: 0, maxLength: 5 }
-);
+const arbArgs: fc.Arbitrary<string[]> = fc.array(arbNonEmptyString, { minLength: 0, maxLength: 5 });
 
 /**
  * Generates a local MCP server definition with command + args,
@@ -71,19 +63,8 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
         arbNonEmptyString,
         arbNonEmptyString,
         arbSharedMcpServer,
-        (
-          powerName,
-          displayName,
-          description,
-          keywords,
-          agentName,
-          agentDesc,
-          shared
-        ) => {
-          const mcpServers: Record<
-            string,
-            { command: string; args: string[] }
-          > = {
+        (powerName, displayName, description, keywords, agentName, agentDesc, shared) => {
+          const mcpServers: Record<string, { command: string; args: string[] }> = {
             [shared.serverName]: shared.serverDef,
           };
 
@@ -95,10 +76,7 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
             mcpServers,
           });
 
-          const agentMcpServers: Record<
-            string,
-            McpServerConfig
-          > = {
+          const agentMcpServers: Record<string, McpServerConfig> = {
             [shared.serverName]: {
               command: shared.serverDef.command,
               args: shared.serverDef.args,
@@ -114,18 +92,14 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
           // Power mcp.json must exist
           expect(power.mcpJson).not.toBeNull();
 
-          const powerServerNames = Object.keys(
-            power.mcpJson!.mcpServers
-          );
-          const agentServerNames = Object.keys(
-            agent.mcpServers ?? {}
-          );
+          const powerServerNames = Object.keys(power.mcpJson?.mcpServers);
+          const agentServerNames = Object.keys(agent.mcpServers ?? {});
 
           // Same server names
           expect(powerServerNames).toEqual(agentServerNames);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -139,19 +113,8 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
         arbNonEmptyString,
         arbNonEmptyString,
         arbSharedMcpServer,
-        (
-          powerName,
-          displayName,
-          description,
-          keywords,
-          agentName,
-          agentDesc,
-          shared
-        ) => {
-          const mcpServers: Record<
-            string,
-            { command: string; args: string[] }
-          > = {
+        (powerName, displayName, description, keywords, agentName, agentDesc, shared) => {
+          const mcpServers: Record<string, { command: string; args: string[] }> = {
             [shared.serverName]: shared.serverDef,
           };
 
@@ -163,10 +126,7 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
             mcpServers,
           });
 
-          const agentMcpServers: Record<
-            string,
-            McpServerConfig
-          > = {
+          const agentMcpServers: Record<string, McpServerConfig> = {
             [shared.serverName]: {
               command: shared.serverDef.command,
               args: shared.serverDef.args,
@@ -181,11 +141,8 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
 
           expect(power.mcpJson).not.toBeNull();
 
-          const powerServer =
-            power.mcpJson!.mcpServers[shared.serverName];
-          const agentServer = (agent.mcpServers ?? {})[
-            shared.serverName
-          ];
+          const powerServer = power.mcpJson?.mcpServers[shared.serverName];
+          const agentServer = agent.mcpServers?.[shared.serverName];
 
           expect(agentServer).toBeDefined();
 
@@ -193,16 +150,12 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
           expect('command' in powerServer).toBe(true);
 
           if ('command' in powerServer) {
-            expect(powerServer.command).toBe(
-              agentServer.command
-            );
-            expect(powerServer.args).toEqual(
-              agentServer.args
-            );
+            expect(powerServer.command).toBe(agentServer.command);
+            expect(powerServer.args).toEqual(agentServer.args);
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -219,15 +172,7 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
           minLength: 1,
           maxLength: 4,
         }),
-        (
-          powerName,
-          displayName,
-          description,
-          keywords,
-          agentName,
-          agentDesc,
-          servers
-        ) => {
+        (powerName, displayName, description, keywords, agentName, agentDesc, servers) => {
           // Deduplicate server names
           const seen = new Set<string>();
           const uniqueServers = servers.filter((s) => {
@@ -236,14 +181,8 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
             return true;
           });
 
-          const powerMcpServers: Record<
-            string,
-            { command: string; args: string[] }
-          > = {};
-          const agentMcpServers: Record<
-            string,
-            McpServerConfig
-          > = {};
+          const powerMcpServers: Record<string, { command: string; args: string[] }> = {};
+          const agentMcpServers: Record<string, McpServerConfig> = {};
 
           for (const s of uniqueServers) {
             powerMcpServers[s.serverName] = s.serverDef;
@@ -269,19 +208,15 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
 
           expect(power.mcpJson).not.toBeNull();
 
-          const powerKeys = Object.keys(
-            power.mcpJson!.mcpServers
-          ).sort();
-          const agentKeys = Object.keys(
-            agent.mcpServers ?? {}
-          ).sort();
+          const powerKeys = Object.keys(power.mcpJson?.mcpServers).sort();
+          const agentKeys = Object.keys(agent.mcpServers ?? {}).sort();
 
           expect(powerKeys).toEqual(agentKeys);
 
           // Each server pair must match command + args
           for (const key of powerKeys) {
-            const ps = power.mcpJson!.mcpServers[key];
-            const as_ = (agent.mcpServers ?? {})[key];
+            const ps = power.mcpJson?.mcpServers[key];
+            const as_ = agent.mcpServers?.[key];
 
             expect(as_).toBeDefined();
 
@@ -290,9 +225,9 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
               expect(ps.args).toEqual(as_.args);
             }
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -305,14 +240,7 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
         arbKeywords,
         arbNonEmptyString,
         arbNonEmptyString,
-        (
-          powerName,
-          displayName,
-          description,
-          keywords,
-          agentName,
-          agentDesc
-        ) => {
+        (powerName, displayName, description, keywords, agentName, agentDesc) => {
           const power = generatePower({
             name: powerName,
             displayName,
@@ -328,9 +256,9 @@ describe('Property 42: Cross-platform MCP server consistency', () => {
           // Both should have no MCP servers
           expect(power.mcpJson).toBeNull();
           expect(agent.mcpServers).toBeUndefined();
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

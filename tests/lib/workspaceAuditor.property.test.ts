@@ -1,8 +1,8 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import fc from 'fast-check';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import fc from 'fast-check';
+import { afterEach, describe, expect, it } from 'vitest';
 import { scan } from '../../lib/workspaceAuditor.js';
 
 /**
@@ -23,20 +23,13 @@ import { scan } from '../../lib/workspaceAuditor.js';
 
 // ─── Helpers ───────────────────────────────────────────────
 
-async function createFile(
-  base: string,
-  relPath: string,
-  content: string
-): Promise<void> {
+async function createFile(base: string, relPath: string, content: string): Promise<void> {
   const full = join(base, relPath);
   await mkdir(join(full, '..'), { recursive: true });
   await writeFile(full, content, 'utf-8');
 }
 
-async function createDir(
-  base: string,
-  relPath: string
-): Promise<void> {
+async function createDir(base: string, relPath: string): Promise<void> {
   await mkdir(join(base, relPath), { recursive: true });
 }
 
@@ -93,16 +86,9 @@ const arbWorkspaceLayout: fc.Arbitrary<WorkspaceLayout> = fc.record({
   hasAgentsMd: fc.boolean(),
 });
 
-async function buildWorkspace(
-  base: string,
-  layout: WorkspaceLayout
-): Promise<void> {
+async function buildWorkspace(base: string, layout: WorkspaceLayout): Promise<void> {
   for (const name of layout.steeringNames) {
-    await createFile(
-      base,
-      `.kiro/steering/${name}.md`,
-      '---\ninclusion: always\n---\nContent'
-    );
+    await createFile(base, `.kiro/steering/${name}.md`, '---\ninclusion: always\n---\nContent');
   }
 
   for (const name of layout.hookNames) {
@@ -114,7 +100,7 @@ async function buildWorkspace(
         version: '1.0.0',
         when: { type: 'fileSaved' },
         then: { type: 'runCommand', command: 'echo ok' },
-      })
+      }),
     );
   }
 
@@ -122,7 +108,7 @@ async function buildWorkspace(
     await createFile(
       base,
       `.kiro/skills/${name}/SKILL.md`,
-      `---\nname: ${name}\ndescription: A skill\n---\n`
+      `---\nname: ${name}\ndescription: A skill\n---\n`,
     );
   }
 
@@ -134,24 +120,16 @@ async function buildWorkspace(
     await createFile(
       base,
       `custom-powers/${name}/POWER.md`,
-      `---\nname: ${name}\ndisplayName: ${name}\ndescription: desc\nkeywords: test\n---\n`
+      `---\nname: ${name}\ndisplayName: ${name}\ndescription: desc\nkeywords: test\n---\n`,
     );
   }
 
   if (layout.hasMcpJson) {
-    await createFile(
-      base,
-      '.kiro/settings/mcp.json',
-      '{"mcpServers":{}}'
-    );
+    await createFile(base, '.kiro/settings/mcp.json', '{"mcpServers":{}}');
   }
 
   if (layout.hasSettingsJson) {
-    await createFile(
-      base,
-      '.kiro/settings/settings.json',
-      '{}'
-    );
+    await createFile(base, '.kiro/settings/settings.json', '{}');
   }
 
   if (layout.hasAgentsMd) {
@@ -196,18 +174,13 @@ describe('Property 24: Workspace scan finds all config files', () => {
   const baseDirs: string[] = [];
 
   const freshBaseDir = (): string => {
-    const dir = join(
-      tmpdir(),
-      `ws-prop24-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    );
+    const dir = join(tmpdir(), `ws-prop24-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     baseDirs.push(dir);
     return dir;
   };
 
   afterEach(async () => {
-    await Promise.all(
-      baseDirs.map((d) => rm(d, { recursive: true, force: true }))
-    );
+    await Promise.all(baseDirs.map((d) => rm(d, { recursive: true, force: true })));
     baseDirs.length = 0;
   });
 
@@ -222,98 +195,86 @@ describe('Property 24: Workspace scan finds all config files', () => {
 
         expect(scanned).toEqual(expected);
       }),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
   it('scan() finds all steering files matching .kiro/steering/*.md', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(arbSafeName, { minLength: 1, maxLength: 5 }).map(
-          (names) => [...new Set(names)]
-        ).filter((names) => names.length > 0),
+        fc
+          .array(arbSafeName, { minLength: 1, maxLength: 5 })
+          .map((names) => [...new Set(names)])
+          .filter((names) => names.length > 0),
         async (names) => {
           const base = freshBaseDir();
           for (const name of names) {
-            await createFile(
-              base,
-              `.kiro/steering/${name}.md`,
-              'content'
-            );
+            await createFile(base, `.kiro/steering/${name}.md`, 'content');
           }
 
           const scanned = await scan(base);
           for (const name of names) {
             expect(scanned).toContain(`.kiro/steering/${name}.md`);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
   it('scan() finds all hook files matching .kiro/hooks/*.kiro.hook', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(arbSafeName, { minLength: 1, maxLength: 5 }).map(
-          (names) => [...new Set(names)]
-        ).filter((names) => names.length > 0),
+        fc
+          .array(arbSafeName, { minLength: 1, maxLength: 5 })
+          .map((names) => [...new Set(names)])
+          .filter((names) => names.length > 0),
         async (names) => {
           const base = freshBaseDir();
           for (const name of names) {
-            await createFile(
-              base,
-              `.kiro/hooks/${name}.kiro.hook`,
-              '{}'
-            );
+            await createFile(base, `.kiro/hooks/${name}.kiro.hook`, '{}');
           }
 
           const scanned = await scan(base);
           for (const name of names) {
-            expect(scanned).toContain(
-              `.kiro/hooks/${name}.kiro.hook`
-            );
+            expect(scanned).toContain(`.kiro/hooks/${name}.kiro.hook`);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
   it('scan() finds all skill files matching .kiro/skills/*/SKILL.md', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(arbSafeName, { minLength: 1, maxLength: 5 }).map(
-          (names) => [...new Set(names)]
-        ).filter((names) => names.length > 0),
+        fc
+          .array(arbSafeName, { minLength: 1, maxLength: 5 })
+          .map((names) => [...new Set(names)])
+          .filter((names) => names.length > 0),
         async (names) => {
           const base = freshBaseDir();
           for (const name of names) {
-            await createFile(
-              base,
-              `.kiro/skills/${name}/SKILL.md`,
-              '---\nname: test\n---\n'
-            );
+            await createFile(base, `.kiro/skills/${name}/SKILL.md`, '---\nname: test\n---\n');
           }
 
           const scanned = await scan(base);
           for (const name of names) {
-            expect(scanned).toContain(
-              `.kiro/skills/${name}/SKILL.md`
-            );
+            expect(scanned).toContain(`.kiro/skills/${name}/SKILL.md`);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
   it('scan() finds all spec directories matching .kiro/specs/*/', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(arbSafeName, { minLength: 1, maxLength: 5 }).map(
-          (names) => [...new Set(names)]
-        ).filter((names) => names.length > 0),
+        fc
+          .array(arbSafeName, { minLength: 1, maxLength: 5 })
+          .map((names) => [...new Set(names)])
+          .filter((names) => names.length > 0),
         async (names) => {
           const base = freshBaseDir();
           for (const name of names) {
@@ -324,37 +285,32 @@ describe('Property 24: Workspace scan finds all config files', () => {
           for (const name of names) {
             expect(scanned).toContain(`.kiro/specs/${name}`);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
   it('scan() finds all power files matching custom-powers/*/POWER.md', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(arbSafeName, { minLength: 1, maxLength: 5 }).map(
-          (names) => [...new Set(names)]
-        ).filter((names) => names.length > 0),
+        fc
+          .array(arbSafeName, { minLength: 1, maxLength: 5 })
+          .map((names) => [...new Set(names)])
+          .filter((names) => names.length > 0),
         async (names) => {
           const base = freshBaseDir();
           for (const name of names) {
-            await createFile(
-              base,
-              `custom-powers/${name}/POWER.md`,
-              '---\nname: test\n---\n'
-            );
+            await createFile(base, `custom-powers/${name}/POWER.md`, '---\nname: test\n---\n');
           }
 
           const scanned = await scan(base);
           for (const name of names) {
-            expect(scanned).toContain(
-              `custom-powers/${name}/POWER.md`
-            );
+            expect(scanned).toContain(`custom-powers/${name}/POWER.md`);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -370,18 +326,10 @@ describe('Property 24: Workspace scan finds all config files', () => {
           const base = freshBaseDir();
 
           if (hasMcpJson) {
-            await createFile(
-              base,
-              '.kiro/settings/mcp.json',
-              '{}'
-            );
+            await createFile(base, '.kiro/settings/mcp.json', '{}');
           }
           if (hasSettingsJson) {
-            await createFile(
-              base,
-              '.kiro/settings/settings.json',
-              '{}'
-            );
+            await createFile(base, '.kiro/settings/settings.json', '{}');
           }
           if (hasAgentsMd) {
             await createFile(base, 'AGENTS.md', '# Agents');
@@ -392,19 +340,13 @@ describe('Property 24: Workspace scan finds all config files', () => {
           if (hasMcpJson) {
             expect(scanned).toContain('.kiro/settings/mcp.json');
           } else {
-            expect(scanned).not.toContain(
-              '.kiro/settings/mcp.json'
-            );
+            expect(scanned).not.toContain('.kiro/settings/mcp.json');
           }
 
           if (hasSettingsJson) {
-            expect(scanned).toContain(
-              '.kiro/settings/settings.json'
-            );
+            expect(scanned).toContain('.kiro/settings/settings.json');
           } else {
-            expect(scanned).not.toContain(
-              '.kiro/settings/settings.json'
-            );
+            expect(scanned).not.toContain('.kiro/settings/settings.json');
           }
 
           if (hasAgentsMd) {
@@ -412,9 +354,9 @@ describe('Property 24: Workspace scan finds all config files', () => {
           } else {
             expect(scanned).not.toContain('AGENTS.md');
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -431,14 +373,14 @@ describe('Property 24: Workspace scan finds all config files', () => {
           expect(expected.has(file)).toBe(true);
         }
       }),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 });
 
-import { compareAgainstBestPractices } from '../../lib/workspaceAuditor.js';
 import type { AuditFinding, Severity } from '../../lib/types.js';
 import { SEVERITY_LEVELS } from '../../lib/types.js';
+import { compareAgainstBestPractices } from '../../lib/workspaceAuditor.js';
 
 /**
  * **Feature: kiro-knowledge-base, Property 25: Finding completeness invariant**
@@ -485,18 +427,22 @@ const arbInvalidHookContent = fc.oneof(
   fc.constant('not json at all'),
   fc.constant('{invalid json}'),
   fc.constant('{"when":{"type":"badTrigger"},"then":{"type":"runCommand","command":"echo"}}'),
-  fc.constant(JSON.stringify({
-    name: 'test',
-    version: '1.0.0',
-    when: { type: 'invalidTriggerType' },
-    then: { type: 'askAgent', prompt: 'do stuff' },
-  })),
-  fc.constant(JSON.stringify({
-    name: 'test',
-    version: '1.0.0',
-    when: { type: 'fileSaved' },
-    then: { type: 'badAction' },
-  })),
+  fc.constant(
+    JSON.stringify({
+      name: 'test',
+      version: '1.0.0',
+      when: { type: 'invalidTriggerType' },
+      then: { type: 'askAgent', prompt: 'do stuff' },
+    }),
+  ),
+  fc.constant(
+    JSON.stringify({
+      name: 'test',
+      version: '1.0.0',
+      when: { type: 'fileSaved' },
+      then: { type: 'badAction' },
+    }),
+  ),
 );
 
 /** Generates skill content with name violations */
@@ -519,32 +465,38 @@ const arbInvalidPowerContent = fc.oneof(
 
 /** Generates MCP config content with hardcoded secrets */
 const arbMcpWithSecrets = fc.oneof(
-  fc.constant(JSON.stringify({
-    mcpServers: {
-      test: {
-        command: 'node',
-        args: ['server.js'],
-        env: { API_KEY: 'sk-1234567890abcdefghijklmnop' },
+  fc.constant(
+    JSON.stringify({
+      mcpServers: {
+        test: {
+          command: 'node',
+          args: ['server.js'],
+          env: { API_KEY: 'sk-1234567890abcdefghijklmnop' },
+        },
       },
-    },
-  })),
-  fc.constant(JSON.stringify({
-    mcpServers: {
-      test: {
-        url: 'https://example.com',
-        headers: { Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.test' },
+    }),
+  ),
+  fc.constant(
+    JSON.stringify({
+      mcpServers: {
+        test: {
+          url: 'https://example.com',
+          headers: { Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.test' },
+        },
       },
-    },
-  })),
-  fc.constant(JSON.stringify({
-    mcpServers: {
-      test: {
-        command: 'node',
-        args: [],
-        env: { token: 'ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh1234' },
+    }),
+  ),
+  fc.constant(
+    JSON.stringify({
+      mcpServers: {
+        test: {
+          command: 'node',
+          args: [],
+          env: { token: 'ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh1234' },
+        },
       },
-    },
-  })),
+    }),
+  ),
 );
 
 /** Generates a random invalid config type for the workspace */
@@ -597,10 +549,7 @@ function relativePathForConfig(cfg: InvalidConfig): string {
   }
 }
 
-async function buildInvalidWorkspace(
-  base: string,
-  configs: InvalidConfig[]
-): Promise<string[]> {
+async function buildInvalidWorkspace(base: string, configs: InvalidConfig[]): Promise<string[]> {
   const files: string[] = [];
   const seen = new Set<string>();
 
@@ -621,25 +570,21 @@ describe('Property 25: Finding completeness invariant', () => {
   const baseDirs: string[] = [];
 
   const freshBaseDir = (): string => {
-    const dir = join(
-      tmpdir(),
-      `ws-prop25-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    );
+    const dir = join(tmpdir(), `ws-prop25-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     baseDirs.push(dir);
     return dir;
   };
 
   afterEach(async () => {
-    await Promise.all(
-      baseDirs.map((d) => rm(d, { recursive: true, force: true }))
-    );
+    await Promise.all(baseDirs.map((d) => rm(d, { recursive: true, force: true })));
     baseDirs.length = 0;
   });
 
   it('produces findings for every invalid config in the workspace', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(arbInvalidConfig, { minLength: 1, maxLength: 5 })
+        fc
+          .array(arbInvalidConfig, { minLength: 1, maxLength: 5 })
           .map((cfgs) => {
             const seen = new Set<string>();
             return cfgs.filter((c) => {
@@ -653,30 +598,26 @@ describe('Property 25: Finding completeness invariant', () => {
         async (configs) => {
           const base = freshBaseDir();
           const files = await buildInvalidWorkspace(base, configs);
-          const findings = await compareAgainstBestPractices(
-            base,
-            files
-          );
+          const findings = await compareAgainstBestPractices(base, files);
 
           // At least one finding per invalid config file
           for (const cfg of configs) {
             const rel = relativePathForConfig(cfg);
             if (!files.includes(rel)) continue;
-            const fileFindings = findings.filter(
-              (f) => f.file === rel
-            );
+            const fileFindings = findings.filter((f) => f.file === rel);
             expect(fileFindings.length).toBeGreaterThan(0);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
   it('every finding has valid severity, non-empty category, message, and suggestion', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(arbInvalidConfig, { minLength: 1, maxLength: 5 })
+        fc
+          .array(arbInvalidConfig, { minLength: 1, maxLength: 5 })
           .map((cfgs) => {
             const seen = new Set<string>();
             return cfgs.filter((c) => {
@@ -690,154 +631,117 @@ describe('Property 25: Finding completeness invariant', () => {
         async (configs) => {
           const base = freshBaseDir();
           const files = await buildInvalidWorkspace(base, configs);
-          const findings = await compareAgainstBestPractices(
-            base,
-            files
-          );
+          const findings = await compareAgainstBestPractices(base, files);
 
           for (const finding of findings) {
             assertValidFinding(finding);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
   it('invalid steering (missing frontmatter) produces critical findings', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        arbSafeName,
-        arbInvalidSteeringContent,
-        async (name, content) => {
-          const base = freshBaseDir();
-          const rel = `.kiro/steering/${name}.md`;
-          await createFile(base, rel, content);
+      fc.asyncProperty(arbSafeName, arbInvalidSteeringContent, async (name, content) => {
+        const base = freshBaseDir();
+        const rel = `.kiro/steering/${name}.md`;
+        await createFile(base, rel, content);
 
-          const findings = await compareAgainstBestPractices(
-            base,
-            [rel]
-          );
+        const findings = await compareAgainstBestPractices(base, [rel]);
 
-          expect(findings.length).toBeGreaterThan(0);
-          expect(hasCriticalFinding(findings)).toBe(true);
+        expect(findings.length).toBeGreaterThan(0);
+        expect(hasCriticalFinding(findings)).toBe(true);
 
-          for (const f of findings) {
-            assertValidFinding(f);
-            expect(f.category).toBe('steering');
-          }
+        for (const f of findings) {
+          assertValidFinding(f);
+          expect(f.category).toBe('steering');
         }
-      ),
-      { numRuns: 30 }
+      }),
+      { numRuns: 30 },
     );
   });
 
   it('invalid hooks (bad JSON or invalid trigger types) produce critical findings', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        arbSafeName,
-        arbInvalidHookContent,
-        async (name, content) => {
-          const base = freshBaseDir();
-          const rel = `.kiro/hooks/${name}.kiro.hook`;
-          await createFile(base, rel, content);
+      fc.asyncProperty(arbSafeName, arbInvalidHookContent, async (name, content) => {
+        const base = freshBaseDir();
+        const rel = `.kiro/hooks/${name}.kiro.hook`;
+        await createFile(base, rel, content);
 
-          const findings = await compareAgainstBestPractices(
-            base,
-            [rel]
-          );
+        const findings = await compareAgainstBestPractices(base, [rel]);
 
-          expect(findings.length).toBeGreaterThan(0);
-          expect(hasCriticalFinding(findings)).toBe(true);
+        expect(findings.length).toBeGreaterThan(0);
+        expect(hasCriticalFinding(findings)).toBe(true);
 
-          for (const f of findings) {
-            assertValidFinding(f);
-            expect(f.category).toBe('hooks');
-          }
+        for (const f of findings) {
+          assertValidFinding(f);
+          expect(f.category).toBe('hooks');
         }
-      ),
-      { numRuns: 30 }
+      }),
+      { numRuns: 30 },
     );
   });
 
   it('invalid skills (name violations) produce findings', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        arbSafeName,
-        arbInvalidSkillContent,
-        async (name, content) => {
-          const base = freshBaseDir();
-          const rel = `.kiro/skills/${name}/SKILL.md`;
-          await createFile(base, rel, content);
+      fc.asyncProperty(arbSafeName, arbInvalidSkillContent, async (name, content) => {
+        const base = freshBaseDir();
+        const rel = `.kiro/skills/${name}/SKILL.md`;
+        await createFile(base, rel, content);
 
-          const findings = await compareAgainstBestPractices(
-            base,
-            [rel]
-          );
+        const findings = await compareAgainstBestPractices(base, [rel]);
 
-          expect(findings.length).toBeGreaterThan(0);
+        expect(findings.length).toBeGreaterThan(0);
 
-          for (const f of findings) {
-            assertValidFinding(f);
-            expect(f.category).toBe('skills');
-          }
+        for (const f of findings) {
+          assertValidFinding(f);
+          expect(f.category).toBe('skills');
         }
-      ),
-      { numRuns: 30 }
+      }),
+      { numRuns: 30 },
     );
   });
 
   it('invalid powers (missing frontmatter fields) produce findings', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        arbSafeName,
-        arbInvalidPowerContent,
-        async (name, content) => {
-          const base = freshBaseDir();
-          const rel = `custom-powers/${name}/POWER.md`;
-          await createFile(base, rel, content);
+      fc.asyncProperty(arbSafeName, arbInvalidPowerContent, async (name, content) => {
+        const base = freshBaseDir();
+        const rel = `custom-powers/${name}/POWER.md`;
+        await createFile(base, rel, content);
 
-          const findings = await compareAgainstBestPractices(
-            base,
-            [rel]
-          );
+        const findings = await compareAgainstBestPractices(base, [rel]);
 
-          expect(findings.length).toBeGreaterThan(0);
+        expect(findings.length).toBeGreaterThan(0);
 
-          for (const f of findings) {
-            assertValidFinding(f);
-            expect(f.category).toBe('powers');
-          }
+        for (const f of findings) {
+          assertValidFinding(f);
+          expect(f.category).toBe('powers');
         }
-      ),
-      { numRuns: 30 }
+      }),
+      { numRuns: 30 },
     );
   });
 
   it('MCP configs with hardcoded secrets produce critical findings', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        arbMcpWithSecrets,
-        async (content) => {
-          const base = freshBaseDir();
-          const rel = '.kiro/settings/mcp.json';
-          await createFile(base, rel, content);
+      fc.asyncProperty(arbMcpWithSecrets, async (content) => {
+        const base = freshBaseDir();
+        const rel = '.kiro/settings/mcp.json';
+        await createFile(base, rel, content);
 
-          const findings = await compareAgainstBestPractices(
-            base,
-            [rel]
-          );
+        const findings = await compareAgainstBestPractices(base, [rel]);
 
-          expect(findings.length).toBeGreaterThan(0);
-          expect(hasCriticalFinding(findings)).toBe(true);
+        expect(findings.length).toBeGreaterThan(0);
+        expect(hasCriticalFinding(findings)).toBe(true);
 
-          for (const f of findings) {
-            assertValidFinding(f);
-            expect(f.category).toBe('mcp');
-          }
+        for (const f of findings) {
+          assertValidFinding(f);
+          expect(f.category).toBe('mcp');
         }
-      ),
-      { numRuns: 30 }
+      }),
+      { numRuns: 30 },
     );
   });
 });
@@ -858,25 +762,15 @@ import { generateReport } from '../../lib/workspaceAuditor.js';
 
 // ─── Arbitraries (Property 26) ──────────────────────────────
 
-const arbSeverity: fc.Arbitrary<Severity> = fc.constantFrom(
-  'critical',
-  'recommended',
-  'optional'
-);
+const arbSeverity: fc.Arbitrary<Severity> = fc.constantFrom('critical', 'recommended', 'optional');
 
 const arbAuditFinding: fc.Arbitrary<AuditFinding> = fc.record({
   severity: arbSeverity,
   category: fc.constantFrom('steering', 'hooks', 'skills', 'powers', 'mcp', 'general'),
   message: fc.string({ minLength: 1, maxLength: 100 }),
-  file: fc.oneof(
-    fc.constant(null),
-    fc.string({ minLength: 1, maxLength: 50 })
-  ),
+  file: fc.oneof(fc.constant(null), fc.string({ minLength: 1, maxLength: 50 })),
   suggestion: fc.string({ minLength: 1, maxLength: 100 }),
-  kbRef: fc.oneof(
-    fc.constant(null),
-    fc.string({ minLength: 1, maxLength: 50 })
-  ),
+  kbRef: fc.oneof(fc.constant(null), fc.string({ minLength: 1, maxLength: 50 })),
 });
 
 const arbAuditFindings = fc.array(arbAuditFinding, {
@@ -884,38 +778,28 @@ const arbAuditFindings = fc.array(arbAuditFinding, {
   maxLength: 20,
 });
 
-const arbScannedFiles = fc.array(
-  fc.string({ minLength: 1, maxLength: 50 }),
-  { minLength: 0, maxLength: 10 }
-);
+const arbScannedFiles = fc.array(fc.string({ minLength: 1, maxLength: 50 }), {
+  minLength: 0,
+  maxLength: 10,
+});
 
 // ─── Tests (Property 26) ───────────────────────────────────
 
 describe('Property 26: Audit report severity grouping', () => {
   it('summary counts match actual findings by severity', () => {
     fc.assert(
-      fc.property(
-        arbAuditFindings,
-        arbScannedFiles,
-        (findings, scannedFiles) => {
-          const report = generateReport(findings, scannedFiles);
+      fc.property(arbAuditFindings, arbScannedFiles, (findings, scannedFiles) => {
+        const report = generateReport(findings, scannedFiles);
 
-          const actualCritical = findings.filter(
-            (f) => f.severity === 'critical'
-          ).length;
-          const actualRecommended = findings.filter(
-            (f) => f.severity === 'recommended'
-          ).length;
-          const actualOptional = findings.filter(
-            (f) => f.severity === 'optional'
-          ).length;
+        const actualCritical = findings.filter((f) => f.severity === 'critical').length;
+        const actualRecommended = findings.filter((f) => f.severity === 'recommended').length;
+        const actualOptional = findings.filter((f) => f.severity === 'optional').length;
 
-          expect(report.summary.critical).toBe(actualCritical);
-          expect(report.summary.recommended).toBe(actualRecommended);
-          expect(report.summary.optional).toBe(actualOptional);
-        }
-      ),
-      { numRuns: 100 }
+        expect(report.summary.critical).toBe(actualCritical);
+        expect(report.summary.recommended).toBe(actualRecommended);
+        expect(report.summary.optional).toBe(actualOptional);
+      }),
+      { numRuns: 100 },
     );
   });
 
@@ -929,7 +813,7 @@ describe('Property 26: Audit report severity grouping', () => {
         expect(report.summary.optional).toBe(0);
         expect(report.findings).toEqual([]);
       }),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -940,17 +824,14 @@ describe('Property 26: Audit report severity grouping', () => {
         fc.integer({ min: 1, max: 10 }),
         arbScannedFiles,
         (severity, count, scannedFiles) => {
-          const findings: AuditFinding[] = Array.from(
-            { length: count },
-            (_, i) => ({
-              severity,
-              category: 'test',
-              message: `Finding ${i}`,
-              file: null,
-              suggestion: 'Fix it',
-              kbRef: null,
-            })
-          );
+          const findings: AuditFinding[] = Array.from({ length: count }, (_, i) => ({
+            severity,
+            category: 'test',
+            message: `Finding ${i}`,
+            file: null,
+            suggestion: 'Fix it',
+            kbRef: null,
+          }));
 
           const report = generateReport(findings, scannedFiles);
 
@@ -967,9 +848,9 @@ describe('Property 26: Audit report severity grouping', () => {
             expect(report.summary.recommended).toBe(0);
             expect(report.summary.optional).toBe(count);
           }
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -1013,45 +894,35 @@ describe('Property 26: Audit report severity grouping', () => {
           expect(report.summary.critical).toBe(criticalCount);
           expect(report.summary.recommended).toBe(recommendedCount);
           expect(report.summary.optional).toBe(optionalCount);
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
   it('report preserves all findings without modification', () => {
     fc.assert(
-      fc.property(
-        arbAuditFindings,
-        arbScannedFiles,
-        (findings, scannedFiles) => {
-          const report = generateReport(findings, scannedFiles);
+      fc.property(arbAuditFindings, arbScannedFiles, (findings, scannedFiles) => {
+        const report = generateReport(findings, scannedFiles);
 
-          expect(report.findings).toEqual(findings);
-          expect(report.scannedFiles).toEqual(scannedFiles);
-        }
-      ),
-      { numRuns: 100 }
+        expect(report.findings).toEqual(findings);
+        expect(report.scannedFiles).toEqual(scannedFiles);
+      }),
+      { numRuns: 100 },
     );
   });
 
   it('total findings count equals sum of severity counts', () => {
     fc.assert(
-      fc.property(
-        arbAuditFindings,
-        arbScannedFiles,
-        (findings, scannedFiles) => {
-          const report = generateReport(findings, scannedFiles);
+      fc.property(arbAuditFindings, arbScannedFiles, (findings, scannedFiles) => {
+        const report = generateReport(findings, scannedFiles);
 
-          const totalFromSummary =
-            report.summary.critical +
-            report.summary.recommended +
-            report.summary.optional;
+        const totalFromSummary =
+          report.summary.critical + report.summary.recommended + report.summary.optional;
 
-          expect(report.findings.length).toBe(totalFromSummary);
-        }
-      ),
-      { numRuns: 100 }
+        expect(report.findings.length).toBe(totalFromSummary);
+      }),
+      { numRuns: 100 },
     );
   });
 });

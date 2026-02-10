@@ -1,31 +1,24 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import * as os from 'node:os';
+import * as path from 'node:path';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
-  scan,
-  compareAgainstBestPractices,
-  generateReport,
-  formatReportMarkdown,
   audit,
+  compareAgainstBestPractices,
+  formatReportMarkdown,
+  generateReport,
+  scan,
 } from '../../lib/workspaceAuditor.js';
 
 // ─── Test Helpers ──────────────────────────────────────────
 
-async function createFile(
-  base: string,
-  relPath: string,
-  content: string
-): Promise<void> {
+async function createFile(base: string, relPath: string, content: string): Promise<void> {
   const full = path.join(base, relPath);
   await fs.mkdir(path.dirname(full), { recursive: true });
   await fs.writeFile(full, content, 'utf-8');
 }
 
-async function createDir(
-  base: string,
-  relPath: string
-): Promise<void> {
+async function createDir(base: string, relPath: string): Promise<void> {
   await fs.mkdir(path.join(base, relPath), {
     recursive: true,
   });
@@ -34,9 +27,7 @@ async function createDir(
 let tmpDir: string;
 
 beforeAll(async () => {
-  tmpDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), 'ws-audit-')
-  );
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ws-audit-'));
 });
 
 afterAll(async () => {
@@ -48,11 +39,7 @@ afterAll(async () => {
 describe('scan', () => {
   it('finds steering files', async () => {
     const ws = path.join(tmpDir, 'scan-steering');
-    await createFile(
-      ws,
-      '.kiro/steering/code-style.md',
-      '---\ninclusion: always\n---\n\nContent'
-    );
+    await createFile(ws, '.kiro/steering/code-style.md', '---\ninclusion: always\n---\n\nContent');
     const files = await scan(ws);
     expect(files).toContain('.kiro/steering/code-style.md');
   });
@@ -67,7 +54,7 @@ describe('scan', () => {
         version: '1.0.0',
         when: { type: 'fileSaved' },
         then: { type: 'runCommand', command: 'npm run lint' },
-      })
+      }),
     );
     const files = await scan(ws);
     expect(files).toContain('.kiro/hooks/lint.kiro.hook');
@@ -78,12 +65,10 @@ describe('scan', () => {
     await createFile(
       ws,
       '.kiro/skills/my-skill/SKILL.md',
-      '---\nname: my-skill\ndescription: A skill\n---\n'
+      '---\nname: my-skill\ndescription: A skill\n---\n',
     );
     const files = await scan(ws);
-    expect(files).toContain(
-      '.kiro/skills/my-skill/SKILL.md'
-    );
+    expect(files).toContain('.kiro/skills/my-skill/SKILL.md');
   });
 
   it('finds spec directories', async () => {
@@ -98,21 +83,15 @@ describe('scan', () => {
     await createFile(
       ws,
       'custom-powers/my-power/POWER.md',
-      '---\nname: my-power\ndisplayName: My Power\ndescription: desc\nkeywords: test\n---\n'
+      '---\nname: my-power\ndisplayName: My Power\ndescription: desc\nkeywords: test\n---\n',
     );
     const files = await scan(ws);
-    expect(files).toContain(
-      'custom-powers/my-power/POWER.md'
-    );
+    expect(files).toContain('custom-powers/my-power/POWER.md');
   });
 
   it('finds single config files', async () => {
     const ws = path.join(tmpDir, 'scan-singles');
-    await createFile(
-      ws,
-      '.kiro/settings/mcp.json',
-      '{"mcpServers":{}}'
-    );
+    await createFile(ws, '.kiro/settings/mcp.json', '{"mcpServers":{}}');
     await createFile(ws, 'AGENTS.md', '# Agents');
     const files = await scan(ws);
     expect(files).toContain('.kiro/settings/mcp.json');
@@ -130,14 +109,8 @@ describe('scan', () => {
 describe('compareAgainstBestPractices', () => {
   it('flags steering with missing frontmatter', async () => {
     const ws = path.join(tmpDir, 'check-steering-bad');
-    await createFile(
-      ws,
-      '.kiro/steering/no-fm.md',
-      'Just content, no frontmatter'
-    );
-    const findings = await compareAgainstBestPractices(ws, [
-      '.kiro/steering/no-fm.md',
-    ]);
+    await createFile(ws, '.kiro/steering/no-fm.md', 'Just content, no frontmatter');
+    const findings = await compareAgainstBestPractices(ws, ['.kiro/steering/no-fm.md']);
     expect(findings.length).toBeGreaterThan(0);
     expect(findings[0].severity).toBe('critical');
     expect(findings[0].category).toBe('steering');
@@ -148,24 +121,16 @@ describe('compareAgainstBestPractices', () => {
     await createFile(
       ws,
       '.kiro/steering/valid.md',
-      '---\ninclusion: always\n---\n\nSome content here'
+      '---\ninclusion: always\n---\n\nSome content here',
     );
-    const findings = await compareAgainstBestPractices(ws, [
-      '.kiro/steering/valid.md',
-    ]);
+    const findings = await compareAgainstBestPractices(ws, ['.kiro/steering/valid.md']);
     expect(findings).toEqual([]);
   });
 
   it('flags invalid hook JSON', async () => {
     const ws = path.join(tmpDir, 'check-hook-bad');
-    await createFile(
-      ws,
-      '.kiro/hooks/bad.kiro.hook',
-      'not json'
-    );
-    const findings = await compareAgainstBestPractices(ws, [
-      '.kiro/hooks/bad.kiro.hook',
-    ]);
+    await createFile(ws, '.kiro/hooks/bad.kiro.hook', 'not json');
+    const findings = await compareAgainstBestPractices(ws, ['.kiro/hooks/bad.kiro.hook']);
     expect(findings[0].severity).toBe('critical');
     expect(findings[0].category).toBe('hooks');
   });
@@ -180,14 +145,10 @@ describe('compareAgainstBestPractices', () => {
         version: '1.0.0',
         when: { type: 'invalidTrigger' },
         then: { type: 'askAgent', prompt: 'do stuff' },
-      })
+      }),
     );
-    const findings = await compareAgainstBestPractices(ws, [
-      '.kiro/hooks/bad-trigger.kiro.hook',
-    ]);
-    const triggerFinding = findings.find((f) =>
-      f.message.includes('when.type')
-    );
+    const findings = await compareAgainstBestPractices(ws, ['.kiro/hooks/bad-trigger.kiro.hook']);
+    const triggerFinding = findings.find((f) => f.message.includes('when.type'));
     expect(triggerFinding).toBeDefined();
     expect(triggerFinding?.severity).toBe('critical');
   });
@@ -197,31 +158,19 @@ describe('compareAgainstBestPractices', () => {
     await createFile(
       ws,
       '.kiro/skills/wrong-dir/SKILL.md',
-      '---\nname: correct-name\ndescription: A test skill\n---\n'
+      '---\nname: correct-name\ndescription: A test skill\n---\n',
     );
-    const findings = await compareAgainstBestPractices(ws, [
-      '.kiro/skills/wrong-dir/SKILL.md',
-    ]);
-    const mismatch = findings.find((f) =>
-      f.message.includes('does not match')
-    );
+    const findings = await compareAgainstBestPractices(ws, ['.kiro/skills/wrong-dir/SKILL.md']);
+    const mismatch = findings.find((f) => f.message.includes('does not match'));
     expect(mismatch).toBeDefined();
   });
 
   it('flags power with missing frontmatter fields', async () => {
     const ws = path.join(tmpDir, 'check-power-bad');
-    await createFile(
-      ws,
-      'custom-powers/my-power/POWER.md',
-      '---\nname: my-power\n---\n'
-    );
-    const findings = await compareAgainstBestPractices(ws, [
-      'custom-powers/my-power/POWER.md',
-    ]);
+    await createFile(ws, 'custom-powers/my-power/POWER.md', '---\nname: my-power\n---\n');
+    const findings = await compareAgainstBestPractices(ws, ['custom-powers/my-power/POWER.md']);
     expect(findings.length).toBeGreaterThan(0);
-    const displayNameErr = findings.find((f) =>
-      f.message.includes('displayName')
-    );
+    const displayNameErr = findings.find((f) => f.message.includes('displayName'));
     expect(displayNameErr).toBeDefined();
   });
 
@@ -235,19 +184,14 @@ describe('compareAgainstBestPractices', () => {
           test: {
             url: 'https://api.example.com',
             headers: {
-              Authorization:
-                'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abc',
+              Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abc',
             },
           },
         },
-      })
+      }),
     );
-    const findings = await compareAgainstBestPractices(ws, [
-      '.kiro/settings/mcp.json',
-    ]);
-    const secretFinding = findings.find((f) =>
-      f.message.includes('secret')
-    );
+    const findings = await compareAgainstBestPractices(ws, ['.kiro/settings/mcp.json']);
+    const secretFinding = findings.find((f) => f.message.includes('secret'));
     expect(secretFinding).toBeDefined();
     expect(secretFinding?.severity).toBe('critical');
   });
@@ -261,23 +205,17 @@ describe('compareAgainstBestPractices', () => {
         mcpServers: {
           broken: {},
         },
-      })
+      }),
     );
-    const findings = await compareAgainstBestPractices(ws, [
-      '.kiro/settings/mcp.json',
-    ]);
-    const serverErr = findings.find((f) =>
-      f.message.includes('broken')
-    );
+    const findings = await compareAgainstBestPractices(ws, ['.kiro/settings/mcp.json']);
+    const serverErr = findings.find((f) => f.message.includes('broken'));
     expect(serverErr).toBeDefined();
   });
 
   it('flags empty AGENTS.md', async () => {
     const ws = path.join(tmpDir, 'check-agents-empty');
     await createFile(ws, 'AGENTS.md', '');
-    const findings = await compareAgainstBestPractices(ws, [
-      'AGENTS.md',
-    ]);
+    const findings = await compareAgainstBestPractices(ws, ['AGENTS.md']);
     expect(findings[0].category).toBe('agents');
     expect(findings[0].severity).toBe('recommended');
   });
@@ -344,7 +282,7 @@ describe('formatReportMarkdown', () => {
           kbRef: null,
         },
       ],
-      ['test.hook', 'test.md']
+      ['test.hook', 'test.md'],
     );
     const md = formatReportMarkdown(report);
     expect(md).toContain('# Workspace Audit Report');
@@ -366,11 +304,7 @@ describe('formatReportMarkdown', () => {
 describe('audit', () => {
   it('runs full scan + check + report pipeline', async () => {
     const ws = path.join(tmpDir, 'full-audit');
-    await createFile(
-      ws,
-      '.kiro/steering/valid.md',
-      '---\ninclusion: always\n---\n\nContent'
-    );
+    await createFile(ws, '.kiro/steering/valid.md', '---\ninclusion: always\n---\n\nContent');
     await createFile(
       ws,
       '.kiro/hooks/good.kiro.hook',
@@ -379,7 +313,7 @@ describe('audit', () => {
         version: '1.0.0',
         when: { type: 'fileSaved', patterns: ['*.ts'] },
         then: { type: 'runCommand', command: 'npm test' },
-      })
+      }),
     );
     const report = await audit(ws);
     expect(report.scannedFiles.length).toBe(2);

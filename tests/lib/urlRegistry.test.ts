@@ -1,21 +1,21 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { rm, readFile } from 'node:fs/promises';
+import { afterEach, describe, expect, it } from 'vitest';
 import type { RegistryEntry } from '../../lib/types.js';
 import {
+  add,
   categorizeUrl,
+  getActive,
   getAll,
   getByCategory,
-  getActive,
-  add,
-  markStale,
-  markFailed,
-  updateLastCrawled,
-  save,
   load,
+  markFailed,
+  markStale,
+  save,
   seedAgentSkillsUrls,
   seedSitemapUrls,
+  updateLastCrawled,
 } from '../../lib/urlRegistry.js';
 
 // ─── categorizeUrl ──────────────────────────────────────────
@@ -23,15 +23,11 @@ import {
 describe('categorizeUrl', () => {
   it('maps kiro.dev/docs/hooks/* to hooks', () => {
     expect(categorizeUrl('https://kiro.dev/docs/hooks/')).toBe('hooks');
-    expect(categorizeUrl('https://kiro.dev/docs/hooks/overview')).toBe(
-      'hooks'
-    );
+    expect(categorizeUrl('https://kiro.dev/docs/hooks/overview')).toBe('hooks');
   });
 
   it('maps kiro.dev/docs/cli/* to cli', () => {
-    expect(categorizeUrl('https://kiro.dev/docs/cli/custom-agents/')).toBe(
-      'cli'
-    );
+    expect(categorizeUrl('https://kiro.dev/docs/cli/custom-agents/')).toBe('cli');
   });
 
   it('maps kiro.dev/docs/specs/* to specs', () => {
@@ -39,9 +35,7 @@ describe('categorizeUrl', () => {
   });
 
   it('maps kiro.dev/docs/steering/* to steering', () => {
-    expect(categorizeUrl('https://kiro.dev/docs/steering/')).toBe(
-      'steering'
-    );
+    expect(categorizeUrl('https://kiro.dev/docs/steering/')).toBe('steering');
   });
 
   it('maps kiro.dev/docs/skills/* to skills', () => {
@@ -65,9 +59,7 @@ describe('categorizeUrl', () => {
   });
 
   it('maps kiro.dev/docs/getting-started/* to getting-started', () => {
-    expect(
-      categorizeUrl('https://kiro.dev/docs/getting-started/')
-    ).toBe('getting-started');
+    expect(categorizeUrl('https://kiro.dev/docs/getting-started/')).toBe('getting-started');
   });
 
   it('maps kiro.dev/docs/guides/* to guides', () => {
@@ -75,49 +67,35 @@ describe('categorizeUrl', () => {
   });
 
   it('maps kiro.dev/docs/autonomous-agent/* to autonomous-agent', () => {
-    expect(
-      categorizeUrl('https://kiro.dev/docs/autonomous-agent/')
-    ).toBe('autonomous-agent');
+    expect(categorizeUrl('https://kiro.dev/docs/autonomous-agent/')).toBe('autonomous-agent');
   });
 
   it('maps kiro.dev/docs/privacy-and-security/* to privacy-and-security', () => {
-    expect(
-      categorizeUrl('https://kiro.dev/docs/privacy-and-security/')
-    ).toBe('privacy-and-security');
+    expect(categorizeUrl('https://kiro.dev/docs/privacy-and-security/')).toBe(
+      'privacy-and-security',
+    );
   });
 
   it('maps kiro.dev/docs/enterprise/* to enterprise', () => {
-    expect(
-      categorizeUrl('https://kiro.dev/docs/enterprise/')
-    ).toBe('enterprise');
+    expect(categorizeUrl('https://kiro.dev/docs/enterprise/')).toBe('enterprise');
   });
 
   it('maps kiro.dev/docs/context-providers/* to context-providers', () => {
-    expect(
-      categorizeUrl('https://kiro.dev/docs/context-providers/')
-    ).toBe('context-providers');
+    expect(categorizeUrl('https://kiro.dev/docs/context-providers/')).toBe('context-providers');
   });
 
   it('maps kiro.dev/blog/* to blog', () => {
     expect(categorizeUrl('https://kiro.dev/blog/')).toBe('blog');
-    expect(
-      categorizeUrl('https://kiro.dev/blog/some-post')
-    ).toBe('blog');
+    expect(categorizeUrl('https://kiro.dev/blog/some-post')).toBe('blog');
   });
 
   it('maps kiro.dev/changelog/* to changelog', () => {
-    expect(categorizeUrl('https://kiro.dev/changelog/')).toBe(
-      'changelog'
-    );
+    expect(categorizeUrl('https://kiro.dev/changelog/')).toBe('changelog');
   });
 
   it('maps agentskills.io/* to agent-skills-spec', () => {
-    expect(categorizeUrl('https://agentskills.io/home')).toBe(
-      'agent-skills-spec'
-    );
-    expect(
-      categorizeUrl('https://agentskills.io/specification')
-    ).toBe('agent-skills-spec');
+    expect(categorizeUrl('https://agentskills.io/home')).toBe('agent-skills-spec');
+    expect(categorizeUrl('https://agentskills.io/specification')).toBe('agent-skills-spec');
   });
 
   it('returns unknown for kiro.dev root', () => {
@@ -129,9 +107,7 @@ describe('categorizeUrl', () => {
   });
 
   it('returns unknown for non-kiro domains', () => {
-    expect(categorizeUrl('https://example.com/docs/hooks/')).toBe(
-      'unknown'
-    );
+    expect(categorizeUrl('https://example.com/docs/hooks/')).toBe('unknown');
   });
 
   it('returns unknown for invalid URLs', () => {
@@ -141,9 +117,7 @@ describe('categorizeUrl', () => {
 
 // ─── Query Functions ────────────────────────────────────────
 
-const makeEntry = (
-  overrides: Partial<RegistryEntry> = {}
-): RegistryEntry => ({
+const makeEntry = (overrides: Partial<RegistryEntry> = {}): RegistryEntry => ({
   url: 'https://kiro.dev/docs/hooks/overview',
   category: 'hooks',
   source: 'sitemap',
@@ -225,12 +199,7 @@ describe('add', () => {
   });
 
   it('stores lastmod when provided', () => {
-    const result = add(
-      [],
-      'https://kiro.dev/docs/hooks/',
-      'sitemap',
-      '2024-01-01'
-    );
+    const result = add([], 'https://kiro.dev/docs/hooks/', 'sitemap', '2024-01-01');
     expect(result[0].lastmod).toBe('2024-01-01');
   });
 
@@ -249,10 +218,7 @@ describe('markStale', () => {
   });
 
   it('does not modify other entries', () => {
-    const entries = [
-      makeEntry(),
-      makeEntry({ url: 'https://kiro.dev/blog/' }),
-    ];
+    const entries = [makeEntry(), makeEntry({ url: 'https://kiro.dev/blog/' })];
     const result = markStale(entries, entries[0].url);
     expect(result[1].status).toBe('active');
   });
@@ -328,9 +294,7 @@ describe('seedAgentSkillsUrls', () => {
   it('adds all 4 agentskills.io URLs', () => {
     const result = seedAgentSkillsUrls([]);
     expect(result).toHaveLength(4);
-    expect(
-      result.every((e) => e.category === 'agent-skills-spec')
-    ).toBe(true);
+    expect(result.every((e) => e.category === 'agent-skills-spec')).toBe(true);
     expect(result.every((e) => e.source === 'agentskills')).toBe(true);
   });
 

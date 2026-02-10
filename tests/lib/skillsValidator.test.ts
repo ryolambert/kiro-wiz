@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  validateName,
-  validateFrontmatter,
-  validateDirectory,
-  serializeFrontmatter,
   parseFrontmatter,
+  serializeFrontmatter,
+  validateDirectory,
+  validateFrontmatter,
+  validateName,
 } from '../../lib/skillsValidator.js';
 import type { SkillFrontmatter } from '../../lib/types.js';
 
@@ -182,9 +182,7 @@ describe('skillsValidator', () => {
       };
       const result = validateFrontmatter(frontmatter, 'other-skill');
       expect(result.isValid).toBe(false);
-      expect(result.errors.some((e) => e.message.includes('parent directory'))).toBe(
-        true
-      );
+      expect(result.errors.some((e) => e.message.includes('parent directory'))).toBe(true);
     });
   });
 

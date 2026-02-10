@@ -128,10 +128,7 @@ export const KIRO_TOOL_TYPES = [
 
 export type PlatformTarget = 'ide' | 'cli' | 'both';
 
-export const TOOL_PLATFORM: Record<
-  KiroToolType,
-  'ide-only' | 'cli-only' | 'both' | 'cloud'
-> = {
+export const TOOL_PLATFORM: Record<KiroToolType, 'ide-only' | 'cli-only' | 'both' | 'cloud'> = {
   spec: 'ide-only',
   hook: 'both',
   'steering-doc': 'both',
@@ -206,11 +203,7 @@ export interface ChangeDetectorState {
 
 export type Severity = 'critical' | 'recommended' | 'optional';
 
-export const SEVERITY_LEVELS = [
-  'critical',
-  'recommended',
-  'optional',
-] as const;
+export const SEVERITY_LEVELS = ['critical', 'recommended', 'optional'] as const;
 
 export interface AuditFinding {
   severity: Severity;
@@ -406,8 +399,7 @@ export interface ValidationResult {
 export interface PowerMcpJson {
   mcpServers: Record<
     string,
-    | { command: string; args: string[] }
-    | { url: string; headers?: Record<string, string> }
+    { command: string; args: string[] } | { url: string; headers?: Record<string, string> }
   >;
 }
 

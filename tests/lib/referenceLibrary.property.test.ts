@@ -1,25 +1,17 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
+import { TOOL_TYPE_DISPLAY } from '../../lib/compilerData.js';
 import { generate, generateAll } from '../../lib/referenceLibrary.js';
 import { KIRO_TOOL_TYPES } from '../../lib/types.js';
 import type { DocType, KiroToolType } from '../../lib/types.js';
-import { TOOL_TYPE_DISPLAY } from '../../lib/compilerData.js';
 
 // ─── Arbitraries ───────────────────────────────────────────
 
-const arbToolType: fc.Arbitrary<KiroToolType> = fc.constantFrom(
-  ...KIRO_TOOL_TYPES
-);
+const arbToolType: fc.Arbitrary<KiroToolType> = fc.constantFrom(...KIRO_TOOL_TYPES);
 
-const DOC_TYPES: readonly DocType[] = [
-  'best-practices',
-  'examples',
-  'templates',
-] as const;
+const DOC_TYPES: readonly DocType[] = ['best-practices', 'examples', 'templates'] as const;
 
-const arbDocType: fc.Arbitrary<DocType> = fc.constantFrom(
-  ...DOC_TYPES
-);
+const arbDocType: fc.Arbitrary<DocType> = fc.constantFrom(...DOC_TYPES);
 
 // ─── Property 27 ───────────────────────────────────────────
 
@@ -65,16 +57,12 @@ describe('Property 27: Reference library per-tool-type coverage', () => {
     fc.assert(
       fc.property(arbToolType, (toolType) => {
         const all = generateAll();
-        const forType = all.filter(
-          (d) => d.toolType === toolType
-        );
+        const forType = all.filter((d) => d.toolType === toolType);
 
         expect(forType).toHaveLength(3);
 
         const docTypes = forType.map((d) => d.docType).sort();
-        expect(docTypes).toEqual(
-          ['best-practices', 'examples', 'templates']
-        );
+        expect(docTypes).toEqual(['best-practices', 'examples', 'templates']);
       }),
       { numRuns: 100 },
     );
@@ -105,9 +93,7 @@ describe('Property 28: Reference library cross-referencing', () => {
         const doc = generate(toolType, docType);
 
         const hasMasterRef = doc.crossRefs.some(
-          (ref) =>
-            ref.includes('Master Reference') &&
-            ref.includes('master-reference.md')
+          (ref) => ref.includes('Master Reference') && ref.includes('master-reference.md'),
         );
 
         expect(hasMasterRef).toBe(true);
@@ -124,17 +110,13 @@ describe('Property 28: Reference library cross-referencing', () => {
 
         // Each sibling doc type has a link
         for (const sib of siblings) {
-          const hasSiblingRef = doc.crossRefs.some(
-            (ref) => ref.includes(`${sib}.md`)
-          );
+          const hasSiblingRef = doc.crossRefs.some((ref) => ref.includes(`${sib}.md`));
           expect(hasSiblingRef).toBe(true);
         }
 
         // No self-reference
         const hasSelfRef = doc.crossRefs.some(
-          (ref) =>
-            ref.includes(`${docType}.md`) &&
-            !ref.includes('master-reference.md')
+          (ref) => ref.includes(`${docType}.md`) && !ref.includes('master-reference.md'),
         );
         expect(hasSelfRef).toBe(false);
       }),

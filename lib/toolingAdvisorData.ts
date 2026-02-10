@@ -2,10 +2,7 @@ import type { KiroToolType } from './types';
 
 // ─── Credit Cost Mapping ───────────────────────────────────
 
-export const CREDIT_COST: Record<
-  KiroToolType,
-  'none' | 'low' | 'medium' | 'high'
-> = {
+export const CREDIT_COST: Record<KiroToolType, 'none' | 'low' | 'medium' | 'high'> = {
   spec: 'high',
   hook: 'none',
   'steering-doc': 'none',
@@ -28,42 +25,22 @@ export const HOOK_ACTION_CREDIT_COST = {
 // ─── KB Reference Paths ────────────────────────────────────
 
 export const KB_REFS: Record<KiroToolType, string[]> = {
-  spec: [
-    'knowledge-base/specs/',
-    'reference-library/spec/best-practices.md',
-  ],
-  hook: [
-    'knowledge-base/hooks/',
-    'reference-library/hook/best-practices.md',
-  ],
-  'steering-doc': [
-    'knowledge-base/steering/',
-    'reference-library/steering-doc/best-practices.md',
-  ],
+  spec: ['knowledge-base/specs/', 'reference-library/spec/best-practices.md'],
+  hook: ['knowledge-base/hooks/', 'reference-library/hook/best-practices.md'],
+  'steering-doc': ['knowledge-base/steering/', 'reference-library/steering-doc/best-practices.md'],
   skill: [
     'knowledge-base/skills/',
     'knowledge-base/agent-skills-spec/',
     'reference-library/skill/best-practices.md',
   ],
-  power: [
-    'knowledge-base/powers/',
-    'reference-library/power/best-practices.md',
-  ],
-  'mcp-server': [
-    'knowledge-base/mcp/',
-    'reference-library/mcp-server/best-practices.md',
-  ],
-  'custom-agent': [
-    'knowledge-base/cli/',
-    'reference-library/custom-agent/best-practices.md',
-  ],
+  power: ['knowledge-base/powers/', 'reference-library/power/best-practices.md'],
+  'mcp-server': ['knowledge-base/mcp/', 'reference-library/mcp-server/best-practices.md'],
+  'custom-agent': ['knowledge-base/cli/', 'reference-library/custom-agent/best-practices.md'],
   'autonomous-agent': [
     'knowledge-base/autonomous-agent/',
     'reference-library/autonomous-agent/best-practices.md',
   ],
-  subagent: [
-    'reference-library/subagent/best-practices.md',
-  ],
+  subagent: ['reference-library/subagent/best-practices.md'],
   'context-provider': [
     'knowledge-base/context-providers/',
     'reference-library/context-provider/best-practices.md',
@@ -72,51 +49,87 @@ export const KB_REFS: Record<KiroToolType, string[]> = {
 
 // ─── Use-Case Keyword Matching ─────────────────────────────
 
-export const USE_CASE_KEYWORDS: Record<
-  KiroToolType,
-  readonly string[]
-> = {
+export const USE_CASE_KEYWORDS: Record<KiroToolType, readonly string[]> = {
   spec: [
-    'plan', 'requirements', 'design', 'complex feature',
-    'tracking', 'formal', 'architecture', 'multi-step',
+    'plan',
+    'requirements',
+    'design',
+    'complex feature',
+    'tracking',
+    'formal',
+    'architecture',
+    'multi-step',
   ],
   hook: [
-    'automate', 'file save', 'trigger', 'on save',
-    'on create', 'on delete', 'lint', 'format', 'event',
-    'pre-commit', 'post-commit', 'file change',
+    'automate',
+    'file save',
+    'trigger',
+    'on save',
+    'on create',
+    'on delete',
+    'lint',
+    'format',
+    'event',
+    'pre-commit',
+    'post-commit',
+    'file change',
   ],
   'steering-doc': [
-    'guidelines', 'rules', 'standards', 'coding style',
-    'conventions', 'instructions', 'always include',
-    'project rules', 'best practices',
+    'guidelines',
+    'rules',
+    'standards',
+    'coding style',
+    'conventions',
+    'instructions',
+    'always include',
+    'project rules',
+    'best practices',
   ],
   skill: [
-    'reusable', 'portable', 'share', 'domain knowledge',
-    'cross-agent', 'agent skill', 'skill',
+    'reusable',
+    'portable',
+    'share',
+    'domain knowledge',
+    'cross-agent',
+    'agent skill',
+    'skill',
   ],
   power: [
-    'ide integration', 'power', 'rich integration',
-    'mcp tools', 'guided workflow', 'ide extension',
+    'ide integration',
+    'power',
+    'rich integration',
+    'mcp tools',
+    'guided workflow',
+    'ide extension',
   ],
   'mcp-server': [
-    'api', 'external service', 'tool server', 'mcp',
-    'json-rpc', 'expose tools', 'protocol',
+    'api',
+    'external service',
+    'tool server',
+    'mcp',
+    'json-rpc',
+    'expose tools',
+    'protocol',
   ],
-  'custom-agent': [
-    'cli', 'command line', 'cli agent', 'custom agent',
-    'terminal', 'cli workflow',
-  ],
+  'custom-agent': ['cli', 'command line', 'cli agent', 'custom agent', 'terminal', 'cli workflow'],
   'autonomous-agent': [
-    'background', 'ci/cd', 'cloud', 'autonomous',
-    'long-running', 'unattended', 'scheduled',
+    'background',
+    'ci/cd',
+    'cloud',
+    'autonomous',
+    'long-running',
+    'unattended',
+    'scheduled',
   ],
-  subagent: [
-    'sub-task', 'delegate', 'parallel', 'break down',
-    'focused task', 'subagent',
-  ],
+  subagent: ['sub-task', 'delegate', 'parallel', 'break down', 'focused task', 'subagent'],
   'context-provider': [
-    'context', 'inject', 'reference', 'chat context',
-    '#file', '#folder', '#spec',
+    'context',
+    'inject',
+    'reference',
+    'chat context',
+    '#file',
+    '#folder',
+    '#spec',
   ],
 } as const;
 

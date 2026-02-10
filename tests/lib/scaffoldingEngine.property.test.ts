@@ -1,14 +1,10 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
+import { scaffoldAgent, scaffoldComposite, scaffoldPower } from '../../lib/scaffoldingEngine.js';
 import {
-  scaffoldPower,
-  scaffoldAgent,
-  scaffoldComposite,
-} from '../../lib/scaffoldingEngine.js';
-import {
-  MCP_DOC_SERVER_NAME,
-  MCP_DOC_SERVER_COMMAND,
   MCP_DOC_SERVER_ARGS,
+  MCP_DOC_SERVER_COMMAND,
+  MCP_DOC_SERVER_NAME,
 } from '../../lib/scaffoldingEngineUtils.js';
 
 // ─── Arbitraries ───────────────────────────────────────────
@@ -19,9 +15,7 @@ import {
  */
 const arbName: fc.Arbitrary<string> = fc
   .string({
-    unit: fc.constantFrom(
-      ...'abcdefghijklmnopqrstuvwxyz0123456789 '.split('')
-    ),
+    unit: fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789 '.split('')),
     minLength: 1,
     maxLength: 30,
   })
@@ -50,13 +44,11 @@ describe('Property 39: Scaffolding platform-aware MCP references', () => {
         const result = scaffoldPower({ name, description });
 
         // Find the mcp.json file in the output
-        const mcpJsonFile = result.files.find((f) =>
-          f.path.endsWith('/mcp.json')
-        );
+        const mcpJsonFile = result.files.find((f) => f.path.endsWith('/mcp.json'));
 
         expect(mcpJsonFile).toBeDefined();
 
-        const mcpJson = JSON.parse(mcpJsonFile!.content);
+        const mcpJson = JSON.parse(mcpJsonFile?.content);
 
         // Must contain the MCP Documentation Server
         expect(mcpJson.mcpServers).toBeDefined();
@@ -66,7 +58,7 @@ describe('Property 39: Scaffolding platform-aware MCP references', () => {
         expect(server.command).toBe(MCP_DOC_SERVER_COMMAND);
         expect(server.args).toEqual(MCP_DOC_SERVER_ARGS);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -76,26 +68,21 @@ describe('Property 39: Scaffolding platform-aware MCP references', () => {
         const result = scaffoldAgent({ name, description });
 
         // Find the agent JSON file in the output
-        const agentJsonFile = result.files.find((f) =>
-          f.path.endsWith('.json')
-        );
+        const agentJsonFile = result.files.find((f) => f.path.endsWith('.json'));
 
         expect(agentJsonFile).toBeDefined();
 
-        const agentConfig = JSON.parse(agentJsonFile!.content);
+        const agentConfig = JSON.parse(agentJsonFile?.content);
 
         // Must contain mcpServers with the MCP Documentation Server
         expect(agentConfig.mcpServers).toBeDefined();
-        expect(
-          agentConfig.mcpServers[MCP_DOC_SERVER_NAME]
-        ).toBeDefined();
+        expect(agentConfig.mcpServers[MCP_DOC_SERVER_NAME]).toBeDefined();
 
-        const server =
-          agentConfig.mcpServers[MCP_DOC_SERVER_NAME];
+        const server = agentConfig.mcpServers[MCP_DOC_SERVER_NAME];
         expect(server.command).toBe(MCP_DOC_SERVER_COMMAND);
         expect(server.args).toEqual(MCP_DOC_SERVER_ARGS);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -106,40 +93,30 @@ describe('Property 39: Scaffolding platform-aware MCP references', () => {
         const agentResult = scaffoldAgent({ name, description });
 
         // Extract mcp.json from power
-        const mcpJsonFile = powerResult.files.find((f) =>
-          f.path.endsWith('/mcp.json')
-        );
+        const mcpJsonFile = powerResult.files.find((f) => f.path.endsWith('/mcp.json'));
         expect(mcpJsonFile).toBeDefined();
-        const mcpJson = JSON.parse(mcpJsonFile!.content);
+        const mcpJson = JSON.parse(mcpJsonFile?.content);
 
         // Extract agent JSON
-        const agentJsonFile = agentResult.files.find((f) =>
-          f.path.endsWith('.json')
-        );
+        const agentJsonFile = agentResult.files.find((f) => f.path.endsWith('.json'));
         expect(agentJsonFile).toBeDefined();
-        const agentConfig = JSON.parse(agentJsonFile!.content);
+        const agentConfig = JSON.parse(agentJsonFile?.content);
 
         // Both must reference the same server name
-        const powerServerNames = Object.keys(
-          mcpJson.mcpServers
-        );
-        const agentServerNames = Object.keys(
-          agentConfig.mcpServers
-        );
+        const powerServerNames = Object.keys(mcpJson.mcpServers);
+        const agentServerNames = Object.keys(agentConfig.mcpServers);
 
         expect(powerServerNames).toContain(MCP_DOC_SERVER_NAME);
         expect(agentServerNames).toContain(MCP_DOC_SERVER_NAME);
 
         // Same command and args
-        const powerServer =
-          mcpJson.mcpServers[MCP_DOC_SERVER_NAME];
-        const agentServer =
-          agentConfig.mcpServers[MCP_DOC_SERVER_NAME];
+        const powerServer = mcpJson.mcpServers[MCP_DOC_SERVER_NAME];
+        const agentServer = agentConfig.mcpServers[MCP_DOC_SERVER_NAME];
 
         expect(powerServer.command).toBe(agentServer.command);
         expect(powerServer.args).toEqual(agentServer.args);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
@@ -162,13 +139,11 @@ describe('Property 40: Composite integration completeness', () => {
       fc.property(arbName, arbDescription, (name, description) => {
         const result = scaffoldComposite({ name, description });
 
-        const powerMd = result.files.find((f) =>
-          f.path.endsWith('/POWER.md')
-        );
+        const powerMd = result.files.find((f) => f.path.endsWith('/POWER.md'));
         expect(powerMd).toBeDefined();
-        expect(powerMd!.content.length).toBeGreaterThan(0);
+        expect(powerMd?.content.length).toBeGreaterThan(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -177,18 +152,14 @@ describe('Property 40: Composite integration completeness', () => {
       fc.property(arbName, arbDescription, (name, description) => {
         const result = scaffoldComposite({ name, description });
 
-        const mcpJson = result.files.find((f) =>
-          f.path.endsWith('/mcp.json')
-        );
+        const mcpJson = result.files.find((f) => f.path.endsWith('/mcp.json'));
         expect(mcpJson).toBeDefined();
 
-        const parsed = JSON.parse(mcpJson!.content);
+        const parsed = JSON.parse(mcpJson?.content);
         expect(parsed.mcpServers).toBeDefined();
-        expect(
-          parsed.mcpServers[MCP_DOC_SERVER_NAME]
-        ).toBeDefined();
+        expect(parsed.mcpServers[MCP_DOC_SERVER_NAME]).toBeDefined();
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -198,19 +169,15 @@ describe('Property 40: Composite integration completeness', () => {
         const result = scaffoldComposite({ name, description });
 
         const agentJson = result.files.find(
-          (f) =>
-            f.path.startsWith('agents/') &&
-            f.path.endsWith('.json')
+          (f) => f.path.startsWith('agents/') && f.path.endsWith('.json'),
         );
         expect(agentJson).toBeDefined();
 
-        const parsed = JSON.parse(agentJson!.content);
+        const parsed = JSON.parse(agentJson?.content);
         expect(parsed.mcpServers).toBeDefined();
-        expect(
-          parsed.mcpServers[MCP_DOC_SERVER_NAME]
-        ).toBeDefined();
+        expect(parsed.mcpServers[MCP_DOC_SERVER_NAME]).toBeDefined();
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -219,41 +186,27 @@ describe('Property 40: Composite integration completeness', () => {
       fc.property(arbName, arbDescription, (name, description) => {
         const result = scaffoldComposite({ name, description });
 
-        const mcpJsonFile = result.files.find((f) =>
-          f.path.endsWith('/mcp.json')
-        );
+        const mcpJsonFile = result.files.find((f) => f.path.endsWith('/mcp.json'));
         const agentJsonFile = result.files.find(
-          (f) =>
-            f.path.startsWith('agents/') &&
-            f.path.endsWith('.json')
+          (f) => f.path.startsWith('agents/') && f.path.endsWith('.json'),
         );
 
         expect(mcpJsonFile).toBeDefined();
         expect(agentJsonFile).toBeDefined();
 
-        const mcpJson = JSON.parse(mcpJsonFile!.content);
-        const agentConfig = JSON.parse(agentJsonFile!.content);
+        const mcpJson = JSON.parse(mcpJsonFile?.content);
+        const agentConfig = JSON.parse(agentJsonFile?.content);
 
         // Both reference the same server name
-        expect(
-          mcpJson.mcpServers[MCP_DOC_SERVER_NAME]
-        ).toBeDefined();
-        expect(
-          agentConfig.mcpServers[MCP_DOC_SERVER_NAME]
-        ).toBeDefined();
+        expect(mcpJson.mcpServers[MCP_DOC_SERVER_NAME]).toBeDefined();
+        expect(agentConfig.mcpServers[MCP_DOC_SERVER_NAME]).toBeDefined();
 
-        const powerServer =
-          mcpJson.mcpServers[MCP_DOC_SERVER_NAME];
-        const agentServer =
-          agentConfig.mcpServers[MCP_DOC_SERVER_NAME];
+        const powerServer = mcpJson.mcpServers[MCP_DOC_SERVER_NAME];
+        const agentServer = agentConfig.mcpServers[MCP_DOC_SERVER_NAME];
 
         // Same command and args
-        expect(powerServer.command).toBe(
-          MCP_DOC_SERVER_COMMAND
-        );
-        expect(agentServer.command).toBe(
-          MCP_DOC_SERVER_COMMAND
-        );
+        expect(powerServer.command).toBe(MCP_DOC_SERVER_COMMAND);
+        expect(agentServer.command).toBe(MCP_DOC_SERVER_COMMAND);
         expect(powerServer.args).toEqual(MCP_DOC_SERVER_ARGS);
         expect(agentServer.args).toEqual(MCP_DOC_SERVER_ARGS);
 
@@ -261,7 +214,7 @@ describe('Property 40: Composite integration completeness', () => {
         expect(powerServer.command).toBe(agentServer.command);
         expect(powerServer.args).toEqual(agentServer.args);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -270,12 +223,10 @@ describe('Property 40: Composite integration completeness', () => {
       fc.property(arbName, arbDescription, (name, description) => {
         const result = scaffoldComposite({ name, description });
 
-        const steeringFiles = result.files.filter((f) =>
-          f.path.includes('/steering/')
-        );
+        const steeringFiles = result.files.filter((f) => f.path.includes('/steering/'));
         expect(steeringFiles.length).toBeGreaterThan(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

@@ -1,30 +1,19 @@
-import type {
-  DecisionMatrixEntry,
-  KiroToolType,
-  ToolRecommendation,
-} from './types';
-import { KIRO_TOOL_TYPES, TOOL_PLATFORM } from './types';
-import {
-  TOOL_TYPE_DISPLAY,
-  DECISION_MATRIX_DATA,
-  platformForToolType,
-} from './compilerData';
+import { DECISION_MATRIX_DATA, TOOL_TYPE_DISPLAY, platformForToolType } from './compilerData';
 import { TEMPLATES_CONTENT } from './refDataTemplates';
 import {
   CREDIT_COST,
   HOOK_ACTION_CREDIT_COST,
   KB_REFS,
-  USE_CASE_KEYWORDS,
-  TRADE_OFFS,
   SKILL_AUTHORING_REFS,
+  TRADE_OFFS,
+  USE_CASE_KEYWORDS,
 } from './toolingAdvisorData';
+import type { DecisionMatrixEntry, KiroToolType, ToolRecommendation } from './types';
+import { KIRO_TOOL_TYPES, TOOL_PLATFORM } from './types';
 
 // ─── Use-Case Scoring ──────────────────────────────────────
 
-function scoreToolType(
-  useCase: string,
-  toolType: KiroToolType
-): number {
+function scoreToolType(useCase: string, toolType: KiroToolType): number {
   const lower = useCase.toLowerCase();
   const keywords = USE_CASE_KEYWORDS[toolType];
   let score = 0;
@@ -40,9 +29,7 @@ function scoreToolType(
 
 // ─── Build Single Recommendation ───────────────────────────
 
-function buildRecommendation(
-  toolType: KiroToolType
-): ToolRecommendation {
+function buildRecommendation(toolType: KiroToolType): ToolRecommendation {
   const isSkill = toolType === 'skill';
   const kbRefs = [...KB_REFS[toolType]];
 
@@ -76,8 +63,7 @@ function buildRationale(toolType: KiroToolType): string {
 
   if (toolType === 'skill') {
     parts.push(
-      'Author with Agent Skills spec best practices ' +
-        'and validate with skills-ref CLI.'
+      'Author with Agent Skills spec best practices ' + 'and validate with skills-ref CLI.',
     );
   }
 
@@ -86,9 +72,7 @@ function buildRationale(toolType: KiroToolType): string {
 
 // ─── Recommend ─────────────────────────────────────────────
 
-export function recommend(
-  useCase: string
-): ToolRecommendation[] {
+export function recommend(useCase: string): ToolRecommendation[] {
   const scored = KIRO_TOOL_TYPES.map((toolType) => ({
     toolType,
     score: scoreToolType(useCase, toolType),
@@ -98,9 +82,7 @@ export function recommend(
 
   const hasMatches = scored[0].score > 0;
 
-  const ranked = hasMatches
-    ? scored.filter((s) => s.score > 0)
-    : scored.slice(0, 3);
+  const ranked = hasMatches ? scored.filter((s) => s.score > 0) : scored.slice(0, 3);
 
   return ranked.map((s) => buildRecommendation(s.toolType));
 }
@@ -120,9 +102,7 @@ export function getDecisionMatrix(): string {
     '| Credit Cost |',
   ].join(' ');
 
-  const separator = [
-    '| --- | --- | --- | --- | --- | --- | --- |',
-  ].join('');
+  const separator = ['| --- | --- | --- | --- | --- | --- | --- |'].join('');
 
   const rows = KIRO_TOOL_TYPES.map((toolType) => {
     const d = DECISION_MATRIX_DATA[toolType];
@@ -162,8 +142,6 @@ export function getPlatformAvailability(): Record<
 
 // ─── Hook Credit Cost Helper ───────────────────────────────
 
-export function getHookCreditCost(
-  actionType: 'runCommand' | 'askAgent'
-): 'none' | 'medium' {
+export function getHookCreditCost(actionType: 'runCommand' | 'askAgent'): 'none' | 'medium' {
   return HOOK_ACTION_CREDIT_COST[actionType];
 }

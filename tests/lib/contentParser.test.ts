@@ -1,18 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import * as cheerio from 'cheerio';
+import { describe, expect, it } from 'vitest';
 import {
-  parseHtml,
-  extractTitle,
-  extractDescription,
-  extractHeadings,
   extractCodeBlocks,
-  extractTables,
+  extractDescription,
+  extractFrontmatter,
+  extractHeadings,
   extractLinks,
   extractMetadata,
-  extractFrontmatter,
+  extractTables,
+  extractTitle,
+  parseHtml,
   stripBoilerplate,
   toMarkdown,
 } from '../../lib/contentParser.js';
-import * as cheerio from 'cheerio';
 
 // ─── extractFrontmatter ────────────────────────────────────
 
@@ -54,16 +54,13 @@ just a string
 describe('extractTitle', () => {
   it('prefers og:title', () => {
     const doc = cheerio.load(
-      '<meta property="og:title" content="OG Title">' +
-      '<title>Title Tag</title><h1>H1 Title</h1>',
+      '<meta property="og:title" content="OG Title">' + '<title>Title Tag</title><h1>H1 Title</h1>',
     );
     expect(extractTitle(doc)).toBe('OG Title');
   });
 
   it('falls back to h1', () => {
-    const doc = cheerio.load(
-      '<title>Title Tag</title><h1>H1 Title</h1>',
-    );
+    const doc = cheerio.load('<title>Title Tag</title><h1>H1 Title</h1>');
     expect(extractTitle(doc)).toBe('H1 Title');
   });
 
@@ -84,15 +81,13 @@ describe('extractDescription', () => {
   it('prefers og:description', () => {
     const doc = cheerio.load(
       '<meta property="og:description" content="OG Desc">' +
-      '<meta name="description" content="Meta Desc">',
+        '<meta name="description" content="Meta Desc">',
     );
     expect(extractDescription(doc)).toBe('OG Desc');
   });
 
   it('falls back to meta description', () => {
-    const doc = cheerio.load(
-      '<meta name="description" content="Meta Desc">',
-    );
+    const doc = cheerio.load('<meta name="description" content="Meta Desc">');
     expect(extractDescription(doc)).toBe('Meta Desc');
   });
 
@@ -107,8 +102,7 @@ describe('extractDescription', () => {
 describe('extractHeadings', () => {
   it('extracts all heading levels', () => {
     const doc = cheerio.load(
-      '<h1>One</h1><h2>Two</h2><h3>Three</h3>' +
-      '<h4>Four</h4><h5>Five</h5><h6>Six</h6>',
+      '<h1>One</h1><h2>Two</h2><h3>Three</h3>' + '<h4>Four</h4><h5>Five</h5><h6>Six</h6>',
     );
     const headings = extractHeadings(doc);
     expect(headings).toEqual([
@@ -123,9 +117,7 @@ describe('extractHeadings', () => {
 
   it('skips empty headings', () => {
     const doc = cheerio.load('<h1></h1><h2>Valid</h2>');
-    expect(extractHeadings(doc)).toEqual([
-      { level: 2, text: 'Valid' },
-    ]);
+    expect(extractHeadings(doc)).toEqual([{ level: 2, text: 'Valid' }]);
   });
 });
 
@@ -134,42 +126,32 @@ describe('extractHeadings', () => {
 describe('extractCodeBlocks', () => {
   it('extracts code with language class', () => {
     const doc = cheerio.load(
-      '<pre><code class="language-typescript">' +
-      'const x = 1;</code></pre>',
+      '<pre><code class="language-typescript">' + 'const x = 1;</code></pre>',
     );
     const blocks = extractCodeBlocks(doc);
-    expect(blocks).toEqual([
-      { language: 'typescript', content: 'const x = 1;' },
-    ]);
+    expect(blocks).toEqual([{ language: 'typescript', content: 'const x = 1;' }]);
   });
 
   it('extracts code with lang- prefix', () => {
-    const doc = cheerio.load(
-      '<pre><code class="lang-python">print("hi")</code></pre>',
-    );
+    const doc = cheerio.load('<pre><code class="lang-python">print("hi")</code></pre>');
     expect(extractCodeBlocks(doc)[0].language).toBe('python');
   });
 
   it('handles pre without code child', () => {
     const doc = cheerio.load('<pre>plain text</pre>');
     const blocks = extractCodeBlocks(doc);
-    expect(blocks).toEqual([
-      { language: '', content: 'plain text' },
-    ]);
+    expect(blocks).toEqual([{ language: '', content: 'plain text' }]);
   });
 
   it('detects mermaid language', () => {
     const doc = cheerio.load(
-      '<pre><code class="language-mermaid">' +
-      'graph TD\n  A-->B</code></pre>',
+      '<pre><code class="language-mermaid">' + 'graph TD\n  A-->B</code></pre>',
     );
     expect(extractCodeBlocks(doc)[0].language).toBe('mermaid');
   });
 
   it('uses data-language attribute', () => {
-    const doc = cheerio.load(
-      '<pre><code data-language="rust">fn main() {}</code></pre>',
-    );
+    const doc = cheerio.load('<pre><code data-language="rust">fn main() {}</code></pre>');
     expect(extractCodeBlocks(doc)[0].language).toBe('rust');
   });
 });
@@ -180,9 +162,9 @@ describe('extractTables', () => {
   it('converts HTML table to markdown', () => {
     const doc = cheerio.load(
       '<table>' +
-      '<tr><th>Name</th><th>Age</th></tr>' +
-      '<tr><td>Alice</td><td>30</td></tr>' +
-      '</table>',
+        '<tr><th>Name</th><th>Age</th></tr>' +
+        '<tr><td>Alice</td><td>30</td></tr>' +
+        '</table>',
     );
     const tables = extractTables(doc);
     expect(tables).toHaveLength(1);
@@ -193,10 +175,7 @@ describe('extractTables', () => {
 
   it('handles uneven rows', () => {
     const doc = cheerio.load(
-      '<table>' +
-      '<tr><th>A</th><th>B</th><th>C</th></tr>' +
-      '<tr><td>1</td></tr>' +
-      '</table>',
+      '<table>' + '<tr><th>A</th><th>B</th><th>C</th></tr>' + '<tr><td>1</td></tr>' + '</table>',
     );
     const tables = extractTables(doc);
     expect(tables[0]).toContain('| 1 |  |  |');
@@ -213,13 +192,9 @@ describe('extractTables', () => {
 describe('extractLinks', () => {
   it('extracts all href values', () => {
     const doc = cheerio.load(
-      '<a href="https://example.com">Link 1</a>' +
-      '<a href="/docs/page">Link 2</a>',
+      '<a href="https://example.com">Link 1</a>' + '<a href="/docs/page">Link 2</a>',
     );
-    expect(extractLinks(doc)).toEqual([
-      'https://example.com',
-      '/docs/page',
-    ]);
+    expect(extractLinks(doc)).toEqual(['https://example.com', '/docs/page']);
   });
 
   it('skips anchors without href', () => {
@@ -233,8 +208,7 @@ describe('extractLinks', () => {
 describe('extractMetadata', () => {
   it('extracts name-based meta tags', () => {
     const doc = cheerio.load(
-      '<meta name="author" content="Alice">' +
-      '<meta name="keywords" content="a,b,c">',
+      '<meta name="author" content="Alice">' + '<meta name="keywords" content="a,b,c">',
     );
     const meta = extractMetadata(doc);
     expect(meta.author).toBe('Alice');
@@ -242,9 +216,7 @@ describe('extractMetadata', () => {
   });
 
   it('extracts property-based meta tags', () => {
-    const doc = cheerio.load(
-      '<meta property="og:title" content="Title">',
-    );
+    const doc = cheerio.load('<meta property="og:title" content="Title">');
     expect(extractMetadata(doc)['og:title']).toBe('Title');
   });
 
@@ -260,9 +232,9 @@ describe('stripBoilerplate', () => {
   it('removes nav, footer, header, sidebar', () => {
     const doc = cheerio.load(
       '<nav>Nav</nav><header>Header</header>' +
-      '<main><p>Content</p></main>' +
-      '<footer>Footer</footer>' +
-      '<div class="sidebar">Side</div>',
+        '<main><p>Content</p></main>' +
+        '<footer>Footer</footer>' +
+        '<div class="sidebar">Side</div>',
     );
     stripBoilerplate(doc);
     expect(doc('nav').length).toBe(0);
@@ -273,11 +245,7 @@ describe('stripBoilerplate', () => {
   });
 
   it('removes script and style tags', () => {
-    const doc = cheerio.load(
-      '<script>alert("x")</script>' +
-      '<style>.x{}</style>' +
-      '<p>Keep</p>',
-    );
+    const doc = cheerio.load('<script>alert("x")</script>' + '<style>.x{}</style>' + '<p>Keep</p>');
     stripBoilerplate(doc);
     expect(doc('script').length).toBe(0);
     expect(doc('style').length).toBe(0);
@@ -287,8 +255,8 @@ describe('stripBoilerplate', () => {
   it('removes cookie banners', () => {
     const doc = cheerio.load(
       '<div class="cookie-banner">Cookies</div>' +
-      '<div id="cookie-banner">More cookies</div>' +
-      '<p>Content</p>',
+        '<div id="cookie-banner">More cookies</div>' +
+        '<p>Content</p>',
     );
     stripBoilerplate(doc);
     expect(doc('.cookie-banner').length).toBe(0);
@@ -312,25 +280,17 @@ describe('toMarkdown', () => {
   });
 
   it('converts links to markdown syntax', () => {
-    const doc = cheerio.load(
-      '<p><a href="https://example.com">Click</a></p>',
-    );
-    expect(toMarkdown(doc)).toContain(
-      '[Click](https://example.com)',
-    );
+    const doc = cheerio.load('<p><a href="https://example.com">Click</a></p>');
+    expect(toMarkdown(doc)).toContain('[Click](https://example.com)');
   });
 
   it('converts inline code to backticks', () => {
-    const doc = cheerio.load(
-      '<p>Use <code>npm install</code> to install</p>',
-    );
+    const doc = cheerio.load('<p>Use <code>npm install</code> to install</p>');
     expect(toMarkdown(doc)).toContain('`npm install`');
   });
 
   it('converts pre/code to fenced code blocks', () => {
-    const doc = cheerio.load(
-      '<pre><code class="language-js">const x = 1;</code></pre>',
-    );
+    const doc = cheerio.load('<pre><code class="language-js">const x = 1;</code></pre>');
     const md = toMarkdown(doc);
     expect(md).toContain('```js');
     expect(md).toContain('const x = 1;');
@@ -339,8 +299,7 @@ describe('toMarkdown', () => {
 
   it('preserves mermaid code blocks', () => {
     const doc = cheerio.load(
-      '<pre><code class="language-mermaid">' +
-      'graph TD\n  A-->B</code></pre>',
+      '<pre><code class="language-mermaid">' + 'graph TD\n  A-->B</code></pre>',
     );
     const md = toMarkdown(doc);
     expect(md).toContain('```mermaid');
@@ -348,18 +307,14 @@ describe('toMarkdown', () => {
   });
 
   it('converts unordered lists', () => {
-    const doc = cheerio.load(
-      '<ul><li>Item 1</li><li>Item 2</li></ul>',
-    );
+    const doc = cheerio.load('<ul><li>Item 1</li><li>Item 2</li></ul>');
     const md = toMarkdown(doc);
     expect(md).toContain('- Item 1');
     expect(md).toContain('- Item 2');
   });
 
   it('converts ordered lists', () => {
-    const doc = cheerio.load(
-      '<ol><li>First</li><li>Second</li></ol>',
-    );
+    const doc = cheerio.load('<ol><li>First</li><li>Second</li></ol>');
     const md = toMarkdown(doc);
     expect(md).toContain('1. First');
     expect(md).toContain('2. Second');
@@ -368,9 +323,9 @@ describe('toMarkdown', () => {
   it('converts tables to markdown', () => {
     const doc = cheerio.load(
       '<table>' +
-      '<tr><th>Col A</th><th>Col B</th></tr>' +
-      '<tr><td>1</td><td>2</td></tr>' +
-      '</table>',
+        '<tr><th>Col A</th><th>Col B</th></tr>' +
+        '<tr><td>1</td><td>2</td></tr>' +
+        '</table>',
     );
     const md = toMarkdown(doc);
     expect(md).toContain('| Col A | Col B |');
@@ -379,9 +334,7 @@ describe('toMarkdown', () => {
   });
 
   it('converts blockquotes', () => {
-    const doc = cheerio.load(
-      '<blockquote>Important note</blockquote>',
-    );
+    const doc = cheerio.load('<blockquote>Important note</blockquote>');
     expect(toMarkdown(doc)).toContain('> Important note');
   });
 
@@ -391,9 +344,7 @@ describe('toMarkdown', () => {
   });
 
   it('handles bold and italic', () => {
-    const doc = cheerio.load(
-      '<p><strong>Bold</strong> and <em>italic</em></p>',
-    );
+    const doc = cheerio.load('<p><strong>Bold</strong> and <em>italic</em></p>');
     const md = toMarkdown(doc);
     expect(md).toContain('**Bold**');
     expect(md).toContain('*italic*');
@@ -430,15 +381,9 @@ describe('parseHtml', () => {
 
     expect(result.title).toBe('Main Title');
     expect(result.description).toBe('A test page');
-    expect(result.headings).toContainEqual(
-      { level: 1, text: 'Main Title' },
-    );
-    expect(result.headings).toContainEqual(
-      { level: 2, text: 'Section' },
-    );
-    expect(result.codeBlocks).toContainEqual(
-      { language: 'typescript', content: 'const x = 1;' },
-    );
+    expect(result.headings).toContainEqual({ level: 1, text: 'Main Title' });
+    expect(result.headings).toContainEqual({ level: 2, text: 'Section' });
+    expect(result.codeBlocks).toContainEqual({ language: 'typescript', content: 'const x = 1;' });
     expect(result.tables).toHaveLength(1);
     expect(result.links).toContain('https://example.com');
     expect(result.metadata.description).toBe('A test page');

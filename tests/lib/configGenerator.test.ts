@@ -1,20 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  generateHook,
-  generateAgent,
-  generatePower,
-  generateSteering,
-  generateSkill,
-  generateMcpConfig,
-  validate,
   VALID_HOOK_TRIGGERS,
   VALID_INCLUSION_MODES,
+  generateAgent,
+  generateHook,
+  generateMcpConfig,
+  generatePower,
+  generateSkill,
+  generateSteering,
+  validate,
 } from '../../lib/configGenerator.js';
-import type {
-  HookConfig,
-  SteeringConfig,
-  McpServerConfig,
-} from '../../lib/types.js';
+import type { HookConfig, McpServerConfig, SteeringConfig } from '../../lib/types.js';
 
 // ─── generateHook ──────────────────────────────────────────
 
@@ -148,12 +144,8 @@ describe('generatePower', () => {
 
     expect(result.powerMd).toContain('---');
     expect(result.powerMd).toContain('name: my-power');
-    expect(result.powerMd).toContain(
-      'displayName: My Power'
-    );
-    expect(result.powerMd).toContain(
-      'description: A test power'
-    );
+    expect(result.powerMd).toContain('displayName: My Power');
+    expect(result.powerMd).toContain('description: A test power');
     expect(result.powerMd).toContain('keywords: test, demo');
     expect(result.powerMd).toContain('# My Power');
   });
@@ -182,9 +174,7 @@ describe('generatePower', () => {
     });
 
     expect(result.mcpJson).not.toBeNull();
-    expect(
-      result.mcpJson?.mcpServers['kb']
-    ).toBeDefined();
+    expect(result.mcpJson?.mcpServers.kb).toBeDefined();
   });
 
   it('generates steering files', () => {
@@ -204,12 +194,8 @@ describe('generatePower', () => {
 
     expect(result.steeringFiles).toHaveLength(1);
     expect(result.steeringFiles[0].filename).toBe('guide.md');
-    expect(result.steeringFiles[0].content).toContain(
-      'inclusion: always'
-    );
-    expect(result.steeringFiles[0].content).toContain(
-      '# Guide'
-    );
+    expect(result.steeringFiles[0].content).toContain('inclusion: always');
+    expect(result.steeringFiles[0].content).toContain('# Guide');
   });
 
   it('uses custom body content when provided', () => {
@@ -267,9 +253,7 @@ describe('generateSteering', () => {
         config: {
           inclusion: mode,
           content: 'test content',
-          ...(mode === 'fileMatch'
-            ? { fileMatchPattern: '*.ts' }
-            : {}),
+          ...(mode === 'fileMatch' ? { fileMatchPattern: '*.ts' } : {}),
         } as SteeringConfig,
       });
 
@@ -285,9 +269,7 @@ describe('generateSkill', () => {
     const result = generateSkill({
       frontmatter: {
         name: 'my-skill',
-        description:
-          'A reusable skill for testing. ' +
-          'Use when: writing tests.',
+        description: 'A reusable skill for testing. ' + 'Use when: writing tests.',
       },
       bodyContent: '# My Skill\n\nInstructions here.',
     });
@@ -310,15 +292,9 @@ describe('generateSkill', () => {
       includeAssets: true,
     });
 
-    expect(result.directories).toContain(
-      'full-skill/scripts'
-    );
-    expect(result.directories).toContain(
-      'full-skill/references'
-    );
-    expect(result.directories).toContain(
-      'full-skill/assets'
-    );
+    expect(result.directories).toContain('full-skill/scripts');
+    expect(result.directories).toContain('full-skill/references');
+    expect(result.directories).toContain('full-skill/assets');
   });
 
   it('includes optional frontmatter fields', () => {
@@ -335,14 +311,10 @@ describe('generateSkill', () => {
     });
 
     expect(result.skillMd).toContain('license: MIT');
-    expect(result.skillMd).toContain(
-      'compatibility: kiro >= 1.0'
-    );
+    expect(result.skillMd).toContain('compatibility: kiro >= 1.0');
     expect(result.skillMd).toContain('metadata:');
     expect(result.skillMd).toContain('  author: test');
-    expect(result.skillMd).toContain(
-      'allowed-tools: read write shell'
-    );
+    expect(result.skillMd).toContain('allowed-tools: read write shell');
   });
 });
 
@@ -395,16 +367,14 @@ describe('generateMcpConfig', () => {
     ]);
 
     expect(Object.keys(result.mcpServers)).toHaveLength(2);
-    expect('command' in result.mcpServers['local']).toBe(true);
-    expect('url' in result.mcpServers['remote']).toBe(true);
+    expect('command' in result.mcpServers.local).toBe(true);
+    expect('url' in result.mcpServers.remote).toBe(true);
   });
 
   it('defaults command to node when not provided', () => {
-    const result = generateMcpConfig([
-      { name: 'default', type: 'local' },
-    ]);
+    const result = generateMcpConfig([{ name: 'default', type: 'local' }]);
 
-    const server = result.mcpServers['default'] as {
+    const server = result.mcpServers.default as {
       command: string;
     };
     expect(server.command).toBe('node');
@@ -448,9 +418,7 @@ describe('validate', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some((e) => e.field === 'when.type')
-      ).toBe(true);
+      expect(result.errors.some((e) => e.field === 'when.type')).toBe(true);
     });
 
     it('fails for askAgent without prompt', () => {
@@ -466,9 +434,7 @@ describe('validate', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some((e) => e.field === 'then.prompt')
-      ).toBe(true);
+      expect(result.errors.some((e) => e.field === 'then.prompt')).toBe(true);
     });
 
     it('fails for runCommand without command', () => {
@@ -484,9 +450,7 @@ describe('validate', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some((e) => e.field === 'then.command')
-      ).toBe(true);
+      expect(result.errors.some((e) => e.field === 'then.command')).toBe(true);
     });
   });
 
@@ -527,11 +491,7 @@ describe('validate', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some((e) =>
-          e.field.startsWith('mcpServers.bad')
-        )
-      ).toBe(true);
+      expect(result.errors.some((e) => e.field.startsWith('mcpServers.bad'))).toBe(true);
     });
   });
 
@@ -562,9 +522,7 @@ describe('validate', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some((e) => e.field === 'keywords')
-      ).toBe(true);
+      expect(result.errors.some((e) => e.field === 'keywords')).toBe(true);
     });
   });
 
@@ -579,11 +537,7 @@ describe('validate', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (e) => e.field === 'fileMatchPattern'
-        )
-      ).toBe(true);
+      expect(result.errors.some((e) => e.field === 'fileMatchPattern')).toBe(true);
     });
   });
 
@@ -735,9 +689,7 @@ describe('validate', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some((e) => e.field === 'toolType')
-      ).toBe(true);
+      expect(result.errors.some((e) => e.field === 'toolType')).toBe(true);
     });
   });
 });

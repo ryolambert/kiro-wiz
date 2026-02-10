@@ -5,8 +5,8 @@ declare const PKG_VERSION: string;
 import { resolve } from 'node:path';
 
 const args = process.argv.slice(2);
-const flags = new Set(args.filter(a => a.startsWith('--')));
-const positional = args.filter(a => !a.startsWith('--'));
+const flags = new Set(args.filter((a) => a.startsWith('--')));
+const positional = args.filter((a) => !a.startsWith('--'));
 
 async function main(): Promise<void> {
   // MCP server mode

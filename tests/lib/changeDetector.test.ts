@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { mkdtemp, rm, readFile } from 'node:fs/promises';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
-  fetchSitemap,
   checkChangelog,
-  parseChangelogDates,
+  fetchSitemap,
   loadState,
-  saveState,
+  parseChangelogDates,
   run,
+  saveState,
 } from '../../lib/changeDetector.js';
 import type { RegistryEntry } from '../../lib/types.js';
 
@@ -54,19 +54,19 @@ describe('fetchSitemap', () => {
   });
 
   it('skips url blocks without loc', async () => {
-    const xml = `<urlset><url><lastmod>2025-01-01</lastmod></url></urlset>`;
+    const xml = '<urlset><url><lastmod>2025-01-01</lastmod></url></urlset>';
     const entries = await fetchSitemap('https://kiro.dev/sitemap.xml', { rawXml: xml });
     expect(entries).toEqual([]);
   });
 
   it('handles invalid priority as null', async () => {
-    const xml = `<urlset><url><loc>https://kiro.dev/</loc><priority>abc</priority></url></urlset>`;
+    const xml = '<urlset><url><loc>https://kiro.dev/</loc><priority>abc</priority></url></urlset>';
     const entries = await fetchSitemap('https://kiro.dev/sitemap.xml', { rawXml: xml });
     expect(entries[0].priority).toBeNull();
   });
 
   it('uses fetchFn when no rawXml provided', async () => {
-    const xml = `<urlset><url><loc>https://kiro.dev/docs</loc></url></urlset>`;
+    const xml = '<urlset><url><loc>https://kiro.dev/docs</loc></url></urlset>';
     const mockFetch = async () => ({
       ok: true,
       text: async () => xml,
@@ -84,7 +84,7 @@ describe('fetchSitemap', () => {
     });
 
     await expect(
-      fetchSitemap('https://kiro.dev/sitemap.xml', { fetchFn: mockFetch })
+      fetchSitemap('https://kiro.dev/sitemap.xml', { fetchFn: mockFetch }),
     ).rejects.toThrow('Failed to fetch sitemap');
   });
 });
@@ -93,19 +93,19 @@ describe('fetchSitemap', () => {
 
 describe('parseChangelogDates', () => {
   it('extracts ISO dates from HTML', () => {
-    const html = `<h2>2025-06-15</h2><p>New feature</p><h2>2025-05-01</h2><p>Bug fix</p>`;
+    const html = '<h2>2025-06-15</h2><p>New feature</p><h2>2025-05-01</h2><p>Bug fix</p>';
     const dates = parseChangelogDates(html);
     expect(dates).toEqual(['2025-06-15', '2025-05-01']);
   });
 
   it('deduplicates dates', () => {
-    const html = `<p>2025-01-01</p><p>2025-01-01</p>`;
+    const html = '<p>2025-01-01</p><p>2025-01-01</p>';
     const dates = parseChangelogDates(html);
     expect(dates).toEqual(['2025-01-01']);
   });
 
   it('returns sorted descending', () => {
-    const html = `<p>2024-01-01</p><p>2025-06-01</p><p>2024-12-15</p>`;
+    const html = '<p>2024-01-01</p><p>2025-06-01</p><p>2024-12-15</p>';
     const dates = parseChangelogDates(html);
     expect(dates).toEqual(['2025-06-01', '2024-12-15', '2024-01-01']);
   });
@@ -119,27 +119,33 @@ describe('parseChangelogDates', () => {
 
 describe('checkChangelog', () => {
   it('detects new entries when since is null', async () => {
-    const html = `<h2>2025-06-15</h2><p>Update</p>`;
+    const html = '<h2>2025-06-15</h2><p>Update</p>';
     const result = await checkChangelog('https://kiro.dev/changelog', null, { rawHtml: html });
     expect(result.hasNewEntries).toBe(true);
     expect(result.latestTimestamp).toBe('2025-06-15');
   });
 
   it('detects new entries when latest > since', async () => {
-    const html = `<h2>2025-06-15</h2>`;
-    const result = await checkChangelog('https://kiro.dev/changelog', '2025-06-01', { rawHtml: html });
+    const html = '<h2>2025-06-15</h2>';
+    const result = await checkChangelog('https://kiro.dev/changelog', '2025-06-01', {
+      rawHtml: html,
+    });
     expect(result.hasNewEntries).toBe(true);
     expect(result.latestTimestamp).toBe('2025-06-15');
   });
 
   it('no new entries when latest <= since', async () => {
-    const html = `<h2>2025-06-01</h2>`;
-    const result = await checkChangelog('https://kiro.dev/changelog', '2025-06-15', { rawHtml: html });
+    const html = '<h2>2025-06-01</h2>';
+    const result = await checkChangelog('https://kiro.dev/changelog', '2025-06-15', {
+      rawHtml: html,
+    });
     expect(result.hasNewEntries).toBe(false);
   });
 
   it('no new entries for empty changelog', async () => {
-    const result = await checkChangelog('https://kiro.dev/changelog', null, { rawHtml: '<p>Empty</p>' });
+    const result = await checkChangelog('https://kiro.dev/changelog', null, {
+      rawHtml: '<p>Empty</p>',
+    });
     expect(result.hasNewEntries).toBe(false);
     expect(result.latestTimestamp).toBeNull();
   });
@@ -147,7 +153,7 @@ describe('checkChangelog', () => {
   it('throws on HTTP error', async () => {
     const mockFetch = async () => ({ ok: false, text: async () => '' });
     await expect(
-      checkChangelog('https://kiro.dev/changelog', null, { fetchFn: mockFetch })
+      checkChangelog('https://kiro.dev/changelog', null, { fetchFn: mockFetch }),
     ).rejects.toThrow('Failed to fetch changelog');
   });
 });
@@ -258,14 +264,16 @@ describe('run', () => {
       <url><loc>https://kiro.dev/docs/new-page</loc><lastmod>2025-06-01</lastmod></url>
     </urlset>`;
 
-    const existing: RegistryEntry[] = [{
-      url: 'https://kiro.dev/docs/hooks',
-      category: 'hooks',
-      source: 'sitemap',
-      lastCrawled: null,
-      lastmod: '2025-01-15',
-      status: 'active',
-    }];
+    const existing: RegistryEntry[] = [
+      {
+        url: 'https://kiro.dev/docs/hooks',
+        category: 'hooks',
+        source: 'sitemap',
+        lastCrawled: null,
+        lastmod: '2025-01-15',
+        status: 'active',
+      },
+    ];
 
     const { result, updatedEntries } = await run(existing, {
       fetchFn: makeFetchFn(xml, '<p>No dates</p>'),
@@ -275,7 +283,7 @@ describe('run', () => {
     expect(result.newUrls).toEqual(['https://kiro.dev/docs/new-page']);
     expect(result.modifiedUrls).toEqual([]);
     expect(updatedEntries).toHaveLength(2);
-    expect(updatedEntries.find(e => e.url === 'https://kiro.dev/docs/new-page')).toBeDefined();
+    expect(updatedEntries.find((e) => e.url === 'https://kiro.dev/docs/new-page')).toBeDefined();
   });
 
   it('detects modified URLs by lastmod comparison', async () => {
@@ -283,14 +291,16 @@ describe('run', () => {
       <url><loc>https://kiro.dev/docs/hooks</loc><lastmod>2025-06-15</lastmod></url>
     </urlset>`;
 
-    const existing: RegistryEntry[] = [{
-      url: 'https://kiro.dev/docs/hooks',
-      category: 'hooks',
-      source: 'sitemap',
-      lastCrawled: null,
-      lastmod: '2025-01-15',
-      status: 'active',
-    }];
+    const existing: RegistryEntry[] = [
+      {
+        url: 'https://kiro.dev/docs/hooks',
+        category: 'hooks',
+        source: 'sitemap',
+        lastCrawled: null,
+        lastmod: '2025-01-15',
+        status: 'active',
+      },
+    ];
 
     const { result } = await run(existing, {
       fetchFn: makeFetchFn(xml, '<p>No dates</p>'),
@@ -301,16 +311,18 @@ describe('run', () => {
   });
 
   it('detects removed URLs (in registry but not in sitemap)', async () => {
-    const xml = `<urlset></urlset>`;
+    const xml = '<urlset></urlset>';
 
-    const existing: RegistryEntry[] = [{
-      url: 'https://kiro.dev/docs/hooks',
-      category: 'hooks',
-      source: 'sitemap',
-      lastCrawled: null,
-      lastmod: '2025-01-15',
-      status: 'active',
-    }];
+    const existing: RegistryEntry[] = [
+      {
+        url: 'https://kiro.dev/docs/hooks',
+        category: 'hooks',
+        source: 'sitemap',
+        lastCrawled: null,
+        lastmod: '2025-01-15',
+        status: 'active',
+      },
+    ];
 
     const { result } = await run(existing, {
       fetchFn: makeFetchFn(xml, '<p>No dates</p>'),
@@ -321,16 +333,18 @@ describe('run', () => {
   });
 
   it('does not flag manual entries as removed', async () => {
-    const xml = `<urlset></urlset>`;
+    const xml = '<urlset></urlset>';
 
-    const existing: RegistryEntry[] = [{
-      url: 'https://agentskills.io/home',
-      category: 'agent-skills-spec',
-      source: 'agentskills',
-      lastCrawled: null,
-      lastmod: null,
-      status: 'active',
-    }];
+    const existing: RegistryEntry[] = [
+      {
+        url: 'https://agentskills.io/home',
+        category: 'agent-skills-spec',
+        source: 'agentskills',
+        lastCrawled: null,
+        lastmod: null,
+        status: 'active',
+      },
+    ];
 
     const { result } = await run(existing, {
       fetchFn: makeFetchFn(xml, '<p>No dates</p>'),
@@ -345,14 +359,16 @@ describe('run', () => {
       throw new Error('Network error');
     };
 
-    const existing: RegistryEntry[] = [{
-      url: 'https://kiro.dev/docs/hooks',
-      category: 'hooks',
-      source: 'sitemap',
-      lastCrawled: null,
-      lastmod: '2025-01-15',
-      status: 'active',
-    }];
+    const existing: RegistryEntry[] = [
+      {
+        url: 'https://kiro.dev/docs/hooks',
+        category: 'hooks',
+        source: 'sitemap',
+        lastCrawled: null,
+        lastmod: '2025-01-15',
+        status: 'active',
+      },
+    ];
 
     const { result, updatedEntries } = await run(existing, {
       fetchFn: failFetch,
@@ -366,7 +382,7 @@ describe('run', () => {
   });
 
   it('records run timestamp (Req 12.6)', async () => {
-    const xml = `<urlset></urlset>`;
+    const xml = '<urlset></urlset>';
     const statePath = join(tmpDir, 'state.json');
 
     const before = new Date().toISOString();
@@ -385,7 +401,9 @@ describe('run', () => {
 
   it('records run timestamp even on error', async () => {
     const statePath = join(tmpDir, 'state.json');
-    const failFetch = async () => { throw new Error('fail'); };
+    const failFetch = async () => {
+      throw new Error('fail');
+    };
 
     await run([], { fetchFn: failFetch, statePath });
 

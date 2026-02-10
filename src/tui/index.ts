@@ -1,6 +1,6 @@
-import { createElement } from 'react';
 import { createCliRenderer } from '@opentui/core';
 import { createRoot } from '@opentui/react';
+import { createElement } from 'react';
 
 export async function launch(): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true });

@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import type { RegistryEntry, UrlCategory } from './types';
 
@@ -57,25 +57,19 @@ export function categorizeUrl(url: string): UrlCategory {
 
 // ─── Query Functions ────────────────────────────────────────
 
-export function getAll(
-  entries: readonly RegistryEntry[]
-): RegistryEntry[] {
+export function getAll(entries: readonly RegistryEntry[]): RegistryEntry[] {
   return [...entries];
 }
 
 export function getByCategory(
   entries: readonly RegistryEntry[],
-  category: UrlCategory
+  category: UrlCategory,
 ): RegistryEntry[] {
   return entries.filter((e) => e.category === category);
 }
 
-export function getActive(
-  entries: readonly RegistryEntry[]
-): RegistryEntry[] {
-  return entries.filter(
-    (e) => e.status !== 'stale' && e.status !== 'failed'
-  );
+export function getActive(entries: readonly RegistryEntry[]): RegistryEntry[] {
+  return entries.filter((e) => e.status !== 'stale' && e.status !== 'failed');
 }
 
 // ─── Mutation Functions (immutable) ─────────────────────────
@@ -84,7 +78,7 @@ export function add(
   entries: readonly RegistryEntry[],
   url: string,
   source: RegistryEntry['source'],
-  lastmod?: string | null
+  lastmod?: string | null,
 ): RegistryEntry[] {
   const existing = entries.find((e) => e.url === url);
   if (existing) return [...entries];
@@ -101,47 +95,27 @@ export function add(
   return [...entries, entry];
 }
 
-export function markStale(
-  entries: readonly RegistryEntry[],
-  url: string
-): RegistryEntry[] {
-  return entries.map((e) =>
-    e.url === url ? { ...e, status: 'stale' as const } : e
-  );
+export function markStale(entries: readonly RegistryEntry[], url: string): RegistryEntry[] {
+  return entries.map((e) => (e.url === url ? { ...e, status: 'stale' as const } : e));
 }
 
-export function markFailed(
-  entries: readonly RegistryEntry[],
-  url: string
-): RegistryEntry[] {
-  return entries.map((e) =>
-    e.url === url ? { ...e, status: 'failed' as const } : e
-  );
+export function markFailed(entries: readonly RegistryEntry[], url: string): RegistryEntry[] {
+  return entries.map((e) => (e.url === url ? { ...e, status: 'failed' as const } : e));
 }
 
-export function updateLastCrawled(
-  entries: readonly RegistryEntry[],
-  url: string
-): RegistryEntry[] {
+export function updateLastCrawled(entries: readonly RegistryEntry[], url: string): RegistryEntry[] {
   const now = new Date().toISOString();
-  return entries.map((e) =>
-    e.url === url ? { ...e, lastCrawled: now } : e
-  );
+  return entries.map((e) => (e.url === url ? { ...e, lastCrawled: now } : e));
 }
 
 // ─── Persistence ────────────────────────────────────────────
 
-export async function save(
-  entries: readonly RegistryEntry[],
-  filePath: string
-): Promise<void> {
+export async function save(entries: readonly RegistryEntry[], filePath: string): Promise<void> {
   await mkdir(dirname(filePath), { recursive: true });
   await writeFile(filePath, JSON.stringify(entries, null, 2), 'utf-8');
 }
 
-export async function load(
-  filePath: string
-): Promise<RegistryEntry[]> {
+export async function load(filePath: string): Promise<RegistryEntry[]> {
   const raw = await readFile(filePath, 'utf-8');
   const parsed: unknown = JSON.parse(raw);
   if (!Array.isArray(parsed)) return [];
@@ -157,9 +131,7 @@ const AGENTSKILLS_URLS = [
   'https://agentskills.io/integrate-skills',
 ] as const;
 
-export function seedAgentSkillsUrls(
-  entries: readonly RegistryEntry[]
-): RegistryEntry[] {
+export function seedAgentSkillsUrls(entries: readonly RegistryEntry[]): RegistryEntry[] {
   let result = [...entries];
   for (const url of AGENTSKILLS_URLS) {
     result = add(result, url, 'agentskills');
@@ -169,7 +141,7 @@ export function seedAgentSkillsUrls(
 
 export function seedSitemapUrls(
   entries: readonly RegistryEntry[],
-  sitemapUrls: ReadonlyArray<{ url: string; lastmod: string | null }>
+  sitemapUrls: ReadonlyArray<{ url: string; lastmod: string | null }>,
 ): RegistryEntry[] {
   let result = [...entries];
   for (const { url, lastmod } of sitemapUrls) {

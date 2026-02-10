@@ -1,7 +1,7 @@
 #!/usr/bin/env npx tsx
 
+import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { compile, serialize } from '../lib/compiler.js';
 import { writeAll } from '../lib/referenceLibrary.js';
@@ -20,7 +20,7 @@ async function main(): Promise<void> {
   console.error(`  ✓ Master reference: ${MASTER_REF_PATH}`);
   console.error(
     `    ${compiled.sections.length} sections, ` +
-      `${compiled.decisionMatrix.length} matrix entries`
+      `${compiled.decisionMatrix.length} matrix entries`,
   );
 
   console.error('Generating reference library...');

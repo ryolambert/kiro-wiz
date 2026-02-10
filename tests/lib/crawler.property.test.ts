@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
 import fc from 'fast-check';
-import { fetchWithRetry, HttpError } from '../../lib/crawler.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { HttpError, fetchWithRetry } from '../../lib/crawler.js';
 
 /**
  * **Feature: kiro-knowledge-base, Property 6: Retry behavior on failure**
@@ -27,7 +27,9 @@ function makeFetchAlwaysFailing(statusCode: number) {
       });
     },
     getCalls: () => callCount,
-    reset: () => { callCount = 0; },
+    reset: () => {
+      callCount = 0;
+    },
   };
 }
 
@@ -52,7 +54,9 @@ function makeFetchSucceedsOnAttempt(successAttempt: number) {
       });
     },
     getCalls: () => callCount,
-    reset: () => { callCount = 0; },
+    reset: () => {
+      callCount = 0;
+    },
   };
 }
 
@@ -103,20 +107,15 @@ describe('Property 6: Retry behavior on failure', () => {
     await fc.assert(
       fc.asyncProperty(
         arbMaxRetries.chain((maxRetries) =>
-          fc.tuple(
-            fc.constant(maxRetries),
-            fc.integer({ min: 1, max: maxRetries + 1 }),
-          ),
+          fc.tuple(fc.constant(maxRetries), fc.integer({ min: 1, max: maxRetries + 1 })),
         ),
         async ([maxRetries, successAttempt]) => {
           const mock = makeFetchSucceedsOnAttempt(successAttempt);
           vi.stubGlobal('fetch', mock.fn);
 
-          const result = await fetchWithRetry(
-            'https://example.com/retry',
-            maxRetries,
-            { delayFn: noDelay },
-          );
+          const result = await fetchWithRetry('https://example.com/retry', maxRetries, {
+            delayFn: noDelay,
+          });
 
           expect(result.statusCode).toBe(200);
           expect(mock.getCalls()).toBe(successAttempt);
@@ -127,9 +126,9 @@ describe('Property 6: Retry behavior on failure', () => {
   });
 });
 
-import { updateLastCrawled } from '../../lib/urlRegistry.js';
 import { URL_CATEGORIES } from '../../lib/types.js';
 import type { RegistryEntry, UrlCategory } from '../../lib/types.js';
+import { updateLastCrawled } from '../../lib/urlRegistry.js';
 
 /**
  * **Feature: kiro-knowledge-base, Property 7: Timestamp update after crawl**
@@ -140,31 +139,29 @@ import type { RegistryEntry, UrlCategory } from '../../lib/types.js';
  * >= the time before the call and <= the time after the call.
  */
 
-const arbCategory7: fc.Arbitrary<UrlCategory> = fc.constantFrom(
-  ...URL_CATEGORIES
-);
+const arbCategory7: fc.Arbitrary<UrlCategory> = fc.constantFrom(...URL_CATEGORIES);
 
-const arbValidDate = fc.date({ min: new Date('2000-01-01'), max: new Date('2030-01-01') });
+const arbValidDate = fc
+  .integer({ min: 946684800000, max: 1893456000000 })
+  .map((ms) => new Date(ms));
 
 const arbRegistryEntry7: fc.Arbitrary<RegistryEntry> = fc.record({
   url: fc.webUrl(),
   category: arbCategory7,
-  source: fc.constantFrom(
-    'sitemap' as const,
-    'agentskills' as const,
-    'manual' as const
+  source: fc.constantFrom('sitemap' as const, 'agentskills' as const, 'manual' as const),
+  lastCrawled: fc.option(
+    arbValidDate.map((d) => d.toISOString()),
+    {
+      nil: null,
+    },
   ),
-  lastCrawled: fc.option(arbValidDate.map((d) => d.toISOString()), {
-    nil: null,
-  }),
-  lastmod: fc.option(arbValidDate.map((d) => d.toISOString()), {
-    nil: null,
-  }),
-  status: fc.constantFrom(
-    'active' as const,
-    'stale' as const,
-    'failed' as const
+  lastmod: fc.option(
+    arbValidDate.map((d) => d.toISOString()),
+    {
+      nil: null,
+    },
   ),
+  status: fc.constantFrom('active' as const, 'stale' as const, 'failed' as const),
 });
 
 describe('Property 7: Timestamp update after crawl', () => {
@@ -183,18 +180,18 @@ describe('Property 7: Timestamp update after crawl', () => {
 
           const updated = result.find((e) => e.url === targetUrl);
           expect(updated).toBeDefined();
-          expect(updated!.lastCrawled).not.toBeNull();
+          expect(updated?.lastCrawled).not.toBeNull();
 
           // lastCrawled is a valid ISO string
-          const parsed = new Date(updated!.lastCrawled!);
-          expect(parsed.toISOString()).toBe(updated!.lastCrawled);
+          const parsed = new Date(updated?.lastCrawled!);
+          expect(parsed.toISOString()).toBe(updated?.lastCrawled);
 
           // Timestamp is >= before and <= after
-          expect(updated!.lastCrawled! >= before).toBe(true);
-          expect(updated!.lastCrawled! <= after).toBe(true);
-        }
+          expect(updated?.lastCrawled! >= before).toBe(true);
+          expect(updated?.lastCrawled! <= after).toBe(true);
+        },
       ),
-      { numRuns: 20 }
+      { numRuns: 20 },
     );
   });
 
@@ -215,9 +212,9 @@ describe('Property 7: Timestamp update after crawl', () => {
               expect(result[i]).toEqual(entries[i]);
             }
           }
-        }
+        },
       ),
-      { numRuns: 20 }
+      { numRuns: 20 },
     );
   });
 });

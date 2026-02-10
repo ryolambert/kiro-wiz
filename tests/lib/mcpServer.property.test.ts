@@ -1,13 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import * as fc from 'fast-check';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { createMcpServer, KiroMcpServer } from '../../lib/mcpServer.js';
-import type {
-  KiroToolType,
-  PlatformTarget,
-  ScaffoldOptions,
-} from '../../lib/types.js';
+import * as fc from 'fast-check';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { type KiroMcpServer, createMcpServer } from '../../lib/mcpServer.js';
+import type { KiroToolType, PlatformTarget, ScaffoldOptions } from '../../lib/types.js';
 import { KIRO_TOOL_TYPES } from '../../lib/types.js';
 
 /**
@@ -38,7 +34,7 @@ describe('Property 36: MCP server tool completeness', () => {
     await fs.mkdir(kbDir, { recursive: true });
     await fs.writeFile(
       path.join(kbDir, 'hook-basics.md'),
-      '# Hook Basics\n\nHooks are event-driven automations.'
+      '# Hook Basics\n\nHooks are event-driven automations.',
     );
 
     server = createMcpServer({
@@ -57,15 +53,9 @@ describe('Property 36: MCP server tool completeness', () => {
 
   // ─── Arbitraries ───────────────────────────────────────────
 
-  const kiroToolTypeArb = fc.constantFrom<KiroToolType>(
-    ...KIRO_TOOL_TYPES
-  );
+  const kiroToolTypeArb = fc.constantFrom<KiroToolType>(...KIRO_TOOL_TYPES);
 
-  const platformTargetArb = fc.constantFrom<PlatformTarget>(
-    'ide',
-    'cli',
-    'both'
-  );
+  const platformTargetArb = fc.constantFrom<PlatformTarget>('ide', 'cli', 'both');
 
   const validNameArb = fc
     .stringMatching(/^[a-z][a-z0-9-]{0,30}[a-z0-9]$/)
@@ -143,7 +133,7 @@ describe('Property 36: MCP server tool completeness', () => {
         // - response.content[0].text is valid JSON
         // - parsed JSON is DocumentationSection[]
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -159,7 +149,7 @@ describe('Property 36: MCP server tool completeness', () => {
         // - response.content[0].text is valid JSON
         // - parsed JSON is DecisionMatrixEntry[]
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -174,30 +164,26 @@ describe('Property 36: MCP server tool completeness', () => {
         // - response.content[0].type === 'text'
         // - response.content[0].text is a non-empty string (template)
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
   it('Property 36.5: scaffold_tool returns well-formed response for any tool type', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        kiroToolTypeArb,
-        scaffoldOptionsArb,
-        async (toolType, options) => {
-          expect(server).toBeDefined();
-          expect(toolType).toBeDefined();
-          expect(options).toBeDefined();
+      fc.asyncProperty(kiroToolTypeArb, scaffoldOptionsArb, async (toolType, options) => {
+        expect(server).toBeDefined();
+        expect(toolType).toBeDefined();
+        expect(options).toBeDefined();
 
-          // The response should be well-formed:
-          // - response.content is an array
-          // - response.content[0].type === 'text'
-          // - response.content[0].text is valid JSON
-          // - parsed JSON is ScaffoldResult with files array and instructions
-          // - files array has at least one file
-          // - each file has path and content properties
-        }
-      ),
-      { numRuns: 50 }
+        // The response should be well-formed:
+        // - response.content is an array
+        // - response.content[0].type === 'text'
+        // - response.content[0].text is valid JSON
+        // - parsed JSON is ScaffoldResult with files array and instructions
+        // - files array has at least one file
+        // - each file has path and content properties
+      }),
+      { numRuns: 50 },
     );
   });
 
@@ -220,9 +206,9 @@ describe('Property 36: MCP server tool completeness', () => {
           // - response.content[0].text is valid JSON
           // - parsed JSON is ValidationResult with isValid and errors
           // - errors is an array (may be empty)
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -239,7 +225,7 @@ describe('Property 36: MCP server tool completeness', () => {
         // - parsed JSON is AuditReport with findings, summary, scannedFiles
         // - summary has critical, recommended, optional counts
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -257,7 +243,7 @@ describe('Property 36: MCP server tool completeness', () => {
         //   capabilities, workflows, configTemplate
         // - platform matches the requested platform
       }),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -271,7 +257,7 @@ describe('Property 36: MCP server tool completeness', () => {
           'scaffold_tool',
           'validate_config',
           'audit_workspace',
-          'get_platform_guide'
+          'get_platform_guide',
         ),
         async (toolName) => {
           expect(server).toBeDefined();
@@ -282,9 +268,9 @@ describe('Property 36: MCP server tool completeness', () => {
           // - Include isError: true in the response
           // - Include error message in content
           // - Include isRetryable flag
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -301,7 +287,7 @@ describe('Property 36: MCP server tool completeness', () => {
         // Second call should return identical result from cache
         // This verifies Property 37: MCP server cache idempotence
       }),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -318,7 +304,7 @@ describe('Property 36: MCP server tool completeness', () => {
         expect(typeof status.message).toBe('string');
         expect(status.message.length).toBeGreaterThan(0);
       }),
-      { numRuns: 20 }
+      { numRuns: 20 },
     );
   });
 });
@@ -348,7 +334,7 @@ describe('Property 37: MCP server cache idempotence', () => {
     await fs.mkdir(kbDir, { recursive: true });
     await fs.writeFile(
       path.join(kbDir, 'hook-basics.md'),
-      '# Hook Basics\n\nHooks are event-driven automations.'
+      '# Hook Basics\n\nHooks are event-driven automations.',
     );
 
     server = createMcpServer({
@@ -369,14 +355,8 @@ describe('Property 37: MCP server cache idempotence', () => {
     topic: fc.option(fc.constantFrom('hooks', 'skills', 'powers'), {
       nil: undefined,
     }),
-    toolType: fc.option(
-      fc.constantFrom<KiroToolType>(...KIRO_TOOL_TYPES),
-      { nil: undefined }
-    ),
-    searchTerm: fc.option(
-      fc.constantFrom('automation', 'event', 'hook'),
-      { nil: undefined }
-    ),
+    toolType: fc.option(fc.constantFrom<KiroToolType>(...KIRO_TOOL_TYPES), { nil: undefined }),
+    searchTerm: fc.option(fc.constantFrom('automation', 'event', 'hook'), { nil: undefined }),
   });
 
   it('Property 37.1: Identical queries return identical results', async () => {
@@ -398,7 +378,7 @@ describe('Property 37: MCP server cache idempotence', () => {
         // After second query, result should be identical
         expect(cacheKey).toBeDefined();
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -418,25 +398,22 @@ describe('Property 37: MCP server cache idempotence', () => {
 
         expect(query).toBeDefined();
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
   it('Property 37.3: Cache clear removes all entries', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        fc.array(queryArb, { minLength: 1, maxLength: 5 }),
-        async (queries) => {
-          server.clearCache();
+      fc.asyncProperty(fc.array(queryArb, { minLength: 1, maxLength: 5 }), async (queries) => {
+        server.clearCache();
 
-          // Populate cache with multiple queries
-          // Clear cache
-          // All subsequent queries should re-fetch
+        // Populate cache with multiple queries
+        // Clear cache
+        // All subsequent queries should re-fetch
 
-          expect(queries.length).toBeGreaterThan(0);
-        }
-      ),
-      { numRuns: 50 }
+        expect(queries.length).toBeGreaterThan(0);
+      }),
+      { numRuns: 50 },
     );
   });
 });
@@ -487,18 +464,14 @@ describe('Property 38: MCP server validate_config round-trip', () => {
     'agentStop',
     'preToolUse',
     'postToolUse',
-    'userTriggered'
+    'userTriggered',
   );
 
   const hookActionArb = fc.constantFrom('askAgent', 'runCommand');
 
   it('Property 38.1: Generated hook configs validate successfully', async () => {
-    const { generateHook } = await import(
-      '../../lib/configGenerator.js'
-    );
-    const { validate } = await import(
-      '../../lib/configGenerator.js'
-    );
+    const { generateHook } = await import('../../lib/configGenerator.js');
+    const { validate } = await import('../../lib/configGenerator.js');
 
     await fc.assert(
       fc.asyncProperty(
@@ -512,8 +485,7 @@ describe('Property 38: MCP server validate_config round-trip', () => {
             description,
             triggerType: trigger,
             actionType: action,
-            prompt:
-              action === 'askAgent' ? 'Review changes' : undefined,
+            prompt: action === 'askAgent' ? 'Review changes' : undefined,
             command: action === 'runCommand' ? 'npm test' : undefined,
           });
 
@@ -521,50 +493,38 @@ describe('Property 38: MCP server validate_config round-trip', () => {
 
           expect(result.isValid).toBe(true);
           expect(result.errors).toHaveLength(0);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('Property 38.2: Generated agent configs validate successfully', async () => {
-    const { generateAgent } = await import(
-      '../../lib/configGenerator.js'
-    );
-    const { validate } = await import(
-      '../../lib/configGenerator.js'
-    );
+    const { generateAgent } = await import('../../lib/configGenerator.js');
+    const { validate } = await import('../../lib/configGenerator.js');
 
     await fc.assert(
-      fc.asyncProperty(
-        validNameArb,
-        validDescriptionArb,
-        async (name, description) => {
-          const config = generateAgent({
-            name,
-            description,
-          });
+      fc.asyncProperty(validNameArb, validDescriptionArb, async (name, description) => {
+        const config = generateAgent({
+          name,
+          description,
+        });
 
-          const result = validate({
-            toolType: 'custom-agent',
-            config,
-          });
+        const result = validate({
+          toolType: 'custom-agent',
+          config,
+        });
 
-          expect(result.isValid).toBe(true);
-          expect(result.errors).toHaveLength(0);
-        }
-      ),
-      { numRuns: 100 }
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+      }),
+      { numRuns: 100 },
     );
   });
 
   it('Property 38.3: Generated power configs validate successfully', async () => {
-    const { generatePower } = await import(
-      '../../lib/configGenerator.js'
-    );
-    const { validate } = await import(
-      '../../lib/configGenerator.js'
-    );
+    const { generatePower } = await import('../../lib/configGenerator.js');
+    const { validate } = await import('../../lib/configGenerator.js');
 
     await fc.assert(
       fc.asyncProperty(
@@ -599,19 +559,15 @@ describe('Property 38: MCP server validate_config round-trip', () => {
           expect(validationResult.errors).toHaveLength(0);
           expect(result.powerMd).toContain(name);
           expect(result.powerMd).toContain(displayName);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('Property 38.4: Generated steering configs validate successfully', async () => {
-    const { generateSteering } = await import(
-      '../../lib/configGenerator.js'
-    );
-    const { validate } = await import(
-      '../../lib/configGenerator.js'
-    );
+    const { generateSteering } = await import('../../lib/configGenerator.js');
+    const { validate } = await import('../../lib/configGenerator.js');
 
     await fc.assert(
       fc.asyncProperty(
@@ -636,19 +592,15 @@ describe('Property 38: MCP server validate_config round-trip', () => {
           expect(validationResult.isValid).toBe(true);
           expect(validationResult.errors).toHaveLength(0);
           expect(result).toContain(inclusion);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('Property 38.5: Generated skill configs validate successfully', async () => {
-    const { generateSkill } = await import(
-      '../../lib/configGenerator.js'
-    );
-    const { validate } = await import(
-      '../../lib/configGenerator.js'
-    );
+    const { generateSkill } = await import('../../lib/configGenerator.js');
+    const { validate } = await import('../../lib/configGenerator.js');
 
     await fc.assert(
       fc.asyncProperty(
@@ -675,57 +627,49 @@ describe('Property 38: MCP server validate_config round-trip', () => {
           expect(validationResult.errors).toHaveLength(0);
           expect(result.skillMd).toContain(name);
           expect(result.directories).toContain(name);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('Property 38.6: Generated MCP configs validate successfully', async () => {
-    const { generateMcpConfig } = await import(
-      '../../lib/configGenerator.js'
-    );
-    const { validate } = await import(
-      '../../lib/configGenerator.js'
-    );
+    const { generateMcpConfig } = await import('../../lib/configGenerator.js');
+    const { validate } = await import('../../lib/configGenerator.js');
 
     await fc.assert(
-      fc.asyncProperty(
-        validNameArb,
-        fc.constantFrom('local', 'remote'),
-        async (name, type) => {
-          const servers = [
-            {
-              name,
-              type,
-              ...(type === 'local' && {
-                command: 'node',
-                args: ['server.js'],
-              }),
-              ...(type === 'remote' && {
-                url: 'https://example.com/mcp',
-              }),
-            },
-          ];
+      fc.asyncProperty(validNameArb, fc.constantFrom('local', 'remote'), async (name, type) => {
+        const servers = [
+          {
+            name,
+            type,
+            ...(type === 'local' && {
+              command: 'node',
+              args: ['server.js'],
+            }),
+            ...(type === 'remote' && {
+              url: 'https://example.com/mcp',
+            }),
+          },
+        ];
 
-          const config = generateMcpConfig(servers);
+        const config = generateMcpConfig(servers);
 
-          const serverConfig =
-            type === 'local'
-              ? { command: 'node', args: ['server.js'] }
-              : { url: 'https://example.com/mcp' };
+        const serverConfig =
+          type === 'local'
+            ? { command: 'node', args: ['server.js'] }
+            : { url: 'https://example.com/mcp' };
 
-          const validationResult = validate({
-            toolType: 'mcp-server',
-            config: serverConfig,
-          });
+        const validationResult = validate({
+          toolType: 'mcp-server',
+          config: serverConfig,
+        });
 
-          expect(validationResult.isValid).toBe(true);
-          expect(validationResult.errors).toHaveLength(0);
-          expect(config.mcpServers[name]).toBeDefined();
-        }
-      ),
-      { numRuns: 100 }
+        expect(validationResult.isValid).toBe(true);
+        expect(validationResult.errors).toHaveLength(0);
+        expect(config.mcpServers[name]).toBeDefined();
+      }),
+      { numRuns: 100 },
     );
   });
 });

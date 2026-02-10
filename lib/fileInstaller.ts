@@ -1,6 +1,6 @@
-import { resolve, dirname, join } from 'node:path';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { mkdir, writeFile, access } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import type { ScaffoldResult } from './types.js';
 
 // ─── Types ─────────────────────────────────────────────────
@@ -82,9 +82,7 @@ export function resolveTargetRoot(target: InstallTarget): string {
       return KIRO_GLOBAL_DIR;
     case 'custom': {
       if (!target.targetDir || target.targetDir.trim() === '') {
-        throw new Error(
-          'targetDir is required for custom install scope'
-        );
+        throw new Error('targetDir is required for custom install scope');
       }
       return resolve(target.targetDir);
     }
@@ -93,14 +91,8 @@ export function resolveTargetRoot(target: InstallTarget): string {
   }
 }
 
-export function rewritePath(
-  relativePath: string,
-  scope: InstallScope
-): string {
-  const rewrites =
-    scope === 'global'
-      ? GLOBAL_PATH_REWRITES
-      : WORKSPACE_PATH_REWRITES;
+export function rewritePath(relativePath: string, scope: InstallScope): string {
+  const rewrites = scope === 'global' ? GLOBAL_PATH_REWRITES : WORKSPACE_PATH_REWRITES;
 
   for (const { match, rewrite } of rewrites) {
     if (match.test(relativePath)) {
@@ -111,10 +103,7 @@ export function rewritePath(
   return relativePath;
 }
 
-export function resolveFilePath(
-  relativePath: string,
-  target: InstallTarget
-): string {
+export function resolveFilePath(relativePath: string, target: InstallTarget): string {
   const root = resolveTargetRoot(target);
   const rewritten = rewritePath(relativePath, target.scope);
   return resolve(root, rewritten);
@@ -124,7 +113,7 @@ export function resolveFilePath(
 
 export function previewInstall(
   scaffoldResult: ScaffoldResult,
-  target: InstallTarget
+  target: InstallTarget,
 ): InstallResult {
   const root = resolveTargetRoot(target);
   const installedFiles = scaffoldResult.files.map((f) => {
@@ -147,7 +136,7 @@ export function previewInstall(
 
 export async function install(
   scaffoldResult: ScaffoldResult,
-  target: InstallTarget
+  target: InstallTarget,
 ): Promise<InstallResult> {
   const root = resolveTargetRoot(target);
   const installedFiles: InstallResult['installedFiles'] = [];
@@ -162,8 +151,7 @@ export async function install(
       await writeFile(absolutePath, file.content, 'utf-8');
       installedFiles.push({ relativePath: rewritten, absolutePath });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       errors.push({ path: rewritten, message });
     }
   }
@@ -179,7 +167,7 @@ export async function install(
 // ─── Validation ────────────────────────────────────────────
 
 export async function validateTargetDir(
-  targetDir: string
+  targetDir: string,
 ): Promise<{ isValid: boolean; message: string }> {
   const resolved = resolve(targetDir);
 

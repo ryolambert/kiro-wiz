@@ -1,9 +1,6 @@
 import type { KiroToolType } from './types';
 
-export const BEST_PRACTICES_CONTENT: Record<
-  KiroToolType,
-  string
-> = {
+export const BEST_PRACTICES_CONTENT: Record<KiroToolType, string> = {
   spec: `
 ## When to Use Specs
 

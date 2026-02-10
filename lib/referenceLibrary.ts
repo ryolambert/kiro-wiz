@@ -1,11 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type {
-  DocType,
-  KiroToolType,
-  ReferenceDocument,
-} from './types';
-import { KIRO_TOOL_TYPES } from './types';
 import { TOOL_TYPE_DISPLAY } from './compilerData';
 import {
   buildCrossRefSection,
@@ -14,21 +8,16 @@ import {
   generateExamplesContent,
   generateTemplatesContent,
 } from './referenceLibraryData';
+import type { DocType, KiroToolType, ReferenceDocument } from './types';
+import { KIRO_TOOL_TYPES } from './types';
 
 // ─── Doc Type Constants ────────────────────────────────────
 
-const DOC_TYPES: readonly DocType[] = [
-  'best-practices',
-  'examples',
-  'templates',
-] as const;
+const DOC_TYPES: readonly DocType[] = ['best-practices', 'examples', 'templates'] as const;
 
 // ─── Content Generators Map ────────────────────────────────
 
-const CONTENT_GENERATORS: Record<
-  DocType,
-  (t: KiroToolType) => { title: string; body: string }
-> = {
+const CONTENT_GENERATORS: Record<DocType, (t: KiroToolType) => { title: string; body: string }> = {
   'best-practices': generateBestPracticesContent,
   examples: generateExamplesContent,
   templates: generateTemplatesContent,
@@ -36,16 +25,10 @@ const CONTENT_GENERATORS: Record<
 
 // ─── Generate Single Document ──────────────────────────────
 
-export function generate(
-  toolType: KiroToolType,
-  docType: DocType
-): ReferenceDocument {
+export function generate(toolType: KiroToolType, docType: DocType): ReferenceDocument {
   const gen = CONTENT_GENERATORS[docType];
   const { title, body } = gen(toolType);
-  const crossRefSection = buildCrossRefSection(
-    toolType,
-    docType
-  );
+  const crossRefSection = buildCrossRefSection(toolType, docType);
   const crossRefs = buildCrossRefs(toolType, docType);
 
   const content = [
@@ -84,24 +67,17 @@ export function generateAll(): ReferenceDocument[] {
 
 // ─── Filter by Tool Type ───────────────────────────────────
 
-export function getForToolType(
-  toolType: KiroToolType,
-  docType?: DocType
-): ReferenceDocument[] {
+export function getForToolType(toolType: KiroToolType, docType?: DocType): ReferenceDocument[] {
   const all = generateAll();
 
   return all.filter(
-    (doc) =>
-      doc.toolType === toolType &&
-      (docType === undefined || doc.docType === docType)
+    (doc) => doc.toolType === toolType && (docType === undefined || doc.docType === docType),
   );
 }
 
 // ─── Write All to Disk ────────────────────────────────────
 
-export async function writeAll(
-  baseDir: string
-): Promise<string[]> {
+export async function writeAll(baseDir: string): Promise<string[]> {
   const docs = generateAll();
   const writtenPaths: string[] = [];
 

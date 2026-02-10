@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { createMcpServer, KiroMcpServer } from '../../lib/mcpServer.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { type KiroMcpServer, createMcpServer } from '../../lib/mcpServer.js';
 import type { KiroToolType, PlatformTarget } from '../../lib/types.js';
 
 describe('KiroMcpServer', () => {
@@ -148,10 +148,7 @@ describe('KiroMcpServer', () => {
     });
 
     it('should maintain health status when KB unavailable', async () => {
-      const nonExistentDir = path.join(
-        process.cwd(),
-        'non-existent-kb'
-      );
+      const nonExistentDir = path.join(process.cwd(), 'non-existent-kb');
 
       const serverWithMissingKb = createMcpServer({
         basePath: nonExistentDir,
@@ -193,9 +190,7 @@ describe('KiroMcpServer', () => {
         port: 3000,
       });
 
-      await expect(httpServer.start()).rejects.toThrow(
-        'HTTP transport not yet implemented'
-      );
+      await expect(httpServer.start()).rejects.toThrow('HTTP transport not yet implemented');
     });
 
     it('should handle stdio transport configuration', () => {
@@ -213,7 +208,7 @@ describe('KiroMcpServer', () => {
       await fs.mkdir(kbDir, { recursive: true });
       await fs.writeFile(
         path.join(kbDir, 'hook-basics.md'),
-        '# Hook Basics\n\nHooks are event-driven automations.'
+        '# Hook Basics\n\nHooks are event-driven automations.',
       );
     });
 

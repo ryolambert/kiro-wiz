@@ -1,5 +1,5 @@
+import { install, previewInstall } from '../../../lib/fileInstaller.js';
 import { scaffoldTool } from '../../../lib/scaffoldingEngine.js';
-import { previewInstall, install } from '../../../lib/fileInstaller.js';
 import type { KiroToolType, ScaffoldOptions } from '../../../lib/types.js';
 import { KIRO_TOOL_TYPES } from '../../../lib/types.js';
 
@@ -8,7 +8,9 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
   const name = args[1];
 
   if (!type || !name) {
-    console.error(`Usage: kiro-wiz scaffold <type> <name> [--desc "..."] [--scope global] [--dry-run] [--force]`);
+    console.error(
+      `Usage: kiro-wiz scaffold <type> <name> [--desc "..."] [--scope global] [--dry-run] [--force]`,
+    );
     console.error(`Types: ${KIRO_TOOL_TYPES.join(', ')}`);
     process.exit(1);
   }

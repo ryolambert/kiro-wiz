@@ -1,36 +1,19 @@
-import { describe, it, expect } from 'vitest';
-import fc from 'fast-check';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { mkdtemp, rm } from 'node:fs/promises';
-import {
-  checkChangelog,
-  run,
-} from '../../lib/changeDetector.js';
+import fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
+import { checkChangelog, run } from '../../lib/changeDetector.js';
 import { URL_CATEGORIES } from '../../lib/types.js';
-import type {
-  RegistryEntry,
-  SitemapEntry,
-  UrlCategory,
-} from '../../lib/types.js';
+import type { RegistryEntry, SitemapEntry, UrlCategory } from '../../lib/types.js';
 
 // ─── Shared Arbitraries ─────────────────────────────────────
 
-const arbCategory: fc.Arbitrary<UrlCategory> = fc.constantFrom(
-  ...URL_CATEGORIES
-);
+const arbCategory: fc.Arbitrary<UrlCategory> = fc.constantFrom(...URL_CATEGORIES);
 
-const arbSource = fc.constantFrom(
-  'sitemap' as const,
-  'agentskills' as const,
-  'manual' as const
-);
+const arbSource = fc.constantFrom('sitemap' as const, 'agentskills' as const, 'manual' as const);
 
-const arbStatus = fc.constantFrom(
-  'active' as const,
-  'stale' as const,
-  'failed' as const
-);
+const arbStatus = fc.constantFrom('active' as const, 'stale' as const, 'failed' as const);
 
 const arbSafeDate = fc
   .date({
@@ -40,9 +23,7 @@ const arbSafeDate = fc
   })
   .map((d) => d.toISOString().slice(0, 10));
 
-const arbUrl = fc
-  .integer({ min: 1, max: 9999 })
-  .map((n) => `https://kiro.dev/docs/page-${n}`);
+const arbUrl = fc.integer({ min: 1, max: 9999 }).map((n) => `https://kiro.dev/docs/page-${n}`);
 
 const arbSitemapEntry: fc.Arbitrary<SitemapEntry> = fc.record({
   url: arbUrl,
@@ -102,16 +83,12 @@ describe('Property 15: Change detection correctness', () => {
         fc.array(arbSitemapEntry, { minLength: 0, maxLength: 10 }),
         fc.array(
           arbRegistryEntry.map((e) => ({ ...e, source: 'sitemap' as const })),
-          { minLength: 0, maxLength: 10 }
+          { minLength: 0, maxLength: 10 },
         ),
         async (sitemapEntries, registryEntries) => {
           // Deduplicate by URL
-          const sitemapDeduped = [
-            ...new Map(sitemapEntries.map((e) => [e.url, e])).values(),
-          ];
-          const registryDeduped = [
-            ...new Map(registryEntries.map((e) => [e.url, e])).values(),
-          ];
+          const sitemapDeduped = [...new Map(sitemapEntries.map((e) => [e.url, e])).values()];
+          const registryDeduped = [...new Map(registryEntries.map((e) => [e.url, e])).values()];
 
           const xml = buildSitemapXml(sitemapDeduped);
           const tmpDir = await mkdtemp(join(tmpdir(), 'p15-'));
@@ -139,9 +116,9 @@ describe('Property 15: Change detection correctness', () => {
           } finally {
             await rm(tmpDir, { recursive: true, force: true });
           }
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -158,13 +135,11 @@ describe('Property 15: Change detection correctness', () => {
               sitemapLastmod: fc.constant(newer),
             });
           }),
-          { minLength: 1, maxLength: 8 }
+          { minLength: 1, maxLength: 8 },
         ),
         async (pairs) => {
           // Deduplicate
-          const deduped = [
-            ...new Map(pairs.map((p) => [p.url, p])).values(),
-          ];
+          const deduped = [...new Map(pairs.map((p) => [p.url, p])).values()];
 
           const sitemapEntries: SitemapEntry[] = deduped.map((p) => ({
             url: p.url,
@@ -201,9 +176,9 @@ describe('Property 15: Change detection correctness', () => {
           } finally {
             await rm(tmpDir, { recursive: true, force: true });
           }
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });
@@ -222,52 +197,36 @@ describe('Property 15: Change detection correctness', () => {
 describe('Property 16: Changelog timestamp comparison', () => {
   it('hasNewEntries=true when latest changelog date > since', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        arbSafeDate,
-        arbSafeDate,
-        async (date1, date2) => {
-          // Ensure date1 > date2 (strictly newer)
-          const newer = date1 > date2 ? date1 : date2;
-          const older = date1 > date2 ? date2 : date1;
-          if (newer === older) return; // skip equal dates
+      fc.asyncProperty(arbSafeDate, arbSafeDate, async (date1, date2) => {
+        // Ensure date1 > date2 (strictly newer)
+        const newer = date1 > date2 ? date1 : date2;
+        const older = date1 > date2 ? date2 : date1;
+        if (newer === older) return; // skip equal dates
 
-          const html = `<h2>${newer}</h2><p>Update</p>`;
-          const result = await checkChangelog(
-            'https://kiro.dev/changelog',
-            older,
-            { rawHtml: html }
-          );
+        const html = `<h2>${newer}</h2><p>Update</p>`;
+        const result = await checkChangelog('https://kiro.dev/changelog', older, { rawHtml: html });
 
-          expect(result.hasNewEntries).toBe(true);
-          expect(result.latestTimestamp).toBe(newer);
-        }
-      ),
-      { numRuns: 100 }
+        expect(result.hasNewEntries).toBe(true);
+        expect(result.latestTimestamp).toBe(newer);
+      }),
+      { numRuns: 100 },
     );
   });
 
   it('hasNewEntries=false when latest changelog date <= since', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        arbSafeDate,
-        arbSafeDate,
-        async (date1, date2) => {
-          // Ensure date1 <= date2 (since is newer or equal)
-          const older = date1 < date2 ? date1 : date2;
-          const newer = date1 < date2 ? date2 : date1;
+      fc.asyncProperty(arbSafeDate, arbSafeDate, async (date1, date2) => {
+        // Ensure date1 <= date2 (since is newer or equal)
+        const older = date1 < date2 ? date1 : date2;
+        const newer = date1 < date2 ? date2 : date1;
 
-          const html = `<h2>${older}</h2><p>Old entry</p>`;
-          const result = await checkChangelog(
-            'https://kiro.dev/changelog',
-            newer,
-            { rawHtml: html }
-          );
+        const html = `<h2>${older}</h2><p>Old entry</p>`;
+        const result = await checkChangelog('https://kiro.dev/changelog', newer, { rawHtml: html });
 
-          expect(result.hasNewEntries).toBe(false);
-          expect(result.latestTimestamp).toBe(older);
-        }
-      ),
-      { numRuns: 100 }
+        expect(result.hasNewEntries).toBe(false);
+        expect(result.latestTimestamp).toBe(older);
+      }),
+      { numRuns: 100 },
     );
   });
 });
@@ -288,9 +247,7 @@ describe('Property 17: Error preservation of registry state', () => {
       fc.asyncProperty(
         fc.array(arbRegistryEntry, { minLength: 0, maxLength: 15 }),
         async (entries) => {
-          const deduped = [
-            ...new Map(entries.map((e) => [e.url, e])).values(),
-          ];
+          const deduped = [...new Map(entries.map((e) => [e.url, e])).values()];
 
           const failFetch = async (): Promise<never> => {
             throw new Error('Network error');
@@ -314,9 +271,9 @@ describe('Property 17: Error preservation of registry state', () => {
           } finally {
             await rm(tmpDir, { recursive: true, force: true });
           }
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });
@@ -338,15 +295,11 @@ describe('Property 18: Run result completeness', () => {
         fc.array(arbSitemapEntry, { minLength: 0, maxLength: 10 }),
         fc.array(
           arbRegistryEntry.map((e) => ({ ...e, source: 'sitemap' as const })),
-          { minLength: 0, maxLength: 10 }
+          { minLength: 0, maxLength: 10 },
         ),
         async (sitemapEntries, registryEntries) => {
-          const sitemapDeduped = [
-            ...new Map(sitemapEntries.map((e) => [e.url, e])).values(),
-          ];
-          const registryDeduped = [
-            ...new Map(registryEntries.map((e) => [e.url, e])).values(),
-          ];
+          const sitemapDeduped = [...new Map(sitemapEntries.map((e) => [e.url, e])).values()];
+          const registryDeduped = [...new Map(registryEntries.map((e) => [e.url, e])).values()];
 
           const xml = buildSitemapXml(sitemapDeduped);
           const tmpDir = await mkdtemp(join(tmpdir(), 'p18-'));
@@ -385,9 +338,9 @@ describe('Property 18: Run result completeness', () => {
           } finally {
             await rm(tmpDir, { recursive: true, force: true });
           }
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });

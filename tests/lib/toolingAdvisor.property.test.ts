@@ -1,29 +1,15 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import {
-  recommend,
-  getPlatformAvailability,
-} from '../../lib/toolingAdvisor.js';
+import { describe, expect, it } from 'vitest';
 import { platformForToolType } from '../../lib/compilerData.js';
-import {
-  KIRO_TOOL_TYPES,
-  TOOL_PLATFORM,
-} from '../../lib/types.js';
-import type {
-  KiroToolType,
-  PlatformTarget,
-} from '../../lib/types.js';
+import { getPlatformAvailability, recommend } from '../../lib/toolingAdvisor.js';
 import { USE_CASE_KEYWORDS } from '../../lib/toolingAdvisorData.js';
+import { KIRO_TOOL_TYPES, TOOL_PLATFORM } from '../../lib/types.js';
+import type { KiroToolType, PlatformTarget } from '../../lib/types.js';
 
 // ─── Arbitraries ───────────────────────────────────────────
 
 const VALID_PLATFORMS = ['ide', 'cli', 'both'] as const;
-const VALID_CREDIT_COSTS = [
-  'none',
-  'low',
-  'medium',
-  'high',
-] as const;
+const VALID_CREDIT_COSTS = ['none', 'low', 'medium', 'high'] as const;
 
 /**
  * Generates use case strings that mix real keywords from the
@@ -33,10 +19,7 @@ const VALID_CREDIT_COSTS = [
 const allKeywords = Object.values(USE_CASE_KEYWORDS).flat();
 
 const arbKeywordUseCase: fc.Arbitrary<string> = fc
-  .tuple(
-    fc.constantFrom(...allKeywords),
-    fc.string({ minLength: 0, maxLength: 50 })
-  )
+  .tuple(fc.constantFrom(...allKeywords), fc.string({ minLength: 0, maxLength: 50 }))
   .map(([keyword, filler]) => `${filler} ${keyword} ${filler}`);
 
 const arbArbitraryUseCase: fc.Arbitrary<string> = fc.string({
@@ -46,7 +29,7 @@ const arbArbitraryUseCase: fc.Arbitrary<string> = fc.string({
 
 const arbUseCase: fc.Arbitrary<string> = fc.oneof(
   { weight: 3, arbitrary: arbKeywordUseCase },
-  { weight: 1, arbitrary: arbArbitraryUseCase }
+  { weight: 1, arbitrary: arbArbitraryUseCase },
 );
 
 // ─── Property 19 ───────────────────────────────────────────
@@ -73,7 +56,7 @@ describe('Property 19: Recommendation completeness', () => {
         const results = recommend(useCase);
         expect(results.length).toBeGreaterThanOrEqual(1);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -86,7 +69,7 @@ describe('Property 19: Recommendation completeness', () => {
           expect(KIRO_TOOL_TYPES).toContain(rec.toolType);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -99,7 +82,7 @@ describe('Property 19: Recommendation completeness', () => {
           expect(rec.rationale.length).toBeGreaterThan(0);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -115,7 +98,7 @@ describe('Property 19: Recommendation completeness', () => {
           }
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -126,13 +109,10 @@ describe('Property 19: Recommendation completeness', () => {
 
         for (const rec of results) {
           expect(rec.template).not.toBeNull();
-          expect(
-            typeof rec.template === 'string' &&
-              rec.template.length > 0
-          ).toBe(true);
+          expect(typeof rec.template === 'string' && rec.template.length > 0).toBe(true);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -142,15 +122,13 @@ describe('Property 19: Recommendation completeness', () => {
         const results = recommend(useCase);
 
         for (const rec of results) {
-          expect(
-            rec.tradeOffs.length
-          ).toBeGreaterThanOrEqual(1);
+          expect(rec.tradeOffs.length).toBeGreaterThanOrEqual(1);
           for (const tradeOff of rec.tradeOffs) {
             expect(tradeOff.length).toBeGreaterThan(0);
           }
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -163,7 +141,7 @@ describe('Property 19: Recommendation completeness', () => {
           expect(VALID_PLATFORMS).toContain(rec.platform);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -173,50 +151,36 @@ describe('Property 19: Recommendation completeness', () => {
         const results = recommend(useCase);
 
         for (const rec of results) {
-          expect(VALID_CREDIT_COSTS).toContain(
-            rec.creditCost
-          );
+          expect(VALID_CREDIT_COSTS).toContain(rec.creditCost);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
 
-
 // ─── Platform Classification Constants ─────────────────────
 
-const IDE_ONLY_TOOLS: KiroToolType[] = [
-  'power',
-  'spec',
-  'subagent',
-  'context-provider',
-];
+const IDE_ONLY_TOOLS: KiroToolType[] = ['power', 'spec', 'subagent', 'context-provider'];
 
 const CLI_ONLY_TOOLS: KiroToolType[] = ['custom-agent'];
 
-const CROSS_PLATFORM_TOOLS: KiroToolType[] = [
-  'hook',
-  'steering-doc',
-  'skill',
-  'mcp-server',
-];
+const CROSS_PLATFORM_TOOLS: KiroToolType[] = ['hook', 'steering-doc', 'skill', 'mcp-server'];
 
 const CLOUD_TOOLS: KiroToolType[] = ['autonomous-agent'];
 
-const EXPECTED_PLATFORM: Record<KiroToolType, PlatformTarget> =
-  {
-    spec: 'ide',
-    hook: 'both',
-    'steering-doc': 'both',
-    skill: 'both',
-    power: 'ide',
-    'mcp-server': 'both',
-    'custom-agent': 'cli',
-    'autonomous-agent': 'both',
-    subagent: 'ide',
-    'context-provider': 'ide',
-  };
+const EXPECTED_PLATFORM: Record<KiroToolType, PlatformTarget> = {
+  spec: 'ide',
+  hook: 'both',
+  'steering-doc': 'both',
+  skill: 'both',
+  power: 'ide',
+  'mcp-server': 'both',
+  'custom-agent': 'cli',
+  'autonomous-agent': 'both',
+  subagent: 'ide',
+  'context-provider': 'ide',
+};
 
 // ─── Tool-Type Targeted Arbitrary ──────────────────────────
 
@@ -224,21 +188,15 @@ const EXPECTED_PLATFORM: Record<KiroToolType, PlatformTarget> =
  * Generates a use case string guaranteed to match a specific
  * tool type by embedding one of its keywords.
  */
-function arbUseCaseForToolType(
-  toolType: KiroToolType
-): fc.Arbitrary<string> {
+function arbUseCaseForToolType(toolType: KiroToolType): fc.Arbitrary<string> {
   const keywords = USE_CASE_KEYWORDS[toolType];
 
   return fc
-    .tuple(
-      fc.constantFrom(...keywords),
-      fc.string({ minLength: 0, maxLength: 30 })
-    )
+    .tuple(fc.constantFrom(...keywords), fc.string({ minLength: 0, maxLength: 30 }))
     .map(([kw, filler]) => `${filler} ${kw}`);
 }
 
-const arbToolType: fc.Arbitrary<KiroToolType> =
-  fc.constantFrom(...KIRO_TOOL_TYPES);
+const arbToolType: fc.Arbitrary<KiroToolType> = fc.constantFrom(...KIRO_TOOL_TYPES);
 
 // ─── Property 20 ───────────────────────────────────────────
 
@@ -270,87 +228,67 @@ describe('Property 20: Platform compatibility correctness', () => {
           expect(rec.platform).toBe(expected);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('IDE-only tools always map to platform "ide"', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom(...IDE_ONLY_TOOLS),
-        (toolType) => {
-          const keywords = USE_CASE_KEYWORDS[toolType];
-          const useCase = keywords.join(' ');
-          const results = recommend(useCase);
-          const match = results.find(
-            (r) => r.toolType === toolType
-          );
+      fc.property(fc.constantFrom(...IDE_ONLY_TOOLS), (toolType) => {
+        const keywords = USE_CASE_KEYWORDS[toolType];
+        const useCase = keywords.join(' ');
+        const results = recommend(useCase);
+        const match = results.find((r) => r.toolType === toolType);
 
-          expect(match).toBeDefined();
-          expect(match!.platform).toBe('ide');
-        }
-      ),
-      { numRuns: 100 }
+        expect(match).toBeDefined();
+        expect(match?.platform).toBe('ide');
+      }),
+      { numRuns: 100 },
     );
   });
 
   it('CLI-only tools always map to platform "cli"', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom(...CLI_ONLY_TOOLS),
-        (toolType) => {
-          const keywords = USE_CASE_KEYWORDS[toolType];
-          const useCase = keywords.join(' ');
-          const results = recommend(useCase);
-          const match = results.find(
-            (r) => r.toolType === toolType
-          );
+      fc.property(fc.constantFrom(...CLI_ONLY_TOOLS), (toolType) => {
+        const keywords = USE_CASE_KEYWORDS[toolType];
+        const useCase = keywords.join(' ');
+        const results = recommend(useCase);
+        const match = results.find((r) => r.toolType === toolType);
 
-          expect(match).toBeDefined();
-          expect(match!.platform).toBe('cli');
-        }
-      ),
-      { numRuns: 100 }
+        expect(match).toBeDefined();
+        expect(match?.platform).toBe('cli');
+      }),
+      { numRuns: 100 },
     );
   });
 
   it('cross-platform tools always map to platform "both"', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom(...CROSS_PLATFORM_TOOLS),
-        (toolType) => {
-          const keywords = USE_CASE_KEYWORDS[toolType];
-          const useCase = keywords.join(' ');
-          const results = recommend(useCase);
-          const match = results.find(
-            (r) => r.toolType === toolType
-          );
+      fc.property(fc.constantFrom(...CROSS_PLATFORM_TOOLS), (toolType) => {
+        const keywords = USE_CASE_KEYWORDS[toolType];
+        const useCase = keywords.join(' ');
+        const results = recommend(useCase);
+        const match = results.find((r) => r.toolType === toolType);
 
-          expect(match).toBeDefined();
-          expect(match!.platform).toBe('both');
-        }
-      ),
-      { numRuns: 100 }
+        expect(match).toBeDefined();
+        expect(match?.platform).toBe('both');
+      }),
+      { numRuns: 100 },
     );
   });
 
   it('cloud tools (autonomous-agent) map to platform "both"', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom(...CLOUD_TOOLS),
-        (toolType) => {
-          const keywords = USE_CASE_KEYWORDS[toolType];
-          const useCase = keywords.join(' ');
-          const results = recommend(useCase);
-          const match = results.find(
-            (r) => r.toolType === toolType
-          );
+      fc.property(fc.constantFrom(...CLOUD_TOOLS), (toolType) => {
+        const keywords = USE_CASE_KEYWORDS[toolType];
+        const useCase = keywords.join(' ');
+        const results = recommend(useCase);
+        const match = results.find((r) => r.toolType === toolType);
 
-          expect(match).toBeDefined();
-          expect(match!.platform).toBe('both');
-        }
-      ),
-      { numRuns: 100 }
+        expect(match).toBeDefined();
+        expect(match?.platform).toBe('both');
+      }),
+      { numRuns: 100 },
     );
   });
 
@@ -359,11 +297,9 @@ describe('Property 20: Platform compatibility correctness', () => {
       fc.property(arbToolType, (toolType) => {
         const rawPlatform = TOOL_PLATFORM[toolType];
         expect(rawPlatform).toBeDefined();
-        expect(
-          ['ide-only', 'cli-only', 'both', 'cloud']
-        ).toContain(rawPlatform);
+        expect(['ide-only', 'cli-only', 'both', 'cloud']).toContain(rawPlatform);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -381,7 +317,7 @@ describe('Property 20: Platform compatibility correctness', () => {
           expect(converted).toBe('both');
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -393,36 +329,27 @@ describe('Property 20: Platform compatibility correctness', () => {
 
         expect(raw).toBe(TOOL_PLATFORM[toolType]);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('keyword-targeted use cases produce recommendations with correct platform', () => {
     fc.assert(
       fc.property(
-        arbToolType.chain((tt) =>
-          arbUseCaseForToolType(tt).map(
-            (uc) => [tt, uc] as const
-          )
-        ),
+        arbToolType.chain((tt) => arbUseCaseForToolType(tt).map((uc) => [tt, uc] as const)),
         ([toolType, useCase]) => {
           const results = recommend(useCase);
-          const match = results.find(
-            (r) => r.toolType === toolType
-          );
+          const match = results.find((r) => r.toolType === toolType);
 
           if (match) {
-            expect(match.platform).toBe(
-              EXPECTED_PLATFORM[toolType]
-            );
+            expect(match.platform).toBe(EXPECTED_PLATFORM[toolType]);
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
-
 
 // ─── Scoring Helper (mirrors lib/toolingAdvisor.ts) ────────
 
@@ -430,10 +357,7 @@ describe('Property 20: Platform compatibility correctness', () => {
  * Replicates the scoring logic from toolingAdvisor.ts so we
  * can independently verify ranking order in property tests.
  */
-function scoreToolType(
-  useCase: string,
-  toolType: KiroToolType
-): number {
+function scoreToolType(useCase: string, toolType: KiroToolType): number {
   const lower = useCase.toLowerCase();
   const keywords = USE_CASE_KEYWORDS[toolType];
   let score = 0;
@@ -458,7 +382,7 @@ const arbMultiMatchUseCase: fc.Arbitrary<string> = fc
   .tuple(
     fc.constantFrom(...KIRO_TOOL_TYPES),
     fc.constantFrom(...KIRO_TOOL_TYPES),
-    fc.string({ minLength: 0, maxLength: 20 })
+    fc.string({ minLength: 0, maxLength: 20 }),
   )
   .filter(([a, b]) => a !== b)
   .map(([typeA, typeB, filler]) => {
@@ -492,17 +416,13 @@ describe('Property 21: Ranking and trade-offs', () => {
 
         if (results.length < 2) return;
 
-        const scores = results.map((r) =>
-          scoreToolType(useCase, r.toolType)
-        );
+        const scores = results.map((r) => scoreToolType(useCase, r.toolType));
 
         for (let i = 0; i < scores.length - 1; i++) {
-          expect(scores[i]).toBeGreaterThanOrEqual(
-            scores[i + 1]
-          );
+          expect(scores[i]).toBeGreaterThanOrEqual(scores[i + 1]);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -513,20 +433,14 @@ describe('Property 21: Ranking and trade-offs', () => {
 
         expect(results.length).toBeGreaterThanOrEqual(2);
 
-        const firstScore = scoreToolType(
-          useCase,
-          results[0].toolType
-        );
+        const firstScore = scoreToolType(useCase, results[0].toolType);
 
         for (const rec of results.slice(1)) {
-          const score = scoreToolType(
-            useCase,
-            rec.toolType
-          );
+          const score = scoreToolType(useCase, rec.toolType);
           expect(firstScore).toBeGreaterThanOrEqual(score);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -536,9 +450,7 @@ describe('Property 21: Ranking and trade-offs', () => {
         const results = recommend(useCase);
 
         for (const rec of results) {
-          expect(
-            rec.tradeOffs.length
-          ).toBeGreaterThanOrEqual(1);
+          expect(rec.tradeOffs.length).toBeGreaterThanOrEqual(1);
 
           for (const tradeOff of rec.tradeOffs) {
             expect(typeof tradeOff).toBe('string');
@@ -546,7 +458,7 @@ describe('Property 21: Ranking and trade-offs', () => {
           }
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -554,30 +466,21 @@ describe('Property 21: Ranking and trade-offs', () => {
     fc.assert(
       fc.property(arbUseCase, (useCase) => {
         const results = recommend(useCase);
-        const validCosts = [
-          'none',
-          'low',
-          'medium',
-          'high',
-        ];
+        const validCosts = ['none', 'low', 'medium', 'high'];
 
         for (const rec of results) {
-          const hasCreditCostField = validCosts.includes(
-            rec.creditCost
-          );
+          const hasCreditCostField = validCosts.includes(rec.creditCost);
           const hasCreditInTradeOffs = rec.tradeOffs.some(
             (t) =>
               t.toLowerCase().includes('credit') ||
               t.toLowerCase().includes('cost') ||
-              t.toLowerCase().includes('free')
+              t.toLowerCase().includes('free'),
           );
 
-          expect(
-            hasCreditCostField || hasCreditInTradeOffs
-          ).toBe(true);
+          expect(hasCreditCostField || hasCreditInTradeOffs).toBe(true);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -587,57 +490,37 @@ describe('Property 21: Ranking and trade-offs', () => {
         const results = recommend(useCase);
 
         for (const rec of results) {
-          const score = scoreToolType(
-            useCase,
-            rec.toolType
-          );
+          const score = scoreToolType(useCase, rec.toolType);
           expect(score).toBeGreaterThan(0);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('keyword-targeted use case ranks the targeted tool type first or tied-first', () => {
     fc.assert(
       fc.property(
-        arbToolType.chain((tt) =>
-          arbUseCaseForToolType(tt).map(
-            (uc) => [tt, uc] as const
-          )
-        ),
+        arbToolType.chain((tt) => arbUseCaseForToolType(tt).map((uc) => [tt, uc] as const)),
         ([toolType, useCase]) => {
           const results = recommend(useCase);
-          const targetScore = scoreToolType(
-            useCase,
-            toolType
-          );
-          const firstScore = scoreToolType(
-            useCase,
-            results[0].toolType
-          );
+          const targetScore = scoreToolType(useCase, toolType);
+          const firstScore = scoreToolType(useCase, results[0].toolType);
 
           // The targeted tool type should score at least
           // as high as the first result (tied-first) or
           // appear in the results
-          expect(firstScore).toBeGreaterThanOrEqual(
-            targetScore
-          );
+          expect(firstScore).toBeGreaterThanOrEqual(targetScore);
 
-          const match = results.find(
-            (r) => r.toolType === toolType
-          );
+          const match = results.find((r) => r.toolType === toolType);
 
           if (match) {
-            const matchScore = scoreToolType(
-              useCase,
-              match.toolType
-            );
+            const matchScore = scoreToolType(useCase, match.toolType);
             expect(matchScore).toBeGreaterThan(0);
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

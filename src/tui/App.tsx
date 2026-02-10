@@ -1,11 +1,11 @@
-import { useState } from 'react';
 import { useKeyboard } from '@opentui/react';
-import { MainMenu } from './screens/MainMenu.js';
-import { ScaffoldScreen } from './screens/ScaffoldScreen.js';
+import { useState } from 'react';
 import { AuditScreen } from './screens/AuditScreen.js';
-import { SyncScreen } from './screens/SyncScreen.js';
+import { MainMenu } from './screens/MainMenu.js';
 import { QueryScreen } from './screens/QueryScreen.js';
 import { RecommendScreen } from './screens/RecommendScreen.js';
+import { ScaffoldScreen } from './screens/ScaffoldScreen.js';
+import { SyncScreen } from './screens/SyncScreen.js';
 import { ValidateScreen } from './screens/ValidateScreen.js';
 
 export type Screen = 'menu' | 'scaffold' | 'audit' | 'sync' | 'query' | 'recommend' | 'validate';

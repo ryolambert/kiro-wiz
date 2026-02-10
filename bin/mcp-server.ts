@@ -15,7 +15,7 @@ function parseArgs(argv: string[]): {
     if (arg === '--http') {
       transport = 'http';
     } else if (arg === '--port' && i + 1 < argv.length) {
-      const parsed = parseInt(argv[++i], 10);
+      const parsed = Number.parseInt(argv[++i], 10);
       if (!Number.isNaN(parsed) && parsed > 0) {
         port = parsed;
       }
@@ -29,9 +29,7 @@ async function main(): Promise<void> {
   const { transport, port } = parseArgs(process.argv);
   const basePath = resolve('.');
 
-  console.error(
-    `Starting MCP server (${transport}, port: ${port})...`
-  );
+  console.error(`Starting MCP server (${transport}, port: ${port})...`);
 
   const server = createMcpServer({
     basePath,

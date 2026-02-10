@@ -1,20 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  fetchUrl,
-  fetchWithRetry,
-  fetchBatch,
-  HttpError,
-} from '../../lib/crawler.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { HttpError, fetchBatch, fetchUrl, fetchWithRetry } from '../../lib/crawler.js';
 
 // ─── Mock fetch ─────────────────────────────────────────────
 
 const noDelay = () => Promise.resolve();
 
-function mockFetch(
-  status: number,
-  body: string,
-  headers: Record<string, string> = {},
-): void {
+function mockFetch(status: number, body: string, headers: Record<string, string> = {}): void {
   const h = new Headers(headers);
   vi.stubGlobal(
     'fetch',
@@ -75,19 +66,15 @@ describe('fetchUrl', () => {
 
   it('throws HttpError on 404', async () => {
     mockFetch(404, 'Not Found');
-    await expect(fetchUrl('https://example.com/missing')).rejects.toThrow(
-      HttpError,
-    );
-    await expect(
-      fetchUrl('https://example.com/missing'),
-    ).rejects.toMatchObject({ statusCode: 404 });
+    await expect(fetchUrl('https://example.com/missing')).rejects.toThrow(HttpError);
+    await expect(fetchUrl('https://example.com/missing')).rejects.toMatchObject({
+      statusCode: 404,
+    });
   });
 
   it('throws HttpError on 500', async () => {
     mockFetch(500, 'Server Error');
-    await expect(fetchUrl('https://example.com')).rejects.toThrow(
-      HttpError,
-    );
+    await expect(fetchUrl('https://example.com')).rejects.toThrow(HttpError);
   });
 
   it('throws HttpError on 429 with Retry-After header', async () => {
@@ -189,9 +176,9 @@ describe('fetchWithRetry', () => {
 
   it('throws after exhausting retries', async () => {
     mockFetch(500, 'Server Error');
-    await expect(
-      fetchWithRetry('https://example.com', 2, { delayFn: noDelay }),
-    ).rejects.toThrow(HttpError);
+    await expect(fetchWithRetry('https://example.com', 2, { delayFn: noDelay })).rejects.toThrow(
+      HttpError,
+    );
     // 1 initial + 2 retries = 3 calls
     expect(fetch).toHaveBeenCalledTimes(3);
   });
@@ -199,9 +186,7 @@ describe('fetchWithRetry', () => {
   it('uses exponential backoff delays (1s, 2s, 4s)', async () => {
     const delaySpy = vi.fn().mockResolvedValue(undefined);
     mockFetch(500, 'Server Error');
-    await expect(
-      fetchWithRetry('https://example.com', 3, { delayFn: delaySpy }),
-    ).rejects.toThrow();
+    await expect(fetchWithRetry('https://example.com', 3, { delayFn: delaySpy })).rejects.toThrow();
     expect(delaySpy).toHaveBeenCalledTimes(3);
     expect(delaySpy).toHaveBeenNthCalledWith(1, 1000);
     expect(delaySpy).toHaveBeenNthCalledWith(2, 2000);
@@ -225,11 +210,9 @@ describe('fetchWithRetry', () => {
 describe('fetchBatch', () => {
   it('fetches all URLs successfully', async () => {
     mockFetch(200, '<html>ok</html>');
-    const results = await fetchBatch(
-      ['https://a.com', 'https://b.com', 'https://c.com'],
-      3,
-      { delayFn: noDelay },
-    );
+    const results = await fetchBatch(['https://a.com', 'https://b.com', 'https://c.com'], 3, {
+      delayFn: noDelay,
+    });
     expect(results).toHaveLength(3);
     results.forEach((r) => {
       expect('html' in r).toBe(true);
@@ -266,11 +249,9 @@ describe('fetchBatch', () => {
       }),
     );
 
-    await fetchBatch(
-      ['https://a.com', 'https://b.com', 'https://c.com', 'https://d.com'],
-      2,
-      { delayFn: noDelay },
-    );
+    await fetchBatch(['https://a.com', 'https://b.com', 'https://c.com', 'https://d.com'], 2, {
+      delayFn: noDelay,
+    });
     expect(maxConcurrent).toBeLessThanOrEqual(2);
   });
 
@@ -330,11 +311,10 @@ describe('fetchBatch', () => {
       }),
     );
 
-    const results = await fetchBatch(
-      ['https://a.com', 'https://b.com'],
-      2,
-      { delayFn: noDelay, maxRetries: 0 },
-    );
+    const results = await fetchBatch(['https://a.com', 'https://b.com'], 2, {
+      delayFn: noDelay,
+      maxRetries: 0,
+    });
     expect(results).toHaveLength(2);
     // First succeeds, second fails (404)
     expect('html' in results[0]).toBe(true);

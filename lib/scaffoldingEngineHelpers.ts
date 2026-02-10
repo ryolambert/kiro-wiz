@@ -1,23 +1,15 @@
-import type {
-  ScaffoldResult,
-  ScaffoldOptions,
-} from './types.js';
 import {
-  generateHook,
   generateAgent,
-  generateSteering,
+  generateHook,
   generateMcpConfig,
+  generateSteering,
 } from './configGenerator.js';
-import {
-  toKebabCase,
-  validateScaffoldOutput,
-} from './scaffoldingEngineUtils.js';
+import { toKebabCase, validateScaffoldOutput } from './scaffoldingEngineUtils.js';
+import type { ScaffoldOptions, ScaffoldResult } from './types.js';
 
 // ─── Hook Scaffolding ──────────────────────────────────────
 
-export function scaffoldHook(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldHook(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const hookConfig = generateHook({
@@ -28,10 +20,7 @@ export function scaffoldHook(
     prompt: `<!-- TODO: ${options.description} -->`,
   });
 
-  const validation = validateScaffoldOutput(
-    'hook',
-    hookConfig
-  );
+  const validation = validateScaffoldOutput('hook', hookConfig);
 
   const files: ScaffoldResult['files'] = [
     {
@@ -40,16 +29,12 @@ export function scaffoldHook(
     },
   ];
 
-  const instructionParts = [
-    `Hook "${kebabName}" scaffolded.`,
-  ];
+  const instructionParts = [`Hook "${kebabName}" scaffolded.`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation warnings:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
@@ -58,7 +43,7 @@ export function scaffoldHook(
     'Next steps:',
     '1. Set the trigger type (when.type)',
     '2. Configure the action (then.type + prompt/command)',
-    '3. Add file patterns if using file-based triggers'
+    '3. Add file patterns if using file-based triggers',
   );
 
   return {
@@ -69,9 +54,7 @@ export function scaffoldHook(
 
 // ─── Steering Doc Scaffolding ──────────────────────────────
 
-export function scaffoldSteeringDoc(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldSteeringDoc(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const content = generateSteering({
@@ -89,10 +72,7 @@ export function scaffoldSteeringDoc(
     inclusion: 'manual' as const,
     content: options.description,
   };
-  const validation = validateScaffoldOutput(
-    'steering-doc',
-    steeringConfig
-  );
+  const validation = validateScaffoldOutput('steering-doc', steeringConfig);
 
   const files: ScaffoldResult['files'] = [
     {
@@ -101,16 +81,12 @@ export function scaffoldSteeringDoc(
     },
   ];
 
-  const instructionParts = [
-    `Steering doc "${kebabName}" scaffolded.`,
-  ];
+  const instructionParts = [`Steering doc "${kebabName}" scaffolded.`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation warnings:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
@@ -124,7 +100,7 @@ export function scaffoldSteeringDoc(
     'Next steps:',
     '1. Set the inclusion mode in frontmatter',
     '2. Add steering content',
-    '3. Add fileMatchPattern if using fileMatch mode'
+    '3. Add fileMatchPattern if using fileMatch mode',
   );
 
   return {
@@ -135,9 +111,7 @@ export function scaffoldSteeringDoc(
 
 // ─── MCP Server Scaffolding ───────────────────────────────
 
-export function scaffoldMcpServer(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldMcpServer(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const mcpJson = generateMcpConfig([
@@ -167,7 +141,7 @@ export function scaffoldMcpServer(
   const files: ScaffoldResult['files'] = [
     {
       path: `bin/${kebabName}.ts`,
-      content: serverTemplate + '\n',
+      content: `${serverTemplate}\n`,
     },
     {
       path: 'mcp.json',
@@ -175,16 +149,12 @@ export function scaffoldMcpServer(
     },
   ];
 
-  const instructionParts = [
-    `MCP server "${kebabName}" scaffolded.`,
-  ];
+  const instructionParts = [`MCP server "${kebabName}" scaffolded.`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation warnings:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
@@ -193,7 +163,7 @@ export function scaffoldMcpServer(
     'Next steps:',
     '1. Implement server tools in the entry point',
     '2. Register tools with @modelcontextprotocol/sdk',
-    '3. Test with: npx tsx bin/' + kebabName + '.ts'
+    `3. Test with: npx tsx bin/${kebabName}.ts`,
   );
 
   return {
@@ -204,9 +174,7 @@ export function scaffoldMcpServer(
 
 // ─── Spec Scaffolding ──────────────────────────────────────
 
-export function scaffoldSpec(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldSpec(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const requirementsMd = [
@@ -252,15 +220,15 @@ export function scaffoldSpec(
   const files: ScaffoldResult['files'] = [
     {
       path: `.kiro/specs/${kebabName}/requirements.md`,
-      content: requirementsMd + '\n',
+      content: `${requirementsMd}\n`,
     },
     {
       path: `.kiro/specs/${kebabName}/design.md`,
-      content: designMd + '\n',
+      content: `${designMd}\n`,
     },
     {
       path: `.kiro/specs/${kebabName}/tasks.md`,
-      content: tasksMd + '\n',
+      content: `${tasksMd}\n`,
     },
   ];
 
@@ -279,9 +247,7 @@ export function scaffoldSpec(
 
 // ─── Autonomous Agent Scaffolding ──────────────────────────
 
-export function scaffoldAutonomousAgent(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldAutonomousAgent(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const agentConfig = generateAgent({
@@ -292,10 +258,7 @@ export function scaffoldAutonomousAgent(
     allowedTools: ['read'],
   });
 
-  const validation = validateScaffoldOutput(
-    'custom-agent',
-    agentConfig
-  );
+  const validation = validateScaffoldOutput('custom-agent', agentConfig);
 
   const files: ScaffoldResult['files'] = [
     {
@@ -304,16 +267,12 @@ export function scaffoldAutonomousAgent(
     },
   ];
 
-  const instructionParts = [
-    `Autonomous agent "${kebabName}" scaffolded.`,
-  ];
+  const instructionParts = [`Autonomous agent "${kebabName}" scaffolded.`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation warnings:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
@@ -322,7 +281,7 @@ export function scaffoldAutonomousAgent(
     'Next steps:',
     '1. Configure the agent prompt',
     '2. Set up tools and permissions',
-    '3. Define hooks for autonomous triggers'
+    '3. Define hooks for autonomous triggers',
   );
 
   return {
@@ -333,9 +292,7 @@ export function scaffoldAutonomousAgent(
 
 // ─── Subagent Scaffolding ──────────────────────────────────
 
-export function scaffoldSubagent(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldSubagent(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const agentConfig = generateAgent({
@@ -346,10 +303,7 @@ export function scaffoldSubagent(
     allowedTools: ['read'],
   });
 
-  const validation = validateScaffoldOutput(
-    'custom-agent',
-    agentConfig
-  );
+  const validation = validateScaffoldOutput('custom-agent', agentConfig);
 
   const files: ScaffoldResult['files'] = [
     {
@@ -358,16 +312,12 @@ export function scaffoldSubagent(
     },
   ];
 
-  const instructionParts = [
-    `Subagent "${kebabName}" scaffolded.`,
-  ];
+  const instructionParts = [`Subagent "${kebabName}" scaffolded.`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation warnings:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
@@ -376,7 +326,7 @@ export function scaffoldSubagent(
     'Next steps:',
     '1. Define the subagent scope and prompt',
     '2. Configure minimal tool permissions',
-    '3. Wire into parent agent workflow'
+    '3. Wire into parent agent workflow',
   );
 
   return {
@@ -387,9 +337,7 @@ export function scaffoldSubagent(
 
 // ─── Context Provider Scaffolding ──────────────────────────
 
-export function scaffoldContextProvider(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldContextProvider(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const steeringContent = generateSteering({
@@ -420,7 +368,7 @@ export function scaffoldContextProvider(
       '',
       'Next steps:',
       '1. Add context content to the steering file',
-      '2. Reference via #' + kebabName + ' in chat',
+      `2. Reference via #${kebabName} in chat`,
     ].join('\n'),
   };
 }

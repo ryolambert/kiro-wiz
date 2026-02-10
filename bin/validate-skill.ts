@@ -1,13 +1,13 @@
 #!/usr/bin/env npx tsx
 
+import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { readdir, readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import {
-  validateName,
+  parseFrontmatter,
   validateDirectory,
   validateFrontmatter,
-  parseFrontmatter,
+  validateName,
 } from '../lib/skillsValidator.js';
 
 async function main(): Promise<void> {
@@ -42,10 +42,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const dirResult = validateDirectory(
-    { hasSkillMd, directories },
-    dirName
-  );
+  const dirResult = validateDirectory({ hasSkillMd, directories }, dirName);
 
   // Validate name
   const nameResult = validateName(dirName);
@@ -55,8 +52,7 @@ async function main(): Promise<void> {
   if (hasSkillMd) {
     const skillMdPath = join(skillDir, 'SKILL.md');
     const content = await readFile(skillMdPath, 'utf-8');
-    const { frontmatter, errors: parseErrors } =
-      parseFrontmatter(content);
+    const { frontmatter, errors: parseErrors } = parseFrontmatter(content);
 
     fmErrors = [...parseErrors];
 
@@ -67,11 +63,7 @@ async function main(): Promise<void> {
   }
 
   // Collect all errors
-  const allErrors = [
-    ...nameResult.errors,
-    ...dirResult.errors,
-    ...fmErrors,
-  ];
+  const allErrors = [...nameResult.errors, ...dirResult.errors, ...fmErrors];
 
   if (allErrors.length === 0) {
     process.stdout.write(`✓ Skill "${dirName}" is valid\n`);

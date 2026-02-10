@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import { parseHtml } from '../../lib/contentParser.js';
 
 /**
@@ -32,13 +32,7 @@ const arbHeading = fc.record({
   text: arbHeadingText,
 });
 
-const LANGUAGES = [
-  'typescript',
-  'javascript',
-  'python',
-  'bash',
-  'json',
-] as const;
+const LANGUAGES = ['typescript', 'javascript', 'python', 'bash', 'json'] as const;
 
 const arbLanguage = fc.constantFrom(...LANGUAGES);
 
@@ -73,22 +67,15 @@ const arbTableRow = fc.array(arbCellText, {
   maxLength: 4,
 });
 
-const arbTable = fc
-  .array(arbTableRow, { minLength: 2, maxLength: 4 })
-  .map((rows) => {
-    const maxCols = Math.max(...rows.map((r) => r.length));
-    return rows.map((row) => {
-      while (row.length < maxCols) row.push('');
-      return row.slice(0, maxCols);
-    });
+const arbTable = fc.array(arbTableRow, { minLength: 2, maxLength: 4 }).map((rows) => {
+  const maxCols = Math.max(...rows.map((r) => r.length));
+  return rows.map((row) => {
+    while (row.length < maxCols) row.push('');
+    return row.slice(0, maxCols);
   });
+});
 
-const arbMetaName = fc.constantFrom(
-  'author',
-  'keywords',
-  'robots',
-  'viewport',
-);
+const arbMetaName = fc.constantFrom('author', 'keywords', 'robots', 'viewport');
 
 const arbMetaContent = fc.constantFrom(
   'Kiro Team',
@@ -112,36 +99,24 @@ const arbBoilerplateText = fc.constantFrom(
 
 // ─── HTML Builders ──────────────────────────────────────────
 
-function buildHeadingHtml(
-  h: { level: number; text: string },
-): string {
+function buildHeadingHtml(h: { level: number; text: string }): string {
   return `<h${h.level}>${h.text}</h${h.level}>`;
 }
 
-function buildCodeBlockHtml(
-  b: { language: string; content: string },
-): string {
-  return (
-    `<pre><code class="language-${b.language}">` +
-    `${b.content}</code></pre>`
-  );
+function buildCodeBlockHtml(b: { language: string; content: string }): string {
+  return `<pre><code class="language-${b.language}">` + `${b.content}</code></pre>`;
 }
 
 function buildTableHtml(rows: string[][]): string {
   const header = rows[0].map((c) => `<th>${c}</th>`).join('');
   const body = rows
     .slice(1)
-    .map(
-      (row) =>
-        `<tr>${row.map((c) => `<td>${c}</td>`).join('')}</tr>`,
-    )
+    .map((row) => `<tr>${row.map((c) => `<td>${c}</td>`).join('')}</tr>`)
     .join('');
   return `<table><tr>${header}</tr>${body}</table>`;
 }
 
-function buildMetaHtml(
-  m: { name: string; content: string },
-): string {
+function buildMetaHtml(m: { name: string; content: string }): string {
   return `<meta name="${m.name}" content="${m.content}">`;
 }
 
@@ -165,20 +140,13 @@ function buildHtmlDocument(parts: DocParts): string {
   const bodyParts: string[] = [];
 
   if (parts.boilerplate?.navText) {
-    bodyParts.push(
-      `<nav><a href="/home">${parts.boilerplate.navText}</a></nav>`,
-    );
+    bodyParts.push(`<nav><a href="/home">${parts.boilerplate.navText}</a></nav>`);
   }
   if (parts.boilerplate?.headerText) {
-    bodyParts.push(
-      `<header><p>${parts.boilerplate.headerText}</p></header>`,
-    );
+    bodyParts.push(`<header><p>${parts.boilerplate.headerText}</p></header>`);
   }
   if (parts.boilerplate?.sidebarText) {
-    bodyParts.push(
-      `<div class="sidebar">` +
-        `<p>${parts.boilerplate.sidebarText}</p></div>`,
-    );
+    bodyParts.push(`<div class="sidebar"><p>${parts.boilerplate.sidebarText}</p></div>`);
   }
 
   for (const p of parts.paragraphs ?? []) {
@@ -194,15 +162,11 @@ function buildHtmlDocument(parts: DocParts): string {
     bodyParts.push(buildTableHtml(tbl));
   }
   for (const link of parts.links ?? []) {
-    bodyParts.push(
-      `<p><a href="${link.href}">${link.text}</a></p>`,
-    );
+    bodyParts.push(`<p><a href="${link.href}">${link.text}</a></p>`);
   }
 
   if (parts.boilerplate?.footerText) {
-    bodyParts.push(
-      `<footer><p>${parts.boilerplate.footerText}</p></footer>`,
-    );
+    bodyParts.push(`<footer><p>${parts.boilerplate.footerText}</p></footer>`);
   }
 
   return [
@@ -220,78 +184,59 @@ function buildHtmlDocument(parts: DocParts): string {
 describe('Property 4: Content extraction completeness', () => {
   it('extracts all headings from the content area', () => {
     fc.assert(
-      fc.property(
-        fc.array(arbHeading, { minLength: 1, maxLength: 6 }),
-        (headings) => {
-          const html = buildHtmlDocument({
-            headings,
-            codeBlocks: [],
-            tables: [],
-            metaTags: [],
-          });
-          const result = parseHtml(html);
+      fc.property(fc.array(arbHeading, { minLength: 1, maxLength: 6 }), (headings) => {
+        const html = buildHtmlDocument({
+          headings,
+          codeBlocks: [],
+          tables: [],
+          metaTags: [],
+        });
+        const result = parseHtml(html);
 
-          expect(result.headings).toHaveLength(headings.length);
-          for (let i = 0; i < headings.length; i++) {
-            expect(result.headings[i].level).toBe(
-              headings[i].level,
-            );
-            expect(result.headings[i].text).toBe(
-              headings[i].text,
-            );
-          }
-        },
-      ),
+        expect(result.headings).toHaveLength(headings.length);
+        for (let i = 0; i < headings.length; i++) {
+          expect(result.headings[i].level).toBe(headings[i].level);
+          expect(result.headings[i].text).toBe(headings[i].text);
+        }
+      }),
       { numRuns: 10 },
     );
   });
 
   it('extracts all code blocks from the content area', () => {
     fc.assert(
-      fc.property(
-        fc.array(arbCodeBlock, { minLength: 1, maxLength: 5 }),
-        (codeBlocks) => {
-          const html = buildHtmlDocument({
-            headings: [],
-            codeBlocks,
-            tables: [],
-            metaTags: [],
-          });
-          const result = parseHtml(html);
+      fc.property(fc.array(arbCodeBlock, { minLength: 1, maxLength: 5 }), (codeBlocks) => {
+        const html = buildHtmlDocument({
+          headings: [],
+          codeBlocks,
+          tables: [],
+          metaTags: [],
+        });
+        const result = parseHtml(html);
 
-          expect(result.codeBlocks).toHaveLength(
-            codeBlocks.length,
-          );
-          for (let i = 0; i < codeBlocks.length; i++) {
-            expect(result.codeBlocks[i].language).toBe(
-              codeBlocks[i].language,
-            );
-            expect(result.codeBlocks[i].content).toBe(
-              codeBlocks[i].content,
-            );
-          }
-        },
-      ),
+        expect(result.codeBlocks).toHaveLength(codeBlocks.length);
+        for (let i = 0; i < codeBlocks.length; i++) {
+          expect(result.codeBlocks[i].language).toBe(codeBlocks[i].language);
+          expect(result.codeBlocks[i].content).toBe(codeBlocks[i].content);
+        }
+      }),
       { numRuns: 10 },
     );
   });
 
   it('extracts all tables from the content area', () => {
     fc.assert(
-      fc.property(
-        fc.array(arbTable, { minLength: 1, maxLength: 3 }),
-        (tables) => {
-          const html = buildHtmlDocument({
-            headings: [],
-            codeBlocks: [],
-            tables,
-            metaTags: [],
-          });
-          const result = parseHtml(html);
+      fc.property(fc.array(arbTable, { minLength: 1, maxLength: 3 }), (tables) => {
+        const html = buildHtmlDocument({
+          headings: [],
+          codeBlocks: [],
+          tables,
+          metaTags: [],
+        });
+        const result = parseHtml(html);
 
-          expect(result.tables).toHaveLength(tables.length);
-        },
-      ),
+        expect(result.tables).toHaveLength(tables.length);
+      }),
       { numRuns: 10 },
     );
   });
@@ -299,11 +244,10 @@ describe('Property 4: Content extraction completeness', () => {
   it('extracts metadata from meta tags', () => {
     fc.assert(
       fc.property(
-        fc.array(arbMetaTag, { minLength: 1, maxLength: 4 })
-          .filter((tags) => {
-            const names = tags.map((t) => t.name);
-            return new Set(names).size === names.length;
-          }),
+        fc.array(arbMetaTag, { minLength: 1, maxLength: 4 }).filter((tags) => {
+          const names = tags.map((t) => t.name);
+          return new Set(names).size === names.length;
+        }),
         (metaTags) => {
           const html = buildHtmlDocument({
             headings: [],
@@ -328,11 +272,10 @@ describe('Property 4: Content extraction completeness', () => {
         fc.array(arbHeading, { minLength: 1, maxLength: 4 }),
         fc.array(arbCodeBlock, { minLength: 1, maxLength: 3 }),
         fc.array(arbTable, { minLength: 1, maxLength: 2 }),
-        fc.array(arbMetaTag, { minLength: 1, maxLength: 3 })
-          .filter((tags) => {
-            const names = tags.map((t) => t.name);
-            return new Set(names).size === names.length;
-          }),
+        fc.array(arbMetaTag, { minLength: 1, maxLength: 3 }).filter((tags) => {
+          const names = tags.map((t) => t.name);
+          return new Set(names).size === names.length;
+        }),
         (headings, codeBlocks, tables, metaTags) => {
           const html = buildHtmlDocument({
             headings,
@@ -343,9 +286,7 @@ describe('Property 4: Content extraction completeness', () => {
           const result = parseHtml(html);
 
           expect(result.headings).toHaveLength(headings.length);
-          expect(result.codeBlocks).toHaveLength(
-            codeBlocks.length,
-          );
+          expect(result.codeBlocks).toHaveLength(codeBlocks.length);
           expect(result.tables).toHaveLength(tables.length);
           for (const tag of metaTags) {
             expect(result.metadata[tag.name]).toBe(tag.content);
@@ -405,12 +346,7 @@ describe('Property 4: Content extraction completeness', () => {
  * [text](url) syntax.
  */
 
-const arbLinkText = fc.constantFrom(
-  'docs',
-  'API guide',
-  'home',
-  'reference',
-);
+const arbLinkText = fc.constantFrom('docs', 'API guide', 'home', 'reference');
 
 const arbLinkHref = fc.constantFrom(
   'https://kiro.dev/docs',
@@ -427,104 +363,86 @@ const arbLink = fc.record({
 describe('Property 5: Structure preservation during parsing', () => {
   it('preserves heading levels in markdown output', () => {
     fc.assert(
-      fc.property(
-        fc.array(arbHeading, { minLength: 1, maxLength: 6 }),
-        (headings) => {
-          const html = buildHtmlDocument({
-            headings,
-            codeBlocks: [],
-            tables: [],
-            metaTags: [],
-          });
-          const result = parseHtml(html);
+      fc.property(fc.array(arbHeading, { minLength: 1, maxLength: 6 }), (headings) => {
+        const html = buildHtmlDocument({
+          headings,
+          codeBlocks: [],
+          tables: [],
+          metaTags: [],
+        });
+        const result = parseHtml(html);
 
-          for (const h of headings) {
-            const prefix = '#'.repeat(h.level);
-            expect(result.markdown).toContain(
-              `${prefix} ${h.text}`,
-            );
-          }
-        },
-      ),
+        for (const h of headings) {
+          const prefix = '#'.repeat(h.level);
+          expect(result.markdown).toContain(`${prefix} ${h.text}`);
+        }
+      }),
       { numRuns: 10 },
     );
   });
 
   it('preserves code block language annotations', () => {
     fc.assert(
-      fc.property(
-        fc.array(arbCodeBlock, { minLength: 1, maxLength: 4 }),
-        (codeBlocks) => {
-          const html = buildHtmlDocument({
-            headings: [],
-            codeBlocks,
-            tables: [],
-            metaTags: [],
-          });
-          const result = parseHtml(html);
+      fc.property(fc.array(arbCodeBlock, { minLength: 1, maxLength: 4 }), (codeBlocks) => {
+        const html = buildHtmlDocument({
+          headings: [],
+          codeBlocks,
+          tables: [],
+          metaTags: [],
+        });
+        const result = parseHtml(html);
 
-          for (const cb of codeBlocks) {
-            expect(result.markdown).toContain(
-              '```' + cb.language,
-            );
-            expect(result.markdown).toContain(cb.content);
-          }
-        },
-      ),
+        for (const cb of codeBlocks) {
+          expect(result.markdown).toContain(`\`\`\`${cb.language}`);
+          expect(result.markdown).toContain(cb.content);
+        }
+      }),
       { numRuns: 10 },
     );
   });
 
   it('preserves table pipe formatting', () => {
     fc.assert(
-      fc.property(
-        fc.array(arbTable, { minLength: 1, maxLength: 2 }),
-        (tables) => {
-          const html = buildHtmlDocument({
-            headings: [],
-            codeBlocks: [],
-            tables,
-            metaTags: [],
-          });
-          const result = parseHtml(html);
+      fc.property(fc.array(arbTable, { minLength: 1, maxLength: 2 }), (tables) => {
+        const html = buildHtmlDocument({
+          headings: [],
+          codeBlocks: [],
+          tables,
+          metaTags: [],
+        });
+        const result = parseHtml(html);
 
-          for (const tbl of tables) {
-            // Header cells appear in pipe-delimited row
-            for (const cell of tbl[0]) {
-              if (cell) {
-                expect(result.markdown).toContain(cell);
-              }
+        for (const tbl of tables) {
+          // Header cells appear in pipe-delimited row
+          for (const cell of tbl[0]) {
+            if (cell) {
+              expect(result.markdown).toContain(cell);
             }
-            // Separator row exists
-            expect(result.markdown).toContain('| ---');
           }
-        },
-      ),
+          // Separator row exists
+          expect(result.markdown).toContain('| ---');
+        }
+      }),
       { numRuns: 10 },
     );
   });
 
   it('preserves link [text](url) syntax', () => {
     fc.assert(
-      fc.property(
-        fc.array(arbLink, { minLength: 1, maxLength: 4 }),
-        (links) => {
-          const html = buildHtmlDocument({
-            headings: [],
-            codeBlocks: [],
-            tables: [],
-            metaTags: [],
-            links,
-          });
-          const result = parseHtml(html);
+      fc.property(fc.array(arbLink, { minLength: 1, maxLength: 4 }), (links) => {
+        const html = buildHtmlDocument({
+          headings: [],
+          codeBlocks: [],
+          tables: [],
+          metaTags: [],
+          links,
+        });
+        const result = parseHtml(html);
 
-          for (const link of links) {
-            expect(result.markdown).toContain(
-              `[${link.text}](${link.href})`,
-            );
-          }
-        },
-      ),
+        for (const link of links) {
+          expect(result.markdown).toContain(`[${link.text}](${link.href})`);
+        }
+      }),
       { numRuns: 10 },
     );
   });
@@ -535,21 +453,13 @@ describe('Property 5: Structure preservation during parsing', () => {
         fc.constantFrom('My Title', 'Guide', 'Reference'),
         fc.constantFrom('A description', 'Overview text'),
         (title, description) => {
-          const frontmatter =
-            `---\ntitle: ${title}\n` +
-            `description: ${description}\n---\n`;
-          const html =
-            frontmatter +
-            '<html><body>' +
-            '<h1>Content</h1>' +
-            '</body></html>';
+          const frontmatter = `---\ntitle: ${title}\n` + `description: ${description}\n---\n`;
+          const html = `${frontmatter}<html><body><h1>Content</h1></body></html>`;
           const result = parseHtml(html);
 
           expect(result.frontmatter).not.toBeNull();
           expect(result.frontmatter?.title).toBe(title);
-          expect(result.frontmatter?.description).toBe(
-            description,
-          );
+          expect(result.frontmatter?.description).toBe(description);
           expect(result.markdown).toMatch(/^---\n/);
         },
       ),
@@ -563,10 +473,7 @@ describe('Property 5: Structure preservation during parsing', () => {
       codeBlocks: [],
       tables: [],
       metaTags: [],
-      paragraphs: [
-        'Use <code>npm install</code> to install',
-        'Run <code>vitest</code> for tests',
-      ],
+      paragraphs: ['Use <code>npm install</code> to install', 'Run <code>vitest</code> for tests'],
     });
     const result = parseHtml(html);
 

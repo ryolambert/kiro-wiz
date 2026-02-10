@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
-  validateName,
-  validateDirectory,
-  serializeFrontmatter,
   parseFrontmatter,
+  serializeFrontmatter,
+  validateDirectory,
+  validateName,
 } from '../../lib/skillsValidator.js';
 
 // ─── Arbitraries ───────────────────────────────────────────
@@ -16,9 +16,7 @@ import {
  * - No leading/trailing hyphens
  * - No consecutive hyphens
  */
-const arbAlphaNum = fc.constantFrom(
-  ...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')
-);
+const arbAlphaNum = fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split(''));
 
 const arbValidSkillName: fc.Arbitrary<string> = fc
   .tuple(
@@ -34,10 +32,10 @@ const arbValidSkillName: fc.Arbitrary<string> = fc
           unit: arbAlphaNum,
           minLength: 1,
           maxLength: 8,
-        })
+        }),
       ),
-      { minLength: 0, maxLength: 5 }
-    )
+      { minLength: 0, maxLength: 5 },
+    ),
   )
   .map(([prefix, segments]) => {
     const parts = segments.map(([h, s]) => `${h}${s}`);
@@ -69,9 +67,7 @@ const arbInvalidSkillName: fc.Arbitrary<string> = fc.oneof(
   fc
     .string({
       unit: fc.constantFrom(
-        ...'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-'.split(
-          ''
-        )
+        ...'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-'.split(''),
       ),
       minLength: 1,
       maxLength: 20,
@@ -81,9 +77,7 @@ const arbInvalidSkillName: fc.Arbitrary<string> = fc.oneof(
   fc
     .string({
       unit: fc.constantFrom(
-        ...'abcdefghijklmnopqrstuvwxyz0123456789_!@#$%^&*()+=[]{}|;:,.<>?/'.split(
-          ''
-        )
+        ...'abcdefghijklmnopqrstuvwxyz0123456789_!@#$%^&*()+=[]{}|;:,.<>?/'.split(''),
       ),
       minLength: 1,
       maxLength: 20,
@@ -117,9 +111,9 @@ const arbInvalidSkillName: fc.Arbitrary<string> = fc.oneof(
         unit: arbAlphaNum,
         minLength: 1,
         maxLength: 10,
-      })
+      }),
     )
-    .map(([a, b]) => `${a}--${b}`)
+    .map(([a, b]) => `${a}--${b}`),
 );
 
 // ─── Property 32 ───────────────────────────────────────────
@@ -145,7 +139,7 @@ describe('Property 32: Agent Skills spec name validation', () => {
         expect(result.isValid).toBe(true);
         expect(result.errors).toHaveLength(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -157,7 +151,7 @@ describe('Property 32: Agent Skills spec name validation', () => {
         expect(result.isValid).toBe(false);
         expect(result.errors.length).toBeGreaterThan(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -169,30 +163,24 @@ describe('Property 32: Agent Skills spec name validation', () => {
         expect(resultMatch.isValid).toBe(true);
         expect(resultMatch.errors).toHaveLength(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('rejects name when parent directory does not match', () => {
     fc.assert(
-      fc.property(
-        arbValidSkillName,
-        arbValidSkillName,
-        (name, parentDir) => {
-          // Skip when they happen to be equal
-          fc.pre(name !== parentDir);
+      fc.property(arbValidSkillName, arbValidSkillName, (name, parentDir) => {
+        // Skip when they happen to be equal
+        fc.pre(name !== parentDir);
 
-          const result = validateName(name, parentDir);
+        const result = validateName(name, parentDir);
 
-          expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('must match parent directory')
-            )
-          ).toBe(true);
-        }
-      ),
-      { numRuns: 100 }
+        expect(result.isValid).toBe(false);
+        expect(result.errors.some((e) => e.message.includes('must match parent directory'))).toBe(
+          true,
+        );
+      }),
+      { numRuns: 100 },
     );
   });
 
@@ -207,24 +195,18 @@ describe('Property 32: Agent Skills spec name validation', () => {
           expect(emptyResult.isValid).toBe(false);
           expect(
             emptyResult.errors.some(
-              (e) =>
-                e.message.includes('required') ||
-                e.message.includes('1-64')
-            )
+              (e) => e.message.includes('required') || e.message.includes('1-64'),
+            ),
           ).toBe(true);
 
           // Too long
           const longName = 'a'.repeat(tooLong);
           const longResult = validateName(longName);
           expect(longResult.isValid).toBe(false);
-          expect(
-            longResult.errors.some((e) =>
-              e.message.includes('1-64')
-            )
-          ).toBe(true);
-        }
+          expect(longResult.errors.some((e) => e.message.includes('1-64'))).toBe(true);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -233,30 +215,22 @@ describe('Property 32: Agent Skills spec name validation', () => {
       fc.property(
         fc.string({
           unit: fc.constantFrom(
-            ...'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_!@#'.split(
-              ''
-            )
+            ...'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_!@#'.split(''),
           ),
           minLength: 1,
           maxLength: 20,
         }),
         (name) => {
           // Skip valid names
-          fc.pre(
-            /[A-Z_!@#]/.test(name) && name.length <= 64
-          );
+          fc.pre(/[A-Z_!@#]/.test(name) && name.length <= 64);
 
           const result = validateName(name);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('lowercase')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('lowercase'))).toBe(true);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -273,14 +247,10 @@ describe('Property 32: Agent Skills spec name validation', () => {
           const result = validateName(name);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('leading/trailing')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('leading/trailing'))).toBe(true);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -297,14 +267,10 @@ describe('Property 32: Agent Skills spec name validation', () => {
           const result = validateName(name);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('leading/trailing')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('leading/trailing'))).toBe(true);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -326,14 +292,10 @@ describe('Property 32: Agent Skills spec name validation', () => {
           const result = validateName(name);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('consecutive')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('consecutive'))).toBe(true);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -345,7 +307,7 @@ describe('Property 32: Agent Skills spec name validation', () => {
         expect(result.isValid).toBe(true);
         expect(result.errors).toHaveLength(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -362,9 +324,9 @@ describe('Property 32: Agent Skills spec name validation', () => {
 
           expect(result.isValid).toBe(true);
           expect(result.errors).toHaveLength(0);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -372,27 +334,23 @@ describe('Property 32: Agent Skills spec name validation', () => {
     fc.assert(
       fc.property(
         fc.string({
-          unit: fc.constantFrom(
-            ...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')
-          ),
+          unit: fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')),
           minLength: 1,
           maxLength: 20,
         }),
         (name) => {
           // Ensure it has at least one number and is valid format
           fc.pre(
-            /\d/.test(name) &&
-              /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(name) &&
-              !/--/.test(name)
+            /\d/.test(name) && /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(name) && !/--/.test(name),
           );
 
           const result = validateName(name);
 
           expect(result.isValid).toBe(true);
           expect(result.errors).toHaveLength(0);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
@@ -423,9 +381,9 @@ describe('Property 33: Agent Skills spec directory validation', () => {
     fc.constant('dist'),
     fc.constant('node_modules'),
     fc.constant('.git'),
-    fc.string({ minLength: 1, maxLength: 20 }).filter(
-      (s) => !['scripts', 'references', 'assets'].includes(s)
-    )
+    fc
+      .string({ minLength: 1, maxLength: 20 })
+      .filter((s) => !['scripts', 'references', 'assets'].includes(s)),
   );
 
   // Arbitrary for directory structure with valid directories
@@ -447,23 +405,19 @@ describe('Property 33: Agent Skills spec directory validation', () => {
         expect(result.isValid).toBe(true);
         expect(result.errors).toHaveLength(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('accepts directory structure with SKILL.md and valid directories', () => {
     fc.assert(
-      fc.property(
-        arbValidSkillName,
-        arbValidDirectoryStructure,
-        (skillName, structure) => {
-          const result = validateDirectory(structure, skillName);
+      fc.property(arbValidSkillName, arbValidDirectoryStructure, (skillName, structure) => {
+        const result = validateDirectory(structure, skillName);
 
-          expect(result.isValid).toBe(true);
-          expect(result.errors).toHaveLength(0);
-        }
-      ),
-      { numRuns: 100 }
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+      }),
+      { numRuns: 100 },
     );
   });
 
@@ -481,14 +435,10 @@ describe('Property 33: Agent Skills spec directory validation', () => {
           const result = validateDirectory(structure, skillName);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('SKILL.md must exist')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('SKILL.md must exist'))).toBe(true);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -506,14 +456,12 @@ describe('Property 33: Agent Skills spec directory validation', () => {
           const result = validateDirectory(structure, skillName);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('Invalid directories found')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('Invalid directories found'))).toBe(
+            true,
+          );
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -532,14 +480,12 @@ describe('Property 33: Agent Skills spec directory validation', () => {
           const result = validateDirectory(structure, skillName);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('Invalid directories found')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('Invalid directories found'))).toBe(
+            true,
+          );
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -556,7 +502,7 @@ describe('Property 33: Agent Skills spec directory validation', () => {
         expect(result.isValid).toBe(true);
         expect(result.errors).toHaveLength(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -575,9 +521,9 @@ describe('Property 33: Agent Skills spec directory validation', () => {
 
           expect(result.isValid).toBe(true);
           expect(result.errors).toHaveLength(0);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -597,19 +543,13 @@ describe('Property 33: Agent Skills spec directory validation', () => {
           expect(result.isValid).toBe(false);
           // Should have errors for both missing SKILL.md and invalid directories
           expect(result.errors.length).toBeGreaterThanOrEqual(2);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('SKILL.md must exist')
-            )
-          ).toBe(true);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('Invalid directories found')
-            )
-          ).toBe(true);
-        }
+          expect(result.errors.some((e) => e.message.includes('SKILL.md must exist'))).toBe(true);
+          expect(result.errors.some((e) => e.message.includes('Invalid directories found'))).toBe(
+            true,
+          );
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -627,14 +567,12 @@ describe('Property 33: Agent Skills spec directory validation', () => {
           const result = validateDirectory(structure, skillName);
 
           expect(result.isValid).toBe(false);
-          expect(
-            result.errors.some((e) =>
-              e.message.includes('Invalid directories found')
-            )
-          ).toBe(true);
+          expect(result.errors.some((e) => e.message.includes('Invalid directories found'))).toBe(
+            true,
+          );
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -652,7 +590,7 @@ describe('Property 33: Agent Skills spec directory validation', () => {
         expect(result.isValid).toBe(true);
         expect(result.errors).toHaveLength(0);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
@@ -667,19 +605,18 @@ describe('Property 33: Agent Skills spec directory validation', () => {
  * SHALL produce the same frontmatter structure with all fields preserved.
  */
 describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
-
   // Arbitrary for valid metadata (key-value map of strings)
   const arbMetadata = fc.dictionary(
     fc.string({ minLength: 1, maxLength: 20 }).filter((s) => /^[a-zA-Z0-9_-]+$/.test(s)),
     fc.string({ minLength: 1, maxLength: 100 }),
-    { minKeys: 0, maxKeys: 5 }
+    { minKeys: 0, maxKeys: 5 },
   );
 
   // Arbitrary for valid allowedTools (space-delimited string)
   const arbAllowedTools = fc
     .array(
       fc.string({ minLength: 1, maxLength: 20 }).filter((s) => !/\s/.test(s)),
-      { minLength: 1, maxLength: 10 }
+      { minLength: 1, maxLength: 10 },
     )
     .map((tools) => tools.join(' '));
 
@@ -724,14 +661,14 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
         expect(frontmatter).not.toBeNull();
 
         // All fields should match
-        expect(frontmatter!.name).toBe(original.name);
-        expect(frontmatter!.description).toBe(original.description);
-        expect(frontmatter!.license).toBeUndefined();
-        expect(frontmatter!.compatibility).toBeUndefined();
-        expect(frontmatter!.metadata).toBeUndefined();
-        expect(frontmatter!.allowedTools).toBeUndefined();
+        expect(frontmatter?.name).toBe(original.name);
+        expect(frontmatter?.description).toBe(original.description);
+        expect(frontmatter?.license).toBeUndefined();
+        expect(frontmatter?.compatibility).toBeUndefined();
+        expect(frontmatter?.metadata).toBeUndefined();
+        expect(frontmatter?.allowedTools).toBeUndefined();
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -750,14 +687,14 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
         expect(frontmatter).not.toBeNull();
 
         // All fields should match
-        expect(frontmatter!.name).toBe(original.name);
-        expect(frontmatter!.description).toBe(original.description);
-        expect(frontmatter!.license).toBe(original.license);
-        expect(frontmatter!.compatibility).toBe(original.compatibility);
-        expect(frontmatter!.metadata).toEqual(original.metadata);
-        expect(frontmatter!.allowedTools).toBe(original.allowedTools);
+        expect(frontmatter?.name).toBe(original.name);
+        expect(frontmatter?.description).toBe(original.description);
+        expect(frontmatter?.license).toBe(original.license);
+        expect(frontmatter?.compatibility).toBe(original.compatibility);
+        expect(frontmatter?.metadata).toEqual(original.metadata);
+        expect(frontmatter?.allowedTools).toBe(original.allowedTools);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -776,14 +713,14 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
         expect(frontmatter).not.toBeNull();
 
         // All fields should match
-        expect(frontmatter!.name).toBe(original.name);
-        expect(frontmatter!.description).toBe(original.description);
-        expect(frontmatter!.license).toBe(original.license);
-        expect(frontmatter!.compatibility).toBe(original.compatibility);
-        expect(frontmatter!.metadata).toEqual(original.metadata);
-        expect(frontmatter!.allowedTools).toBe(original.allowedTools);
+        expect(frontmatter?.name).toBe(original.name);
+        expect(frontmatter?.description).toBe(original.description);
+        expect(frontmatter?.license).toBe(original.license);
+        expect(frontmatter?.compatibility).toBe(original.compatibility);
+        expect(frontmatter?.metadata).toEqual(original.metadata);
+        expect(frontmatter?.allowedTools).toBe(original.allowedTools);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -808,11 +745,11 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
         expect(frontmatter).not.toBeNull();
 
         // Fields should match
-        expect(frontmatter!.name).toBe(original.name);
-        expect(frontmatter!.description).toBe(original.description);
-        expect(frontmatter!.metadata).toEqual({});
+        expect(frontmatter?.name).toBe(original.name);
+        expect(frontmatter?.description).toBe(original.description);
+        expect(frontmatter?.metadata).toEqual({});
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -841,43 +778,39 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
           expect(frontmatter).not.toBeNull();
 
           // Fields should match
-          expect(frontmatter!.name).toBe(original.name);
-          expect(frontmatter!.description).toBe(original.description);
-          expect(frontmatter!.allowedTools).toBe(original.allowedTools);
-        }
+          expect(frontmatter?.name).toBe(original.name);
+          expect(frontmatter?.description).toBe(original.description);
+          expect(frontmatter?.allowedTools).toBe(original.allowedTools);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
   it('handles special characters in description through round-trip', () => {
     fc.assert(
-      fc.property(
-        arbValidSkillName,
-        fc.string({ minLength: 1, maxLength: 200 }),
-        (name, desc) => {
-          const original = {
-            name,
-            description: desc,
-          };
+      fc.property(arbValidSkillName, fc.string({ minLength: 1, maxLength: 200 }), (name, desc) => {
+        const original = {
+          name,
+          description: desc,
+        };
 
-          // Serialize to YAML
-          const yaml = serializeFrontmatter(original);
+        // Serialize to YAML
+        const yaml = serializeFrontmatter(original);
 
-          // Wrap in frontmatter delimiters and parse back
-          const markdown = `---\n${yaml}---\n\n# Content`;
-          const { frontmatter, errors } = parseFrontmatter(markdown);
+        // Wrap in frontmatter delimiters and parse back
+        const markdown = `---\n${yaml}---\n\n# Content`;
+        const { frontmatter, errors } = parseFrontmatter(markdown);
 
-          // Should parse without errors
-          expect(errors).toHaveLength(0);
-          expect(frontmatter).not.toBeNull();
+        // Should parse without errors
+        expect(errors).toHaveLength(0);
+        expect(frontmatter).not.toBeNull();
 
-          // Fields should match
-          expect(frontmatter!.name).toBe(original.name);
-          expect(frontmatter!.description).toBe(original.description);
-        }
-      ),
-      { numRuns: 100 }
+        // Fields should match
+        expect(frontmatter?.name).toBe(original.name);
+        expect(frontmatter?.description).toBe(original.description);
+      }),
+      { numRuns: 100 },
     );
   });
 
@@ -906,12 +839,12 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
           expect(frontmatter).not.toBeNull();
 
           // Fields should match
-          expect(frontmatter!.name).toBe(original.name);
-          expect(frontmatter!.description).toBe(original.description);
-          expect(frontmatter!.compatibility).toBe(original.compatibility);
-        }
+          expect(frontmatter?.name).toBe(original.name);
+          expect(frontmatter?.description).toBe(original.description);
+          expect(frontmatter?.compatibility).toBe(original.compatibility);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -940,12 +873,12 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
           expect(frontmatter).not.toBeNull();
 
           // Fields should match
-          expect(frontmatter!.name).toBe(original.name);
-          expect(frontmatter!.description).toBe(original.description);
-          expect(frontmatter!.metadata).toEqual(original.metadata);
-        }
+          expect(frontmatter?.name).toBe(original.name);
+          expect(frontmatter?.description).toBe(original.description);
+          expect(frontmatter?.metadata).toEqual(original.metadata);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -965,8 +898,7 @@ describe('Property 34: Agent Skills spec frontmatter round-trip', () => {
         // Both parsed results should be identical
         expect(parsed2).toEqual(parsed1);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
-

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { describe, expect, it } from 'vitest';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
 const POWER_DIR = path.join(PROJECT_ROOT, 'powers', 'kiro-wiz');

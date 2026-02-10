@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { AuditReport } from '../../../lib/types.js';
 import {
-  scan,
   compareAgainstBestPractices,
   generateReport,
+  scan,
 } from '../../../lib/workspaceAuditor.js';
-import type { AuditReport } from '../../../lib/types.js';
 
-interface Props { onBack: () => void; }
+interface Props {
+  onBack: () => void;
+}
 
 const SEVERITY_COLORS: Record<string, string> = {
   critical: '#FF4444',
@@ -35,7 +37,9 @@ export function AuditScreen({ onBack: _onBack }: Props) {
 
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
-      <text fg="#00FFAA"><strong>Audit</strong> — Workspace best practices</text>
+      <text fg="#00FFAA">
+        <strong>Audit</strong> — Workspace best practices
+      </text>
       <text fg="#666666">ESC to go back</text>
 
       {!report ? (
@@ -43,8 +47,9 @@ export function AuditScreen({ onBack: _onBack }: Props) {
       ) : (
         <>
           <text>
-            Scanned {report.scannedFiles.length} files — {report.findings.length} findings
-            ({report.summary.critical} critical, {report.summary.recommended} recommended, {report.summary.optional} optional)
+            Scanned {report.scannedFiles.length} files — {report.findings.length} findings (
+            {report.summary.critical} critical, {report.summary.recommended} recommended,{' '}
+            {report.summary.optional} optional)
           </text>
           <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }} focused>
             {report.findings.map((f, i) => (
@@ -52,8 +57,8 @@ export function AuditScreen({ onBack: _onBack }: Props) {
                 <text fg={SEVERITY_COLORS[f.severity] ?? '#AAAAAA'}>
                   [{f.severity}] [{f.category}] {f.message}
                 </text>
-                {f.file && <text fg="#666666">  File: {f.file}</text>}
-                <text fg="#888888">  → {f.suggestion}</text>
+                {f.file && <text fg="#666666"> File: {f.file}</text>}
+                <text fg="#888888"> → {f.suggestion}</text>
               </box>
             ))}
             {report.findings.length === 0 && (

@@ -1,17 +1,11 @@
-import type {
-  KiroToolType,
-  ValidationResult,
-} from './types.js';
 import { validate } from './configGenerator.js';
+import type { KiroToolType, ValidationResult } from './types.js';
 
 // ─── Constants ─────────────────────────────────────────────
 
 export const MCP_DOC_SERVER_NAME = 'kiro-wiz';
 export const MCP_DOC_SERVER_COMMAND = 'npx';
-export const MCP_DOC_SERVER_ARGS = [
-  'tsx',
-  'bin/mcp-server.ts',
-];
+export const MCP_DOC_SERVER_ARGS = ['tsx', 'bin/mcp-server.ts'];
 
 export const POWER_MD_LINE_WARN_THRESHOLD = 500;
 export const SKILL_DESC_MIN_CHARS = 250;
@@ -42,27 +36,19 @@ export interface TokenWarning {
   message: string;
 }
 
-export function checkTokenEfficiency(
-  powerMd: string
-): TokenWarning[] {
+export function checkTokenEfficiency(powerMd: string): TokenWarning[] {
   const warnings: TokenWarning[] = [];
   const lines = countLines(powerMd);
   if (lines > POWER_MD_LINE_WARN_THRESHOLD) {
     warnings.push({
       field: 'POWER.md',
-      message:
-        `POWER.md is ${lines} lines, exceeding the ` +
-        `recommended ~${POWER_MD_LINE_WARN_THRESHOLD} ` +
-        `line threshold`,
+      message: `POWER.md is ${lines} lines, exceeding the recommended ~${POWER_MD_LINE_WARN_THRESHOLD} line threshold`,
     });
   }
   return warnings;
 }
 
-export function validateScaffoldOutput(
-  toolType: KiroToolType,
-  config: unknown
-): ValidationResult {
+export function validateScaffoldOutput(toolType: KiroToolType, config: unknown): ValidationResult {
   const validatable = mapToValidatable(toolType, config);
   if (!validatable) {
     return { isValid: true, errors: [] };
@@ -72,7 +58,7 @@ export function validateScaffoldOutput(
 
 function mapToValidatable(
   toolType: KiroToolType,
-  config: unknown
+  config: unknown,
 ): Parameters<typeof validate>[0] | null {
   switch (toolType) {
     case 'hook':

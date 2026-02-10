@@ -8,9 +8,7 @@ import type { ParsedContent } from './types';
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
-export function extractFrontmatter(
-  html: string,
-): Record<string, unknown> | null {
+export function extractFrontmatter(html: string): Record<string, unknown> | null {
   const match = FRONTMATTER_RE.exec(html.trimStart());
   if (!match) return null;
   try {
@@ -80,14 +78,10 @@ export function extractTitle(doc: CheerioAPI): string {
 // ─── Description Extraction ────────────────────────────────
 
 export function extractDescription(doc: CheerioAPI): string {
-  const ogDesc = doc(
-    'meta[property="og:description"]',
-  ).attr('content');
+  const ogDesc = doc('meta[property="og:description"]').attr('content');
   if (ogDesc?.trim()) return ogDesc.trim();
 
-  const metaDesc = doc(
-    'meta[name="description"]',
-  ).attr('content');
+  const metaDesc = doc('meta[name="description"]').attr('content');
   if (metaDesc?.trim()) return metaDesc.trim();
 
   return '';
@@ -95,13 +89,11 @@ export function extractDescription(doc: CheerioAPI): string {
 
 // ─── Headings Extraction ───────────────────────────────────
 
-export function extractHeadings(
-  doc: CheerioAPI,
-): Array<{ level: number; text: string }> {
+export function extractHeadings(doc: CheerioAPI): Array<{ level: number; text: string }> {
   const headings: Array<{ level: number; text: string }> = [];
   doc('h1, h2, h3, h4, h5, h6').each((_i, el) => {
     const tagName = (el as DomElement).tagName.toLowerCase();
-    const level = parseInt(tagName.charAt(1), 10);
+    const level = Number.parseInt(tagName.charAt(1), 10);
     const text = doc(el).text().trim();
     if (text) {
       headings.push({ level, text });
@@ -120,24 +112,18 @@ function detectLanguage(el: DomElement, doc: CheerioAPI): string {
   if (langMatch) return langMatch[1];
 
   // Check data-language attribute
-  const dataLang =
-    codeEl.attr('data-language') ??
-    doc(el).attr('data-language');
+  const dataLang = codeEl.attr('data-language') ?? doc(el).attr('data-language');
   if (dataLang) return dataLang;
 
   return '';
 }
 
-export function extractCodeBlocks(
-  doc: CheerioAPI,
-): Array<{ language: string; content: string }> {
+export function extractCodeBlocks(doc: CheerioAPI): Array<{ language: string; content: string }> {
   const blocks: Array<{ language: string; content: string }> = [];
   doc('pre').each((_i, el) => {
     const language = detectLanguage(el as DomElement, doc);
     const codeEl = doc(el).find('code');
-    const content = codeEl.length > 0
-      ? codeEl.text()
-      : doc(el).text();
+    const content = codeEl.length > 0 ? codeEl.text() : doc(el).text();
     blocks.push({ language, content });
   });
   return blocks;
@@ -151,14 +137,18 @@ export function extractTables(doc: CheerioAPI): string[] {
     const rows: string[][] = [];
     let maxCols = 0;
 
-    doc(tableEl).find('tr').each((_j, trEl) => {
-      const cells: string[] = [];
-      doc(trEl).find('th, td').each((_k, cellEl) => {
-        cells.push(doc(cellEl).text().trim());
+    doc(tableEl)
+      .find('tr')
+      .each((_j, trEl) => {
+        const cells: string[] = [];
+        doc(trEl)
+          .find('th, td')
+          .each((_k, cellEl) => {
+            cells.push(doc(cellEl).text().trim());
+          });
+        if (cells.length > maxCols) maxCols = cells.length;
+        rows.push(cells);
       });
-      if (cells.length > maxCols) maxCols = cells.length;
-      rows.push(cells);
-    });
 
     if (rows.length === 0 || maxCols === 0) return;
 
@@ -194,13 +184,10 @@ export function extractLinks(doc: CheerioAPI): string[] {
 
 // ─── Metadata Extraction ───────────────────────────────────
 
-export function extractMetadata(
-  doc: CheerioAPI,
-): Record<string, string> {
+export function extractMetadata(doc: CheerioAPI): Record<string, string> {
   const metadata: Record<string, string> = {};
   doc('meta').each((_i, el) => {
-    const name =
-      doc(el).attr('name') ?? doc(el).attr('property');
+    const name = doc(el).attr('name') ?? doc(el).attr('property');
     const content = doc(el).attr('content');
     if (name && content) {
       metadata[name] = content;
@@ -215,21 +202,22 @@ function escapeTableCell(text: string): string {
   return text.replace(/\|/g, '\\|').replace(/\n/g, ' ');
 }
 
-function convertTableToMarkdown(
-  tableEl: DomElement,
-  doc: CheerioAPI,
-): string {
+function convertTableToMarkdown(tableEl: DomElement, doc: CheerioAPI): string {
   const rows: string[][] = [];
   let maxCols = 0;
 
-  doc(tableEl).find('tr').each((_j, trEl) => {
-    const cells: string[] = [];
-    doc(trEl).find('th, td').each((_k, cellEl) => {
-      cells.push(escapeTableCell(doc(cellEl).text().trim()));
+  doc(tableEl)
+    .find('tr')
+    .each((_j, trEl) => {
+      const cells: string[] = [];
+      doc(trEl)
+        .find('th, td')
+        .each((_k, cellEl) => {
+          cells.push(escapeTableCell(doc(cellEl).text().trim()));
+        });
+      if (cells.length > maxCols) maxCols = cells.length;
+      rows.push(cells);
     });
-    if (cells.length > maxCols) maxCols = cells.length;
-    rows.push(cells);
-  });
 
   if (rows.length === 0 || maxCols === 0) return '';
 
@@ -246,46 +234,39 @@ function convertTableToMarkdown(
   return lines.join('\n');
 }
 
-function convertListToMarkdown(
-  listEl: DomElement,
-  doc: CheerioAPI,
-  indent: number,
-): string {
+function convertListToMarkdown(listEl: DomElement, doc: CheerioAPI, indent: number): string {
   const isOrdered = (listEl as DomElement).tagName === 'ol';
   const lines: string[] = [];
   let counter = 1;
 
-  doc(listEl).children('li').each((_i, liEl) => {
-    // Get direct text content (not nested lists)
-    const liClone = doc(liEl).clone();
-    liClone.find('ul, ol').remove();
-    const text = liClone.text().trim();
+  doc(listEl)
+    .children('li')
+    .each((_i, liEl) => {
+      // Get direct text content (not nested lists)
+      const liClone = doc(liEl).clone();
+      liClone.find('ul, ol').remove();
+      const text = liClone.text().trim();
 
-    const prefix = isOrdered ? `${counter}. ` : '- ';
-    const indentStr = ' '.repeat(indent);
-    if (text) {
-      lines.push(`${indentStr}${prefix}${text}`);
-    }
-    counter++;
+      const prefix = isOrdered ? `${counter}. ` : '- ';
+      const indentStr = ' '.repeat(indent);
+      if (text) {
+        lines.push(`${indentStr}${prefix}${text}`);
+      }
+      counter++;
 
-    // Process nested lists
-    doc(liEl).children('ul, ol').each((_j, nestedList) => {
-      const nested = convertListToMarkdown(
-        nestedList as DomElement,
-        doc,
-        indent + 2,
-      );
-      if (nested) lines.push(nested);
+      // Process nested lists
+      doc(liEl)
+        .children('ul, ol')
+        .each((_j, nestedList) => {
+          const nested = convertListToMarkdown(nestedList as DomElement, doc, indent + 2);
+          if (nested) lines.push(nested);
+        });
     });
-  });
 
   return lines.join('\n');
 }
 
-function processInlineContent(
-  el: DomElement,
-  doc: CheerioAPI,
-): string {
+function processInlineContent(el: DomElement, doc: CheerioAPI): string {
   let result = '';
   const children = doc(el).contents();
 
@@ -337,7 +318,7 @@ function processInlineContent(
 export function toMarkdown(doc: CheerioAPI): string {
   const parts: string[] = [];
   const body = doc('body').length > 0 ? doc('body') : doc.root();
-  const bodyEl = (body as ReturnType<typeof doc>) ;
+  const bodyEl = body as ReturnType<typeof doc>;
 
   bodyEl.children().each((_i, el) => {
     if (el.type !== 'tag') return;
@@ -346,7 +327,7 @@ export function toMarkdown(doc: CheerioAPI): string {
 
     // Headings
     if (/^h[1-6]$/.test(tag)) {
-      const level = parseInt(tag.charAt(1), 10);
+      const level = Number.parseInt(tag.charAt(1), 10);
       const text = doc(tagEl).text().trim();
       if (text) {
         parts.push(`${'#'.repeat(level)} ${text}`);
@@ -414,9 +395,7 @@ export function toMarkdown(doc: CheerioAPI): string {
     }
 
     // Divs, sections, articles, main — recurse into children
-    if (
-      ['div', 'section', 'article', 'main', 'aside'].includes(tag)
-    ) {
+    if (['div', 'section', 'article', 'main', 'aside'].includes(tag)) {
       const innerDoc = cheerioLoad(doc(tagEl).html() ?? '');
       stripBoilerplate(innerDoc);
       const inner = toMarkdown(innerDoc);

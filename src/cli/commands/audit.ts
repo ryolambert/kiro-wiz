@@ -1,8 +1,8 @@
 import {
-  scan,
   compareAgainstBestPractices,
-  generateReport,
   formatReportMarkdown,
+  generateReport,
+  scan,
 } from '../../../lib/workspaceAuditor.js';
 
 export async function run(args: string[], _flags: Set<string>): Promise<void> {
@@ -20,5 +20,7 @@ export async function run(args: string[], _flags: Set<string>): Promise<void> {
   process.stdout.write(markdown);
 
   const { critical, recommended, optional } = report.summary;
-  console.error(`\nSummary: ${critical} critical, ${recommended} recommended, ${optional} optional`);
+  console.error(
+    `\nSummary: ${critical} critical, ${recommended} recommended, ${optional} optional`,
+  );
 }

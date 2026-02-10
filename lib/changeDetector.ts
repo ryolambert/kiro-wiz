@@ -1,10 +1,10 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import type {
-  SitemapEntry,
   ChangeDetectorResult,
   ChangeDetectorState,
   RegistryEntry,
+  SitemapEntry,
 } from './types';
 import { add } from './urlRegistry';
 
@@ -29,8 +29,7 @@ function parseSitemapXml(xml: string): SitemapEntry[] {
     const lastmod = extractTag(block, 'lastmod');
     const changefreq = extractTag(block, 'changefreq');
     const priorityStr = extractTag(block, 'priority');
-    const priority =
-      priorityStr !== null ? parseFloat(priorityStr) : null;
+    const priority = priorityStr !== null ? Number.parseFloat(priorityStr) : null;
 
     entries.push({
       url: loc,
@@ -50,7 +49,7 @@ export interface FetchSitemapOptions {
 
 export async function fetchSitemap(
   url: string,
-  options: FetchSitemapOptions = {}
+  options: FetchSitemapOptions = {},
 ): Promise<SitemapEntry[]> {
   if (options.rawXml !== undefined) {
     return parseSitemapXml(options.rawXml);
@@ -59,9 +58,7 @@ export async function fetchSitemap(
   const fetchFn = options.fetchFn ?? globalThis.fetch;
   const response = await fetchFn(url);
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch sitemap from ${url}: HTTP error`
-    );
+    throw new Error(`Failed to fetch sitemap from ${url}: HTTP error`);
   }
   const xml = await response.text();
   return parseSitemapXml(xml);
@@ -90,7 +87,7 @@ export function parseChangelogDates(html: string): string[] {
 export async function checkChangelog(
   url: string,
   since: string | null,
-  options: CheckChangelogOptions = {}
+  options: CheckChangelogOptions = {},
 ): Promise<{ hasNewEntries: boolean; latestTimestamp: string | null }> {
   let html: string;
 
@@ -100,9 +97,7 @@ export async function checkChangelog(
     const fetchFn = options.fetchFn ?? globalThis.fetch;
     const response = await fetchFn(url);
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch changelog from ${url}: HTTP error`
-      );
+      throw new Error(`Failed to fetch changelog from ${url}: HTTP error`);
     }
     html = await response.text();
   }
@@ -130,9 +125,7 @@ const DEFAULT_STATE: ChangeDetectorState = {
   knownUrls: [],
 };
 
-export async function loadState(
-  path: string
-): Promise<ChangeDetectorState> {
+export async function loadState(path: string): Promise<ChangeDetectorState> {
   try {
     const raw = await readFile(path, 'utf-8');
     const parsed: unknown = JSON.parse(raw);
@@ -151,10 +144,7 @@ export async function loadState(
   }
 }
 
-export async function saveState(
-  path: string,
-  state: ChangeDetectorState
-): Promise<void> {
+export async function saveState(path: string, state: ChangeDetectorState): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, JSON.stringify(state, null, 2), 'utf-8');
 }
@@ -173,7 +163,7 @@ const DEFAULT_CHANGELOG_URL = 'https://kiro.dev/changelog';
 
 export async function run(
   registryEntries: readonly RegistryEntry[],
-  options: RunOptions = {}
+  options: RunOptions = {},
 ): Promise<{
   result: ChangeDetectorResult;
   updatedEntries: RegistryEntry[];
@@ -201,23 +191,14 @@ export async function run(
       fetchFn,
     });
 
-    const registryUrlSet = new Set(
-      registryEntries.map((e) => e.url)
-    );
-    const sitemapUrlSet = new Set(
-      sitemapEntries.map((e) => e.url)
-    );
+    const registryUrlSet = new Set(registryEntries.map((e) => e.url));
+    const sitemapUrlSet = new Set(sitemapEntries.map((e) => e.url));
 
     // Find new URLs (in sitemap but not in registry)
     for (const entry of sitemapEntries) {
       if (!registryUrlSet.has(entry.url)) {
         newUrls.push(entry.url);
-        updatedEntries = add(
-          updatedEntries,
-          entry.url,
-          'sitemap',
-          entry.lastmod
-        );
+        updatedEntries = add(updatedEntries, entry.url, 'sitemap', entry.lastmod);
       }
     }
 
@@ -225,9 +206,7 @@ export async function run(
     for (const entry of sitemapEntries) {
       if (!registryUrlSet.has(entry.url)) continue;
 
-      const registryEntry = registryEntries.find(
-        (r) => r.url === entry.url
-      );
+      const registryEntry = registryEntries.find((r) => r.url === entry.url);
       if (!registryEntry) continue;
 
       if (
@@ -242,25 +221,19 @@ export async function run(
     // Find removed URLs (in registry from sitemap source but
     // not in current sitemap)
     for (const entry of registryEntries) {
-      if (
-        entry.source === 'sitemap' &&
-        !sitemapUrlSet.has(entry.url)
-      ) {
+      if (entry.source === 'sitemap' && !sitemapUrlSet.has(entry.url)) {
         removedUrls.push(entry.url);
       }
     }
 
     // Check changelog for new entries
     try {
-      const changelogResult = await checkChangelog(
-        changelogUrl,
-        state.lastChangelogTimestamp,
-        { fetchFn }
-      );
+      const changelogResult = await checkChangelog(changelogUrl, state.lastChangelogTimestamp, {
+        fetchFn,
+      });
 
       if (changelogResult.latestTimestamp !== null) {
-        state.lastChangelogTimestamp =
-          changelogResult.latestTimestamp;
+        state.lastChangelogTimestamp = changelogResult.latestTimestamp;
       }
     } catch {
       // Changelog check failure is non-fatal; log and continue
@@ -293,11 +266,7 @@ export async function run(
   const timestamp = new Date().toISOString();
   state.lastRun = timestamp;
   state.knownUrls = [
-    ...new Set([
-      ...state.knownUrls,
-      ...newUrls,
-      ...registryEntries.map((e) => e.url),
-    ]),
+    ...new Set([...state.knownUrls, ...newUrls, ...registryEntries.map((e) => e.url)]),
   ];
 
   try {

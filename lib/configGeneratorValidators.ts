@@ -1,10 +1,10 @@
 import type {
-  HookConfig,
   AgentConfig,
-  PowerConfig,
-  SteeringConfig,
-  SkillFrontmatter,
+  HookConfig,
   McpServerConfig,
+  PowerConfig,
+  SkillFrontmatter,
+  SteeringConfig,
   ValidationResult,
 } from './types';
 
@@ -21,16 +21,9 @@ export const VALID_HOOK_TRIGGERS = [
   'userTriggered',
 ] as const;
 
-export const VALID_HOOK_ACTIONS = [
-  'askAgent',
-  'runCommand',
-] as const;
+export const VALID_HOOK_ACTIONS = ['askAgent', 'runCommand'] as const;
 
-export const VALID_INCLUSION_MODES = [
-  'always',
-  'fileMatch',
-  'manual',
-] as const;
+export const VALID_INCLUSION_MODES = ['always', 'fileMatch', 'manual'] as const;
 
 // ─── Skill Name Rules ──────────────────────────────────────
 
@@ -47,7 +40,7 @@ const SKILL_COMPAT_MAX = 500;
 function pushError(
   errors: Array<{ field: string; message: string }>,
   field: string,
-  message: string
+  message: string,
 ): void {
   errors.push({ field, message });
 }
@@ -58,9 +51,7 @@ function isNonEmptyString(value: unknown): value is string {
 
 // ─── Hook Validation ───────────────────────────────────────
 
-export function validateHook(
-  config: HookConfig
-): ValidationResult {
+export function validateHook(config: HookConfig): ValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
   if (!isNonEmptyString(config.name)) {
@@ -80,7 +71,7 @@ export function validateHook(
         errors,
         'when.type',
         `Invalid trigger type "${config.when.type}". ` +
-          `Must be one of: ${VALID_HOOK_TRIGGERS.join(', ')}`
+          `Must be one of: ${VALID_HOOK_TRIGGERS.join(', ')}`,
       );
     }
   }
@@ -94,30 +85,16 @@ export function validateHook(
         errors,
         'then.type',
         `Invalid action type "${config.then.type}". ` +
-          `Must be one of: ${VALID_HOOK_ACTIONS.join(', ')}`
+          `Must be one of: ${VALID_HOOK_ACTIONS.join(', ')}`,
       );
     }
 
-    if (
-      config.then.type === 'askAgent' &&
-      !isNonEmptyString(config.then.prompt)
-    ) {
-      pushError(
-        errors,
-        'then.prompt',
-        'prompt is required for askAgent action'
-      );
+    if (config.then.type === 'askAgent' && !isNonEmptyString(config.then.prompt)) {
+      pushError(errors, 'then.prompt', 'prompt is required for askAgent action');
     }
 
-    if (
-      config.then.type === 'runCommand' &&
-      !isNonEmptyString(config.then.command)
-    ) {
-      pushError(
-        errors,
-        'then.command',
-        'command is required for runCommand action'
-      );
+    if (config.then.type === 'runCommand' && !isNonEmptyString(config.then.command)) {
+      pushError(errors, 'then.command', 'command is required for runCommand action');
     }
   }
 
@@ -126,9 +103,7 @@ export function validateHook(
 
 // ─── Agent Validation ──────────────────────────────────────
 
-export function validateAgent(
-  config: AgentConfig
-): ValidationResult {
+export function validateAgent(config: AgentConfig): ValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
   if (!isNonEmptyString(config.name)) {
@@ -140,16 +115,10 @@ export function validateAgent(
   }
 
   if (config.mcpServers) {
-    for (const [key, server] of Object.entries(
-      config.mcpServers
-    )) {
+    for (const [key, server] of Object.entries(config.mcpServers)) {
       const result = validateMcpServer(server);
       for (const err of result.errors) {
-        pushError(
-          errors,
-          `mcpServers.${key}.${err.field}`,
-          err.message
-        );
+        pushError(errors, `mcpServers.${key}.${err.field}`, err.message);
       }
     }
   }
@@ -159,9 +128,7 @@ export function validateAgent(
 
 // ─── Power Validation ──────────────────────────────────────
 
-export function validatePower(
-  config: PowerConfig
-): ValidationResult {
+export function validatePower(config: PowerConfig): ValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
   if (!isNonEmptyString(config.name)) {
@@ -176,15 +143,8 @@ export function validatePower(
     pushError(errors, 'description', 'description is required');
   }
 
-  if (
-    !Array.isArray(config.keywords) ||
-    config.keywords.length === 0
-  ) {
-    pushError(
-      errors,
-      'keywords',
-      'keywords must be a non-empty array'
-    );
+  if (!Array.isArray(config.keywords) || config.keywords.length === 0) {
+    pushError(errors, 'keywords', 'keywords must be a non-empty array');
   }
 
   return { isValid: errors.length === 0, errors };
@@ -192,9 +152,7 @@ export function validatePower(
 
 // ─── Steering Validation ───────────────────────────────────
 
-export function validateSteering(
-  config: SteeringConfig
-): ValidationResult {
+export function validateSteering(config: SteeringConfig): ValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
   const validModes: readonly string[] = VALID_INCLUSION_MODES;
@@ -203,19 +161,12 @@ export function validateSteering(
       errors,
       'inclusion',
       `Invalid inclusion mode "${config.inclusion}". ` +
-        `Must be one of: ${VALID_INCLUSION_MODES.join(', ')}`
+        `Must be one of: ${VALID_INCLUSION_MODES.join(', ')}`,
     );
   }
 
-  if (
-    config.inclusion === 'fileMatch' &&
-    !isNonEmptyString(config.fileMatchPattern)
-  ) {
-    pushError(
-      errors,
-      'fileMatchPattern',
-      'fileMatchPattern is required for fileMatch mode'
-    );
+  if (config.inclusion === 'fileMatch' && !isNonEmptyString(config.fileMatchPattern)) {
+    pushError(errors, 'fileMatchPattern', 'fileMatchPattern is required for fileMatch mode');
   }
 
   if (!isNonEmptyString(config.content)) {
@@ -227,9 +178,7 @@ export function validateSteering(
 
 // ─── Skill Validation ──────────────────────────────────────
 
-export function validateSkill(
-  frontmatter: SkillFrontmatter
-): ValidationResult {
+export function validateSkill(frontmatter: SkillFrontmatter): ValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
   // Name validation
@@ -239,38 +188,25 @@ export function validateSkill(
     const name = frontmatter.name;
 
     if (name.length < SKILL_NAME_MIN || name.length > SKILL_NAME_MAX) {
-      pushError(
-        errors,
-        'name',
-        `name must be ${SKILL_NAME_MIN}-${SKILL_NAME_MAX} characters`
-      );
+      pushError(errors, 'name', `name must be ${SKILL_NAME_MIN}-${SKILL_NAME_MAX} characters`);
     }
 
     if (!SKILL_NAME_PATTERN.test(name)) {
       pushError(
         errors,
         'name',
-        'name must be lowercase alphanumeric with hyphens, ' +
-          'no leading/trailing hyphens'
+        'name must be lowercase alphanumeric with hyphens, ' + 'no leading/trailing hyphens',
       );
     }
 
     if (SKILL_NAME_CONSECUTIVE_HYPHENS.test(name)) {
-      pushError(
-        errors,
-        'name',
-        'name must not contain consecutive hyphens'
-      );
+      pushError(errors, 'name', 'name must not contain consecutive hyphens');
     }
   }
 
   // Description validation
   if (!isNonEmptyString(frontmatter.description)) {
-    pushError(
-      errors,
-      'description',
-      'description is required'
-    );
+    pushError(errors, 'description', 'description is required');
   } else if (
     frontmatter.description.length < SKILL_DESC_MIN ||
     frontmatter.description.length > SKILL_DESC_MAX
@@ -278,7 +214,7 @@ export function validateSkill(
     pushError(
       errors,
       'description',
-      `description must be ${SKILL_DESC_MIN}-${SKILL_DESC_MAX} characters`
+      `description must be ${SKILL_DESC_MIN}-${SKILL_DESC_MAX} characters`,
     );
   }
 
@@ -290,7 +226,7 @@ export function validateSkill(
     pushError(
       errors,
       'compatibility',
-      `compatibility must be at most ${SKILL_COMPAT_MAX} characters`
+      `compatibility must be at most ${SKILL_COMPAT_MAX} characters`,
     );
   }
 
@@ -301,36 +237,19 @@ export function validateSkill(
       frontmatter.metadata === null ||
       Array.isArray(frontmatter.metadata)
     ) {
-      pushError(
-        errors,
-        'metadata',
-        'metadata must be a key-value map'
-      );
+      pushError(errors, 'metadata', 'metadata must be a key-value map');
     } else {
-      for (const [k, v] of Object.entries(
-        frontmatter.metadata
-      )) {
+      for (const [k, v] of Object.entries(frontmatter.metadata)) {
         if (typeof v !== 'string') {
-          pushError(
-            errors,
-            `metadata.${k}`,
-            'metadata values must be strings'
-          );
+          pushError(errors, `metadata.${k}`, 'metadata values must be strings');
         }
       }
     }
   }
 
   // Optional: allowedTools must be space-delimited string
-  if (
-    frontmatter.allowedTools !== undefined &&
-    typeof frontmatter.allowedTools !== 'string'
-  ) {
-    pushError(
-      errors,
-      'allowedTools',
-      'allowedTools must be a space-delimited string'
-    );
+  if (frontmatter.allowedTools !== undefined && typeof frontmatter.allowedTools !== 'string') {
+    pushError(errors, 'allowedTools', 'allowedTools must be a space-delimited string');
   }
 
   return { isValid: errors.length === 0, errors };
@@ -338,27 +257,17 @@ export function validateSkill(
 
 // ─── MCP Server Validation ─────────────────────────────────
 
-export function validateMcpServer(
-  config: McpServerConfig
-): ValidationResult {
+export function validateMcpServer(config: McpServerConfig): ValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
   const isLocal = config.command !== undefined;
   const isRemote = config.url !== undefined;
 
   if (!isLocal && !isRemote) {
-    pushError(
-      errors,
-      'server',
-      'Must specify either command (local) or url (remote)'
-    );
+    pushError(errors, 'server', 'Must specify either command (local) or url (remote)');
   }
 
   if (isLocal && isRemote) {
-    pushError(
-      errors,
-      'server',
-      'Cannot specify both command and url'
-    );
+    pushError(errors, 'server', 'Cannot specify both command and url');
   }
 
   if (isLocal && !isNonEmptyString(config.command)) {

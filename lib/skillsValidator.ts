@@ -1,4 +1,4 @@
-import { load, dump } from 'js-yaml';
+import { dump, load } from 'js-yaml';
 import type { SkillFrontmatter, SkillValidationResult } from './types';
 
 // ─── Constants ─────────────────────────────────────────────
@@ -20,7 +20,7 @@ const VALID_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
 function pushError(
   errors: Array<{ field: string; message: string }>,
   field: string,
-  message: string
+  message: string,
 ): void {
   errors.push({ field, message });
 }
@@ -39,10 +39,7 @@ function isNonEmptyString(value: unknown): value is string {
  * - No consecutive hyphens
  * - Must match parent directory name
  */
-export function validateName(
-  name: string,
-  parentDirName?: string
-): SkillValidationResult {
+export function validateName(name: string, parentDirName?: string): SkillValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
   if (!isNonEmptyString(name)) {
@@ -51,18 +48,14 @@ export function validateName(
   }
 
   if (name.length < SKILL_NAME_MIN || name.length > SKILL_NAME_MAX) {
-    pushError(
-      errors,
-      'name',
-      `name must be ${SKILL_NAME_MIN}-${SKILL_NAME_MAX} characters`
-    );
+    pushError(errors, 'name', `name must be ${SKILL_NAME_MIN}-${SKILL_NAME_MAX} characters`);
   }
 
   if (!SKILL_NAME_PATTERN.test(name)) {
     pushError(
       errors,
       'name',
-      'name must be lowercase alphanumeric with hyphens, no leading/trailing hyphens'
+      'name must be lowercase alphanumeric with hyphens, no leading/trailing hyphens',
     );
   }
 
@@ -71,11 +64,7 @@ export function validateName(
   }
 
   if (parentDirName !== undefined && name !== parentDirName) {
-    pushError(
-      errors,
-      'name',
-      `name "${name}" must match parent directory name "${parentDirName}"`
-    );
+    pushError(errors, 'name', `name "${name}" must match parent directory name "${parentDirName}"`);
   }
 
   return { isValid: errors.length === 0, errors };
@@ -90,7 +79,7 @@ export function validateName(
  */
 export function validateFrontmatter(
   frontmatter: SkillFrontmatter,
-  parentDirName?: string
+  parentDirName?: string,
 ): SkillValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
@@ -112,7 +101,7 @@ export function validateFrontmatter(
     pushError(
       errors,
       'description',
-      `description must be ${SKILL_DESC_MIN}-${SKILL_DESC_MAX} characters`
+      `description must be ${SKILL_DESC_MIN}-${SKILL_DESC_MAX} characters`,
     );
   }
 
@@ -129,7 +118,7 @@ export function validateFrontmatter(
       pushError(
         errors,
         'compatibility',
-        `compatibility must be at most ${SKILL_COMPAT_MAX} characters`
+        `compatibility must be at most ${SKILL_COMPAT_MAX} characters`,
       );
     }
   }
@@ -145,11 +134,7 @@ export function validateFrontmatter(
     } else {
       for (const [k, v] of Object.entries(frontmatter.metadata)) {
         if (typeof v !== 'string') {
-          pushError(
-            errors,
-            `metadata.${k}`,
-            'metadata values must be strings'
-          );
+          pushError(errors, `metadata.${k}`, 'metadata values must be strings');
         }
       }
     }
@@ -158,11 +143,7 @@ export function validateFrontmatter(
   // Optional: allowedTools must be space-delimited string
   if (frontmatter.allowedTools !== undefined) {
     if (typeof frontmatter.allowedTools !== 'string') {
-      pushError(
-        errors,
-        'allowedTools',
-        'allowedTools must be a space-delimited string'
-      );
+      pushError(errors, 'allowedTools', 'allowedTools must be a space-delimited string');
     }
   }
 
@@ -183,21 +164,17 @@ interface DirectoryStructure {
  */
 export function validateDirectory(
   structure: DirectoryStructure,
-  skillName: string
+  skillName: string,
 ): SkillValidationResult {
   const errors: Array<{ field: string; message: string }> = [];
 
   if (!structure.hasSkillMd) {
-    pushError(
-      errors,
-      'directory',
-      `SKILL.md must exist at root of ${skillName}/ directory`
-    );
+    pushError(errors, 'directory', `SKILL.md must exist at root of ${skillName}/ directory`);
   }
 
   // Check for invalid directories
   const invalidDirs = structure.directories.filter(
-    (dir) => !VALID_DIRECTORIES.includes(dir as never)
+    (dir) => !VALID_DIRECTORIES.includes(dir as never),
   );
 
   if (invalidDirs.length > 0) {
@@ -205,7 +182,7 @@ export function validateDirectory(
       errors,
       'directory',
       `Invalid directories found: ${invalidDirs.join(', ')}. ` +
-        `Only ${VALID_DIRECTORIES.join(', ')} are allowed`
+        `Only ${VALID_DIRECTORIES.join(', ')} are allowed`,
     );
   }
 
@@ -271,7 +248,7 @@ export function parseFrontmatter(markdown: string): ParseFrontmatterResult {
 
   // Find closing delimiter
   const closingIndex = lines.findIndex(
-    (line, idx) => idx > 0 && line.trim() === FRONTMATTER_DELIMITER
+    (line, idx) => idx > 0 && line.trim() === FRONTMATTER_DELIMITER,
   );
 
   if (closingIndex === -1) {
@@ -308,16 +285,12 @@ export function parseFrontmatter(markdown: string): ParseFrontmatterResult {
     name: typeof obj.name === 'string' ? obj.name : '',
     description: typeof obj.description === 'string' ? obj.description : '',
     license: typeof obj.license === 'string' ? obj.license : undefined,
-    compatibility:
-      typeof obj.compatibility === 'string' ? obj.compatibility : undefined,
+    compatibility: typeof obj.compatibility === 'string' ? obj.compatibility : undefined,
     metadata:
       typeof obj.metadata === 'object' && obj.metadata !== null
         ? (obj.metadata as Record<string, string>)
         : undefined,
-    allowedTools:
-      typeof obj['allowed-tools'] === 'string'
-        ? obj['allowed-tools']
-        : undefined,
+    allowedTools: typeof obj['allowed-tools'] === 'string' ? obj['allowed-tools'] : undefined,
   };
 
   return { frontmatter, body, errors };

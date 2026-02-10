@@ -1,9 +1,11 @@
-import { useState } from 'react';
 import { readFile } from 'node:fs/promises';
+import { useState } from 'react';
 import { validate } from '../../../lib/configGenerator.js';
 import type { ValidationResult } from '../../../lib/types.js';
 
-interface Props { onBack: () => void; }
+interface Props {
+  onBack: () => void;
+}
 
 export function ValidateScreen({ onBack: _onBack }: Props) {
   const [filePath, setFilePath] = useState('');
@@ -30,7 +32,9 @@ export function ValidateScreen({ onBack: _onBack }: Props) {
 
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
-      <text fg="#00FFAA"><strong>Validate</strong> — Check a Kiro config file</text>
+      <text fg="#00FFAA">
+        <strong>Validate</strong> — Check a Kiro config file
+      </text>
       <text fg="#666666">ESC to go back</text>
       <box title="File path" style={{ border: true, height: 3, width: 60, marginTop: 1 }}>
         <input
@@ -51,7 +55,10 @@ export function ValidateScreen({ onBack: _onBack }: Props) {
             <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }}>
               <text fg="#FF4444">✗ Validation errors:</text>
               {result.errors.map((e, i) => (
-                <text key={i} fg="#FFAA00">  - {e.field}: {e.message}</text>
+                <text key={i} fg="#FFAA00">
+                  {' '}
+                  - {e.field}: {e.message}
+                </text>
               ))}
             </scrollbox>
           )}

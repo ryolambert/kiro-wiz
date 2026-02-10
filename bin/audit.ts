@@ -1,10 +1,10 @@
 #!/usr/bin/env npx tsx
 
 import {
-  scan,
   compareAgainstBestPractices,
-  generateReport,
   formatReportMarkdown,
+  generateReport,
+  scan,
 } from '../lib/workspaceAuditor.js';
 
 function parseArgs(argv: string[]): { workspace: string } {
@@ -28,10 +28,7 @@ async function main(): Promise<void> {
   const scannedFiles = await scan(workspace);
   console.error(`  Scanned ${scannedFiles.length} file(s)`);
 
-  const findings = await compareAgainstBestPractices(
-    workspace,
-    scannedFiles
-  );
+  const findings = await compareAgainstBestPractices(workspace, scannedFiles);
   const report = generateReport(findings, scannedFiles);
   const markdown = formatReportMarkdown(report);
 
@@ -40,7 +37,7 @@ async function main(): Promise<void> {
   console.error(
     `\n  ${report.summary.critical} critical, ` +
       `${report.summary.recommended} recommended, ` +
-      `${report.summary.optional} optional`
+      `${report.summary.optional} optional`,
   );
 }
 

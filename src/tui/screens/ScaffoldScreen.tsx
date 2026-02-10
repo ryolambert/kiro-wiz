@@ -1,13 +1,13 @@
-import { useState, useCallback } from 'react';
 import type { SelectOption } from '@opentui/core';
+import { useCallback, useState } from 'react';
+import { install, previewInstall } from '../../../lib/fileInstaller.js';
 import { scaffoldTool } from '../../../lib/scaffoldingEngine.js';
-import { previewInstall, install } from '../../../lib/fileInstaller.js';
 import { KIRO_TOOL_TYPES } from '../../../lib/types.js';
 import type { KiroToolType, ScaffoldResult } from '../../../lib/types.js';
 
 type Step = 'type' | 'name' | 'desc' | 'scope' | 'preview' | 'done';
 
-const TYPE_OPTIONS: SelectOption[] = KIRO_TOOL_TYPES.map(t => ({
+const TYPE_OPTIONS: SelectOption[] = KIRO_TOOL_TYPES.map((t) => ({
   name: t,
   description: `Scaffold a ${t}`,
   value: t,
@@ -18,7 +18,9 @@ const SCOPE_OPTIONS: SelectOption[] = [
   { name: 'global', description: 'Install to ~/.kiro/', value: 'global' },
 ];
 
-interface Props { onBack: () => void; }
+interface Props {
+  onBack: () => void;
+}
 
 export function ScaffoldScreen({ onBack }: Props) {
   const [step, setStep] = useState<Step>('type');
@@ -39,8 +41,8 @@ export function ScaffoldScreen({ onBack }: Props) {
   const doInstall = useCallback(async () => {
     if (!result) return;
     const installed = await install(result, { scope });
-    const lines = installed.installedFiles.map(f => `✓ ${f.relativePath}`);
-    const errs = installed.errors.map(e => `✗ ${e.path}: ${e.message}`);
+    const lines = installed.installedFiles.map((f) => `✓ ${f.relativePath}`);
+    const errs = installed.errors.map((e) => `✗ ${e.path}: ${e.message}`);
     setStatus([...lines, ...errs].join('\n'));
     setStep('done');
   }, [result, scope]);
@@ -48,7 +50,9 @@ export function ScaffoldScreen({ onBack }: Props) {
   if (step === 'type') {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
-        <text fg="#00FFAA"><strong>Scaffold</strong> — Select tool type</text>
+        <text fg="#00FFAA">
+          <strong>Scaffold</strong> — Select tool type
+        </text>
         <text fg="#666666">ESC to go back</text>
         <box style={{ border: true, marginTop: 1, height: 14 }}>
           <select
@@ -70,13 +74,17 @@ export function ScaffoldScreen({ onBack }: Props) {
   if (step === 'name') {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
-        <text fg="#00FFAA"><strong>Scaffold {toolType}</strong> — Enter name</text>
+        <text fg="#00FFAA">
+          <strong>Scaffold {toolType}</strong> — Enter name
+        </text>
         <box title="Name" style={{ border: true, height: 3, width: 50, marginTop: 1 }}>
           <input
             placeholder="my-tool-name"
             focused={true}
             onInput={setName}
-            onSubmit={() => { if (name.trim()) setStep('desc'); }}
+            onSubmit={() => {
+              if (name.trim()) setStep('desc');
+            }}
           />
         </box>
       </box>
@@ -86,7 +94,9 @@ export function ScaffoldScreen({ onBack }: Props) {
   if (step === 'desc') {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
-        <text fg="#00FFAA"><strong>Scaffold {toolType}</strong> — Enter description</text>
+        <text fg="#00FFAA">
+          <strong>Scaffold {toolType}</strong> — Enter description
+        </text>
         <box title="Description" style={{ border: true, height: 3, width: 60, marginTop: 1 }}>
           <input
             placeholder="Brief description..."
@@ -102,7 +112,9 @@ export function ScaffoldScreen({ onBack }: Props) {
   if (step === 'scope') {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
-        <text fg="#00FFAA"><strong>Scaffold {toolType}</strong> — Install scope</text>
+        <text fg="#00FFAA">
+          <strong>Scaffold {toolType}</strong> — Install scope
+        </text>
         <box style={{ border: true, marginTop: 1, height: 6 }}>
           <select
             style={{ height: 4 }}
@@ -124,11 +136,18 @@ export function ScaffoldScreen({ onBack }: Props) {
     const preview = previewInstall(result, { scope });
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
-        <text fg="#00FFAA"><strong>Scaffold {toolType}</strong> — Preview</text>
-        <text fg="#666666">Files to create ({preview.scope} → {preview.targetRoot}):</text>
+        <text fg="#00FFAA">
+          <strong>Scaffold {toolType}</strong> — Preview
+        </text>
+        <text fg="#666666">
+          Files to create ({preview.scope} → {preview.targetRoot}):
+        </text>
         <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }} focused>
           {preview.installedFiles.map((f, i) => (
-            <text key={i} fg="#AAAAAA">  {f.relativePath}</text>
+            <text key={i} fg="#AAAAAA">
+              {' '}
+              {f.relativePath}
+            </text>
           ))}
         </scrollbox>
         <text fg="#FFFF00">Press Enter to install, ESC to cancel</text>
@@ -136,7 +155,9 @@ export function ScaffoldScreen({ onBack }: Props) {
           <input
             placeholder="Press Enter to confirm..."
             focused={false}
-            onSubmit={() => { doInstall(); }}
+            onSubmit={() => {
+              doInstall();
+            }}
           />
         </box>
       </box>
@@ -146,7 +167,9 @@ export function ScaffoldScreen({ onBack }: Props) {
   // done
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
-      <text fg="#00FF00"><strong>Scaffold complete!</strong></text>
+      <text fg="#00FF00">
+        <strong>Scaffold complete!</strong>
+      </text>
       <text>{status}</text>
       <text fg="#666666">Press ESC to return to menu</text>
     </box>

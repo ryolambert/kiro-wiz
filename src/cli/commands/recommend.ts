@@ -1,4 +1,4 @@
-import { recommend, getDecisionMatrix } from '../../../lib/toolingAdvisor.js';
+import { getDecisionMatrix, recommend } from '../../../lib/toolingAdvisor.js';
 
 export async function run(args: string[], flags: Set<string>): Promise<void> {
   if (flags.has('--matrix')) {

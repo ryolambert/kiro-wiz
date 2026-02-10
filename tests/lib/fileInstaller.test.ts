@@ -1,18 +1,18 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { resolve, join } from 'node:path';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import type { ScaffoldResult } from '../../lib/types.js';
-import type { InstallTarget } from '../../lib/types.js';
+import { join, resolve } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  install,
+  previewInstall,
+  resolveFilePath,
   resolveTargetRoot,
   rewritePath,
-  resolveFilePath,
-  previewInstall,
-  install,
   validateTargetDir,
 } from '../../lib/fileInstaller.js';
+import type { ScaffoldResult } from '../../lib/types.js';
+import type { InstallTarget } from '../../lib/types.js';
 
 // ─── resolveTargetRoot ─────────────────────────────────────
 
@@ -36,15 +36,13 @@ describe('resolveTargetRoot', () => {
   });
 
   it('throws for custom scope without targetDir', () => {
-    expect(() =>
-      resolveTargetRoot({ scope: 'custom' })
-    ).toThrow('targetDir is required');
+    expect(() => resolveTargetRoot({ scope: 'custom' })).toThrow('targetDir is required');
   });
 
   it('throws for custom scope with empty targetDir', () => {
-    expect(() =>
-      resolveTargetRoot({ scope: 'custom', targetDir: '  ' })
-    ).toThrow('targetDir is required');
+    expect(() => resolveTargetRoot({ scope: 'custom', targetDir: '  ' })).toThrow(
+      'targetDir is required',
+    );
   });
 });
 
@@ -53,57 +51,51 @@ describe('resolveTargetRoot', () => {
 describe('rewritePath', () => {
   describe('workspace scope', () => {
     it('rewrites agents/ to .kiro/agents/', () => {
-      expect(rewritePath('agents/my-agent.json', 'workspace'))
-        .toBe('.kiro/agents/my-agent.json');
+      expect(rewritePath('agents/my-agent.json', 'workspace')).toBe('.kiro/agents/my-agent.json');
     });
 
     it('rewrites powers/ to custom-powers/', () => {
-      expect(rewritePath('powers/my-power/POWER.md', 'workspace'))
-        .toBe('custom-powers/my-power/POWER.md');
+      expect(rewritePath('powers/my-power/POWER.md', 'workspace')).toBe(
+        'custom-powers/my-power/POWER.md',
+      );
     });
 
     it('passes through .kiro/ paths unchanged', () => {
-      expect(rewritePath('.kiro/hooks/lint.kiro.hook', 'workspace'))
-        .toBe('.kiro/hooks/lint.kiro.hook');
+      expect(rewritePath('.kiro/hooks/lint.kiro.hook', 'workspace')).toBe(
+        '.kiro/hooks/lint.kiro.hook',
+      );
     });
 
     it('passes through other paths unchanged', () => {
-      expect(rewritePath('some/other/file.ts', 'workspace'))
-        .toBe('some/other/file.ts');
+      expect(rewritePath('some/other/file.ts', 'workspace')).toBe('some/other/file.ts');
     });
   });
 
   describe('global scope', () => {
     it('strips .kiro/ prefix', () => {
-      expect(rewritePath('.kiro/hooks/lint.kiro.hook', 'global'))
-        .toBe('hooks/lint.kiro.hook');
+      expect(rewritePath('.kiro/hooks/lint.kiro.hook', 'global')).toBe('hooks/lint.kiro.hook');
     });
 
     it('strips .kiro/ from steering paths', () => {
-      expect(rewritePath('.kiro/steering/rules.md', 'global'))
-        .toBe('steering/rules.md');
+      expect(rewritePath('.kiro/steering/rules.md', 'global')).toBe('steering/rules.md');
     });
 
     it('keeps powers/ as-is', () => {
-      expect(rewritePath('powers/my-power/POWER.md', 'global'))
-        .toBe('powers/my-power/POWER.md');
+      expect(rewritePath('powers/my-power/POWER.md', 'global')).toBe('powers/my-power/POWER.md');
     });
 
     it('keeps agents/ as-is', () => {
-      expect(rewritePath('agents/my-agent.json', 'global'))
-        .toBe('agents/my-agent.json');
+      expect(rewritePath('agents/my-agent.json', 'global')).toBe('agents/my-agent.json');
     });
 
     it('passes through unmatched paths', () => {
-      expect(rewritePath('bin/server.ts', 'global'))
-        .toBe('bin/server.ts');
+      expect(rewritePath('bin/server.ts', 'global')).toBe('bin/server.ts');
     });
   });
 
   describe('custom scope', () => {
     it('uses workspace rewrites for custom scope', () => {
-      expect(rewritePath('agents/my-agent.json', 'custom'))
-        .toBe('.kiro/agents/my-agent.json');
+      expect(rewritePath('agents/my-agent.json', 'custom')).toBe('.kiro/agents/my-agent.json');
     });
   });
 });
@@ -113,24 +105,14 @@ describe('rewritePath', () => {
 describe('resolveFilePath', () => {
   it('resolves workspace path correctly', () => {
     const target: InstallTarget = { scope: 'workspace' };
-    const result = resolveFilePath(
-      '.kiro/hooks/lint.kiro.hook',
-      target
-    );
-    expect(result).toBe(
-      resolve(process.cwd(), '.kiro/hooks/lint.kiro.hook')
-    );
+    const result = resolveFilePath('.kiro/hooks/lint.kiro.hook', target);
+    expect(result).toBe(resolve(process.cwd(), '.kiro/hooks/lint.kiro.hook'));
   });
 
   it('resolves global path correctly', () => {
     const target: InstallTarget = { scope: 'global' };
-    const result = resolveFilePath(
-      '.kiro/hooks/lint.kiro.hook',
-      target
-    );
-    expect(result).toBe(
-      resolve(homedir(), '.kiro', 'hooks/lint.kiro.hook')
-    );
+    const result = resolveFilePath('.kiro/hooks/lint.kiro.hook', target);
+    expect(result).toBe(resolve(homedir(), '.kiro', 'hooks/lint.kiro.hook'));
   });
 
   it('resolves custom path correctly', () => {
@@ -138,13 +120,8 @@ describe('resolveFilePath', () => {
       scope: 'custom',
       targetDir: '/tmp/project',
     };
-    const result = resolveFilePath(
-      'agents/my-agent.json',
-      target
-    );
-    expect(result).toBe(
-      resolve('/tmp/project', '.kiro/agents/my-agent.json')
-    );
+    const result = resolveFilePath('agents/my-agent.json', target);
+    expect(result).toBe(resolve('/tmp/project', '.kiro/agents/my-agent.json'));
   });
 });
 
@@ -172,9 +149,7 @@ describe('previewInstall', () => {
     const result = previewInstall(scaffoldResult, {
       scope: 'workspace',
     });
-    const paths = result.installedFiles.map(
-      (f) => f.relativePath
-    );
+    const paths = result.installedFiles.map((f) => f.relativePath);
     expect(paths).toContain('.kiro/hooks/lint.kiro.hook');
     expect(paths).toContain('.kiro/agents/my-agent.json');
     expect(paths).toContain('custom-powers/my-power/POWER.md');
@@ -184,9 +159,7 @@ describe('previewInstall', () => {
     const result = previewInstall(scaffoldResult, {
       scope: 'global',
     });
-    const paths = result.installedFiles.map(
-      (f) => f.relativePath
-    );
+    const paths = result.installedFiles.map((f) => f.relativePath);
     expect(paths).toContain('hooks/lint.kiro.hook');
     expect(paths).toContain('agents/my-agent.json');
     expect(paths).toContain('powers/my-power/POWER.md');
@@ -237,16 +210,10 @@ describe('install', () => {
     expect(result.errors).toHaveLength(0);
     expect(result.scope).toBe('custom');
 
-    const hookContent = await readFile(
-      join(tempDir, '.kiro/hooks/lint.kiro.hook'),
-      'utf-8'
-    );
+    const hookContent = await readFile(join(tempDir, '.kiro/hooks/lint.kiro.hook'), 'utf-8');
     expect(hookContent).toBe('{"name":"lint"}');
 
-    const steeringContent = await readFile(
-      join(tempDir, '.kiro/steering/rules.md'),
-      'utf-8'
-    );
+    const steeringContent = await readFile(join(tempDir, '.kiro/steering/rules.md'), 'utf-8');
     expect(steeringContent).toBe('# Rules');
   });
 
@@ -267,14 +234,9 @@ describe('install', () => {
     });
 
     expect(result.installedFiles).toHaveLength(1);
-    expect(result.installedFiles[0].relativePath).toBe(
-      '.kiro/agents/my-agent.json'
-    );
+    expect(result.installedFiles[0].relativePath).toBe('.kiro/agents/my-agent.json');
 
-    const content = await readFile(
-      join(tempDir, '.kiro/agents/my-agent.json'),
-      'utf-8'
-    );
+    const content = await readFile(join(tempDir, '.kiro/agents/my-agent.json'), 'utf-8');
     expect(content).toBe('{"name":"test"}');
   });
 
@@ -294,14 +256,9 @@ describe('install', () => {
       targetDir: tempDir,
     });
 
-    expect(result.installedFiles[0].relativePath).toBe(
-      'custom-powers/my-power/POWER.md'
-    );
+    expect(result.installedFiles[0].relativePath).toBe('custom-powers/my-power/POWER.md');
 
-    const content = await readFile(
-      join(tempDir, 'custom-powers/my-power/POWER.md'),
-      'utf-8'
-    );
+    const content = await readFile(join(tempDir, 'custom-powers/my-power/POWER.md'), 'utf-8');
     expect(content).toBe('# My Power');
   });
 
@@ -335,9 +292,7 @@ describe('validateTargetDir', () => {
   });
 
   it('returns invalid for non-existent directory', async () => {
-    const result = await validateTargetDir(
-      '/nonexistent/path/xyz123'
-    );
+    const result = await validateTargetDir('/nonexistent/path/xyz123');
     expect(result.isValid).toBe(false);
   });
 });

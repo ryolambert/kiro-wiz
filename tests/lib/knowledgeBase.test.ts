@@ -1,54 +1,42 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { mkdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { rm, readFile, mkdir } from 'node:fs/promises';
-import type { KnowledgeBaseEntry } from '../../lib/types.js';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
-  urlToSlug,
-  urlToCategory,
-  write,
-  read,
   list,
+  read,
   updateIndex,
+  urlToCategory,
+  urlToSlug,
+  write,
 } from '../../lib/knowledgeBase.js';
+import type { KnowledgeBaseEntry } from '../../lib/types.js';
 
 // ─── urlToSlug ──────────────────────────────────────────────
 
 describe('urlToSlug', () => {
   it('extracts last path segment as kebab-case', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/hooks/overview')
-    ).toBe('overview');
+    expect(urlToSlug('https://kiro.dev/docs/hooks/overview')).toBe('overview');
   });
 
   it('strips trailing slashes', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/hooks/overview/')
-    ).toBe('overview');
+    expect(urlToSlug('https://kiro.dev/docs/hooks/overview/')).toBe('overview');
   });
 
   it('converts multi-word segments to kebab-case', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/getting-started/quick-start')
-    ).toBe('quick-start');
+    expect(urlToSlug('https://kiro.dev/docs/getting-started/quick-start')).toBe('quick-start');
   });
 
   it('strips .html extension', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/hooks/overview.html')
-    ).toBe('overview');
+    expect(urlToSlug('https://kiro.dev/docs/hooks/overview.html')).toBe('overview');
   });
 
   it('replaces non-alphanumeric chars with hyphens', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/hooks/my_hook%20test')
-    ).toBe('my-hook-20test');
+    expect(urlToSlug('https://kiro.dev/docs/hooks/my_hook%20test')).toBe('my-hook-20test');
   });
 
   it('lowercases the slug', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/hooks/MyHook')
-    ).toBe('myhook');
+    expect(urlToSlug('https://kiro.dev/docs/hooks/MyHook')).toBe('myhook');
   });
 
   it('handles root-only URL by using hostname', () => {
@@ -60,21 +48,15 @@ describe('urlToSlug', () => {
   });
 
   it('handles agentskills.io URLs', () => {
-    expect(
-      urlToSlug('https://agentskills.io/specification')
-    ).toBe('specification');
+    expect(urlToSlug('https://agentskills.io/specification')).toBe('specification');
   });
 
   it('collapses consecutive hyphens', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/hooks/my--hook')
-    ).toBe('my-hook');
+    expect(urlToSlug('https://kiro.dev/docs/hooks/my--hook')).toBe('my-hook');
   });
 
   it('strips leading and trailing hyphens from slug', () => {
-    expect(
-      urlToSlug('https://kiro.dev/docs/hooks/-overview-')
-    ).toBe('overview');
+    expect(urlToSlug('https://kiro.dev/docs/hooks/-overview-')).toBe('overview');
   });
 });
 
@@ -82,41 +64,28 @@ describe('urlToSlug', () => {
 
 describe('urlToCategory', () => {
   it('delegates to categorizeUrl for kiro.dev docs', () => {
-    expect(
-      urlToCategory('https://kiro.dev/docs/hooks/overview')
-    ).toBe('hooks');
+    expect(urlToCategory('https://kiro.dev/docs/hooks/overview')).toBe('hooks');
   });
 
   it('maps agentskills.io to agent-skills-spec', () => {
-    expect(
-      urlToCategory('https://agentskills.io/specification')
-    ).toBe('agent-skills-spec');
+    expect(urlToCategory('https://agentskills.io/specification')).toBe('agent-skills-spec');
   });
 
   it('maps blog URLs to blog', () => {
-    expect(
-      urlToCategory('https://kiro.dev/blog/launch')
-    ).toBe('blog');
+    expect(urlToCategory('https://kiro.dev/blog/launch')).toBe('blog');
   });
 
   it('returns unknown for unrecognized URLs', () => {
-    expect(
-      urlToCategory('https://example.com/page')
-    ).toBe('unknown');
+    expect(urlToCategory('https://example.com/page')).toBe('unknown');
   });
 });
 
 // ─── write / read / list / updateIndex ──────────────────────
 
 describe('Knowledge Base FS operations', () => {
-  const baseDir = join(
-    tmpdir(),
-    `kb-test-${Date.now()}-${Math.random().toString(36).slice(2)}`
-  );
+  const baseDir = join(tmpdir(), `kb-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
-  const makeEntry = (
-    overrides: Partial<KnowledgeBaseEntry> = {}
-  ): KnowledgeBaseEntry => ({
+  const makeEntry = (overrides: Partial<KnowledgeBaseEntry> = {}): KnowledgeBaseEntry => ({
     slug: 'overview',
     category: 'hooks',
     title: 'Hooks Overview',
@@ -156,9 +125,7 @@ describe('Knowledge Base FS operations', () => {
         sourceUrl: 'https://agentskills.io/specification',
       });
       const filePath = await write(entry, baseDir);
-      expect(filePath).toBe(
-        join(baseDir, 'agent-skills-spec', 'specification.md')
-      );
+      expect(filePath).toBe(join(baseDir, 'agent-skills-spec', 'specification.md'));
     });
 
     it('writes unknown category to uncategorized dir', async () => {
@@ -193,10 +160,10 @@ describe('Knowledge Base FS operations', () => {
       await write(entry, baseDir);
       const result = await read('hooks', 'overview', baseDir);
       expect(result).not.toBeNull();
-      expect(result!.title).toBe('Hooks Overview');
-      expect(result!.slug).toBe('overview');
-      expect(result!.category).toBe('hooks');
-      expect(result!.content).toContain('# Hooks');
+      expect(result?.title).toBe('Hooks Overview');
+      expect(result?.slug).toBe('overview');
+      expect(result?.category).toBe('hooks');
+      expect(result?.content).toContain('# Hooks');
     });
 
     it('returns null for non-existent file', async () => {
@@ -219,7 +186,7 @@ describe('Knowledge Base FS operations', () => {
           slug: 'setup',
           title: 'MCP Setup',
         }),
-        baseDir
+        baseDir,
       );
 
       const result = await list(baseDir);
@@ -227,11 +194,11 @@ describe('Knowledge Base FS operations', () => {
 
       const hooks = result.find((r) => r.category === 'hooks');
       expect(hooks).toBeDefined();
-      expect(hooks!.files).toContain('overview');
+      expect(hooks?.files).toContain('overview');
 
       const mcp = result.find((r) => r.category === 'mcp');
       expect(mcp).toBeDefined();
-      expect(mcp!.files).toContain('setup');
+      expect(mcp?.files).toContain('setup');
     });
 
     it('returns empty array for non-existent base dir', async () => {
@@ -249,18 +216,9 @@ describe('Knowledge Base FS operations', () => {
     });
 
     it('sorts categories and files alphabetically', async () => {
-      await write(
-        makeEntry({ category: 'steering', slug: 'beta' }),
-        baseDir
-      );
-      await write(
-        makeEntry({ category: 'hooks', slug: 'alpha' }),
-        baseDir
-      );
-      await write(
-        makeEntry({ category: 'hooks', slug: 'zeta' }),
-        baseDir
-      );
+      await write(makeEntry({ category: 'steering', slug: 'beta' }), baseDir);
+      await write(makeEntry({ category: 'hooks', slug: 'alpha' }), baseDir);
+      await write(makeEntry({ category: 'hooks', slug: 'zeta' }), baseDir);
 
       const result = await list(baseDir);
       expect(result[0].category).toBe('hooks');
@@ -278,7 +236,7 @@ describe('Knowledge Base FS operations', () => {
           slug: 'setup',
           title: 'MCP Setup',
         }),
-        baseDir
+        baseDir,
       );
 
       await updateIndex(baseDir);
@@ -312,18 +270,13 @@ describe('Knowledge Base FS operations', () => {
           slug: 'custom-agents',
           title: 'Custom Agents',
         }),
-        baseDir
+        baseDir,
       );
       await updateIndex(baseDir);
 
-      const raw = await readFile(
-        join(baseDir, 'index.md'),
-        'utf-8'
-      );
+      const raw = await readFile(join(baseDir, 'index.md'), 'utf-8');
       expect(raw).toContain('## Cli');
-      expect(raw).toContain(
-        '[Custom Agents](cli/custom-agents.md)'
-      );
+      expect(raw).toContain('[Custom Agents](cli/custom-agents.md)');
       expect(raw).toContain('[Overview](hooks/overview.md)');
     });
 
@@ -333,14 +286,11 @@ describe('Knowledge Base FS operations', () => {
           category: 'agent-skills-spec',
           slug: 'intro',
         }),
-        baseDir
+        baseDir,
       );
       await updateIndex(baseDir);
 
-      const raw = await readFile(
-        join(baseDir, 'index.md'),
-        'utf-8'
-      );
+      const raw = await readFile(join(baseDir, 'index.md'), 'utf-8');
       expect(raw).toContain('## Agent Skills Spec');
     });
   });

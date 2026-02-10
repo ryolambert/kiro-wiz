@@ -1,21 +1,21 @@
 #!/usr/bin/env npx tsx
 
 import { resolve } from 'node:path';
+import { fetchSitemap } from '../lib/changeDetector.js';
+import { parseHtml } from '../lib/contentParser.js';
+import { fetchWithRetry } from '../lib/crawler.js';
+import { urlToCategory, urlToSlug, write } from '../lib/knowledgeBase.js';
+import type { RegistryEntry, UrlCategory } from '../lib/types.js';
 import {
-  load,
-  save,
   getActive,
   getByCategory,
-  updateLastCrawled,
+  load,
   markFailed,
-  seedSitemapUrls,
+  save,
   seedAgentSkillsUrls,
+  seedSitemapUrls,
+  updateLastCrawled,
 } from '../lib/urlRegistry.js';
-import { fetchWithRetry } from '../lib/crawler.js';
-import { parseHtml } from '../lib/contentParser.js';
-import { write, urlToSlug, urlToCategory } from '../lib/knowledgeBase.js';
-import { fetchSitemap } from '../lib/changeDetector.js';
-import type { RegistryEntry, UrlCategory } from '../lib/types.js';
 
 const REGISTRY_PATH = resolve('knowledge-base/registry.json');
 const KB_BASE_DIR = resolve('knowledge-base');
@@ -43,10 +43,7 @@ function parseArgs(argv: string[]): {
   return { url, all, category };
 }
 
-async function crawlUrl(
-  url: string,
-  entries: readonly RegistryEntry[]
-): Promise<RegistryEntry[]> {
+async function crawlUrl(url: string, entries: readonly RegistryEntry[]): Promise<RegistryEntry[]> {
   console.error(`Crawling: ${url}`);
   try {
     const result = await fetchWithRetry(url);
@@ -63,7 +60,7 @@ async function crawlUrl(
         sourceUrl: url,
         lastUpdated: new Date().toISOString(),
       },
-      KB_BASE_DIR
+      KB_BASE_DIR,
     );
 
     console.error(`  ✓ Saved: ${category}/${slug}.md`);
@@ -79,9 +76,7 @@ async function main(): Promise<void> {
   const { url, all, category } = parseArgs(process.argv);
 
   if (!url && !all && !category) {
-    console.error(
-      'Usage: crawl.ts --url <url> | --all | --category <cat>'
-    );
+    console.error('Usage: crawl.ts --url <url> | --all | --category <cat>');
     process.exit(1);
   }
 
@@ -103,19 +98,15 @@ async function main(): Promise<void> {
         sitemapEntries.map((e) => ({
           url: e.url,
           lastmod: e.lastmod,
-        }))
+        })),
       );
-      console.error(
-        `  Seeded ${sitemapEntries.length} URLs from sitemap`
-      );
+      console.error(`  Seeded ${sitemapEntries.length} URLs from sitemap`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`  Failed to fetch sitemap: ${msg}`);
     }
     entries = seedAgentSkillsUrls(entries);
-    console.error(
-      `  Seeded Agent Skills URLs (total: ${entries.length})`
-    );
+    console.error(`  Seeded Agent Skills URLs (total: ${entries.length})`);
     await save(entries, REGISTRY_PATH);
   }
 
@@ -130,10 +121,7 @@ async function main(): Promise<void> {
       return;
     }
   } else if (category) {
-    targets = getByCategory(
-      getActive(entries),
-      category as UrlCategory
-    );
+    targets = getByCategory(getActive(entries), category as UrlCategory);
   } else {
     targets = getActive(entries);
   }

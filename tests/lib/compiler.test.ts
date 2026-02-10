@@ -1,44 +1,37 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { rm } from 'node:fs/promises';
+import { afterEach, describe, expect, it } from 'vitest';
+import {
+  QUICK_REFERENCE_SCENARIOS,
+  TOOL_TYPE_DISPLAY,
+  buildDecisionMatrix,
+  categoryToToolType,
+  compile,
+  deserialize,
+  serialize,
+  toAnchor,
+} from '../../lib/compiler.js';
 import { write } from '../../lib/knowledgeBase.js';
 import type { KnowledgeBaseEntry } from '../../lib/types.js';
 import { KIRO_TOOL_TYPES } from '../../lib/types.js';
-import {
-  compile,
-  serialize,
-  deserialize,
-  categoryToToolType,
-  toAnchor,
-  buildDecisionMatrix,
-  TOOL_TYPE_DISPLAY,
-  QUICK_REFERENCE_SCENARIOS,
-} from '../../lib/compiler.js';
 
 // ─── Helpers ────────────────────────────────────────────────
 
 const baseDirs: string[] = [];
 
 function freshBaseDir(): string {
-  const dir = join(
-    tmpdir(),
-    `kb-compiler-${Date.now()}-${Math.random().toString(36).slice(2)}`
-  );
+  const dir = join(tmpdir(), `kb-compiler-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   baseDirs.push(dir);
   return dir;
 }
 
 afterEach(async () => {
-  await Promise.all(
-    baseDirs.map((d) => rm(d, { recursive: true, force: true }))
-  );
+  await Promise.all(baseDirs.map((d) => rm(d, { recursive: true, force: true })));
   baseDirs.length = 0;
 });
 
-function makeEntry(
-  overrides: Partial<KnowledgeBaseEntry>
-): KnowledgeBaseEntry {
+function makeEntry(overrides: Partial<KnowledgeBaseEntry>): KnowledgeBaseEntry {
   return {
     slug: 'test-entry',
     category: 'hooks',
@@ -142,11 +135,11 @@ describe('compile', () => {
 
     const hookSection = ref.sections.find((s) => s.toolType === 'hook');
     expect(hookSection).toBeDefined();
-    expect(hookSection!.subsections.some((s) => s.title === 'Hook A')).toBe(true);
+    expect(hookSection?.subsections.some((s) => s.title === 'Hook A')).toBe(true);
 
     const specSection = ref.sections.find((s) => s.toolType === 'spec');
     expect(specSection).toBeDefined();
-    expect(specSection!.subsections.some((s) => s.title === 'Spec A')).toBe(true);
+    expect(specSection?.subsections.some((s) => s.title === 'Spec A')).toBe(true);
   });
 
   it('places uncategorized entries in General Reference', async () => {
@@ -158,7 +151,7 @@ describe('compile', () => {
 
     const generalSection = ref.sections.find((s) => s.title === 'General Reference');
     expect(generalSection).toBeDefined();
-    expect(generalSection!.subsections.some((s) => s.title === 'Blog Post')).toBe(true);
+    expect(generalSection?.subsections.some((s) => s.title === 'Blog Post')).toBe(true);
   });
 
   it('respects toolTypes filter option', async () => {
@@ -246,12 +239,10 @@ describe('deserialize', () => {
     const parsed = deserialize(md);
 
     for (const original of ref.decisionMatrix) {
-      const found = parsed.decisionMatrix.find(
-        (e) => e.toolType === original.toolType
-      );
+      const found = parsed.decisionMatrix.find((e) => e.toolType === original.toolType);
       expect(found).toBeDefined();
-      expect(found!.whatItIs).toBe(original.whatItIs);
-      expect(found!.platform).toBe(original.platform);
+      expect(found?.whatItIs).toBe(original.whatItIs);
+      expect(found?.platform).toBe(original.platform);
     }
   });
 
@@ -262,11 +253,9 @@ describe('deserialize', () => {
     const parsed = deserialize(md);
 
     for (const original of ref.quickReference) {
-      const found = parsed.quickReference.find(
-        (e) => e.scenario === original.scenario
-      );
+      const found = parsed.quickReference.find((e) => e.scenario === original.scenario);
       expect(found).toBeDefined();
-      expect(found!.recommendedTools).toEqual(original.recommendedTools);
+      expect(found?.recommendedTools).toEqual(original.recommendedTools);
     }
   });
 
@@ -281,11 +270,11 @@ describe('deserialize', () => {
 
     const hookSection = parsed.sections.find((s) => s.toolType === 'hook');
     expect(hookSection).toBeDefined();
-    expect(hookSection!.subsections.some((s) => s.title === 'Hook A')).toBe(true);
+    expect(hookSection?.subsections.some((s) => s.title === 'Hook A')).toBe(true);
 
     const specSection = parsed.sections.find((s) => s.toolType === 'spec');
     expect(specSection).toBeDefined();
-    expect(specSection!.subsections.some((s) => s.title === 'Spec A')).toBe(true);
+    expect(specSection?.subsections.some((s) => s.title === 'Spec A')).toBe(true);
   });
 });
 
@@ -303,9 +292,7 @@ describe('TOOL_TYPE_DISPLAY', () => {
 
 describe('QUICK_REFERENCE_SCENARIOS', () => {
   it('has at least one scenario per tool type', () => {
-    const coveredTools = new Set(
-      QUICK_REFERENCE_SCENARIOS.flatMap((s) => s.recommendedTools)
-    );
+    const coveredTools = new Set(QUICK_REFERENCE_SCENARIOS.flatMap((s) => s.recommendedTools));
     for (const t of KIRO_TOOL_TYPES) {
       expect(coveredTools.has(t)).toBe(true);
     }

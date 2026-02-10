@@ -1,5 +1,5 @@
-import { resolve, join } from 'node:path';
-import { readdir, readFile, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 
 const INSTALL_DIR = resolve(import.meta.dirname ?? '.', '../../src/templates/_install');
 
@@ -7,9 +7,8 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
   const scope = getFlagValue(args, '--scope') ?? 'local';
   const force = flags.has('--force');
 
-  const targetRoot = scope === 'global'
-    ? join(process.env.HOME ?? '~', '.kiro')
-    : join(process.cwd(), '.kiro');
+  const targetRoot =
+    scope === 'global' ? join(process.env.HOME ?? '~', '.kiro') : join(process.cwd(), '.kiro');
 
   console.log(`Installing pre-built configs to: ${targetRoot} (${scope})`);
 
@@ -25,7 +24,9 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
           console.log(`  ⊘ ${relativePath} (exists, use --force to overwrite)`);
           continue;
         }
-      } catch { /* doesn't exist, proceed */ }
+      } catch {
+        /* doesn't exist, proceed */
+      }
 
       await writeFile(dest, content, 'utf-8');
       console.log(`  ✓ ${relativePath}`);
@@ -37,13 +38,16 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
   }
 }
 
-async function collectFiles(dir: string, prefix: string): Promise<Array<{ relativePath: string; content: string }>> {
+async function collectFiles(
+  dir: string,
+  prefix: string,
+): Promise<Array<{ relativePath: string; content: string }>> {
   const results: Array<{ relativePath: string; content: string }> = [];
   const entries = await readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
     const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
     if (entry.isDirectory()) {
-      results.push(...await collectFiles(join(dir, entry.name), rel));
+      results.push(...(await collectFiles(join(dir, entry.name), rel)));
     } else {
       results.push({ relativePath: rel, content: await readFile(join(dir, entry.name), 'utf-8') });
     }

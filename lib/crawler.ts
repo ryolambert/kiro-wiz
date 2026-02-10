@@ -1,4 +1,4 @@
-import type { CrawlResult, CrawlError } from './types';
+import type { CrawlError, CrawlResult } from './types';
 
 // ─── Options ────────────────────────────────────────────────
 
@@ -62,9 +62,7 @@ export async function fetchUrl(url: string): Promise<CrawlResult> {
   const headers = parseHeaders(response.headers);
 
   if (!response.ok) {
-    const retryAfter = parseRetryAfter(
-      response.headers.get('retry-after'),
-    );
+    const retryAfter = parseRetryAfter(response.headers.get('retry-after'));
     throw new HttpError(response.status, url, retryAfter);
   }
 
@@ -100,8 +98,7 @@ export async function fetchWithRetry(
 
         // 429 → respect Retry-After header if present
         if (err.statusCode === 429 && attempt < retries) {
-          const retryDelay =
-            err.retryAfter ?? backoffDelay(attempt);
+          const retryDelay = err.retryAfter ?? backoffDelay(attempt);
           await delay(retryDelay);
           continue;
         }
@@ -110,7 +107,6 @@ export async function fetchWithRetry(
       // Network errors or other HTTP errors → retry with backoff
       if (attempt < retries) {
         await delay(backoffDelay(attempt));
-        continue;
       }
     }
   }
@@ -120,7 +116,7 @@ export async function fetchWithRetry(
 
 function backoffDelay(attempt: number): number {
   // 1s, 2s, 4s exponential backoff
-  return 1000 * Math.pow(2, attempt);
+  return 1000 * 2 ** attempt;
 }
 
 export async function fetchBatch(
@@ -132,9 +128,7 @@ export async function fetchBatch(
   const maxRetries = options?.maxRetries ?? DEFAULT_OPTIONS.maxRetries;
   const delayFn = options?.delayFn ?? DEFAULT_OPTIONS.delayFn;
 
-  const results: Array<CrawlResult | CrawlError> = new Array(
-    urls.length,
-  );
+  const results: Array<CrawlResult | CrawlError> = new Array(urls.length);
   let nextIndex = 0;
 
   async function worker(): Promise<void> {
@@ -148,8 +142,7 @@ export async function fetchBatch(
           delayFn,
         });
       } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : String(err);
+        const errorMessage = err instanceof Error ? err.message : String(err);
         results[idx] = {
           url,
           error: errorMessage,

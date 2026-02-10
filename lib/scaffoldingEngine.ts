@@ -1,43 +1,32 @@
-import type {
-  KiroToolType,
-  ScaffoldResult,
-  ScaffoldOptions,
-} from './types.js';
+import { generateAgent, generatePower, generateSkill } from './configGenerator.js';
 import {
-  generateAgent,
-  generatePower,
-  generateSkill,
-} from './configGenerator.js';
+  scaffoldAutonomousAgent,
+  scaffoldContextProvider,
+  scaffoldHook,
+  scaffoldMcpServer,
+  scaffoldSpec,
+  scaffoldSteeringDoc,
+  scaffoldSubagent,
+} from './scaffoldingEngineHelpers.js';
 import {
-  toKebabCase,
-  validateScaffoldOutput,
+  MCP_DOC_SERVER_ARGS,
+  MCP_DOC_SERVER_COMMAND,
+  MCP_DOC_SERVER_NAME,
+  SKILL_DESC_MAX_CHARS,
+  SKILL_DESC_MIN_CHARS,
+  SKILL_INSTRUCTION_TOKEN_LIMIT,
+  SKILL_METADATA_TOKEN_TARGET,
   checkTokenEfficiency,
   estimateTokens,
   mcpDocServerConfig,
-  MCP_DOC_SERVER_NAME,
-  MCP_DOC_SERVER_COMMAND,
-  MCP_DOC_SERVER_ARGS,
-  SKILL_DESC_MIN_CHARS,
-  SKILL_DESC_MAX_CHARS,
-  SKILL_METADATA_TOKEN_TARGET,
-  SKILL_INSTRUCTION_TOKEN_LIMIT,
+  toKebabCase,
+  validateScaffoldOutput,
 } from './scaffoldingEngineUtils.js';
-import {
-  scaffoldHook,
-  scaffoldSteeringDoc,
-  scaffoldMcpServer,
-  scaffoldSpec,
-  scaffoldAutonomousAgent,
-  scaffoldSubagent,
-  scaffoldContextProvider,
-} from './scaffoldingEngineHelpers.js';
+import type { KiroToolType, ScaffoldOptions, ScaffoldResult } from './types.js';
 
 // ─── Main Entry Point ──────────────────────────────────────
 
-export function scaffoldTool(
-  toolType: KiroToolType,
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldTool(toolType: KiroToolType, options: ScaffoldOptions): ScaffoldResult {
   switch (toolType) {
     case 'power':
       return scaffoldPower(options);
@@ -64,15 +53,10 @@ export function scaffoldTool(
 
 // ─── Power Scaffolding ─────────────────────────────────────
 
-export function scaffoldPower(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldPower(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
   const displayName = options.name;
-  const keywords = [
-    kebabName,
-    ...kebabName.split('-').filter((w) => w.length > 2),
-  ];
+  const keywords = [kebabName, ...kebabName.split('-').filter((w) => w.length > 2)];
 
   const powerResult = generatePower({
     name: kebabName,
@@ -114,13 +98,8 @@ export function scaffoldPower(
     description: options.description,
     keywords,
   };
-  const validation = validateScaffoldOutput(
-    'power',
-    powerConfig
-  );
-  const tokenWarnings = checkTokenEfficiency(
-    powerResult.powerMd
-  );
+  const validation = validateScaffoldOutput('power', powerConfig);
+  const tokenWarnings = checkTokenEfficiency(powerResult.powerMd);
 
   const basePath = `powers/${kebabName}`;
   const files: ScaffoldResult['files'] = [
@@ -144,25 +123,19 @@ export function scaffoldPower(
     });
   }
 
-  const instructionParts = [
-    `Power "${displayName}" scaffolded at ${basePath}/`,
-  ];
+  const instructionParts = [`Power "${displayName}" scaffolded at ${basePath}/`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation warnings:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
   if (tokenWarnings.length > 0) {
     instructionParts.push(
       'Token efficiency warnings:',
-      ...tokenWarnings.map(
-        (w) => `  - ${w.field}: ${w.message}`
-      )
+      ...tokenWarnings.map((w) => `  - ${w.field}: ${w.message}`),
     );
   }
 
@@ -171,7 +144,7 @@ export function scaffoldPower(
     'Next steps:',
     '1. Edit POWER.md with your power documentation',
     '2. Configure mcp.json if using MCP servers',
-    '3. Add steering files for guided workflows'
+    '3. Add steering files for guided workflows',
   );
 
   return {
@@ -182,9 +155,7 @@ export function scaffoldPower(
 
 // ─── Agent Scaffolding ─────────────────────────────────────
 
-export function scaffoldAgent(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldAgent(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const agentConfig = generateAgent({
@@ -205,10 +176,7 @@ export function scaffoldAgent(
     ].join('\n'),
   });
 
-  const validation = validateScaffoldOutput(
-    'custom-agent',
-    agentConfig
-  );
+  const validation = validateScaffoldOutput('custom-agent', agentConfig);
 
   const promptContent = [
     `# ${options.name} Agent Prompt`,
@@ -232,20 +200,16 @@ export function scaffoldAgent(
     },
     {
       path: `agents/${kebabName}-prompt.md`,
-      content: promptContent + '\n',
+      content: `${promptContent}\n`,
     },
   ];
 
-  const instructionParts = [
-    `Agent "${kebabName}" scaffolded.`,
-  ];
+  const instructionParts = [`Agent "${kebabName}" scaffolded.`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation warnings:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
@@ -254,7 +218,7 @@ export function scaffoldAgent(
     'Next steps:',
     '1. Edit the agent prompt file',
     '2. Configure tools and allowedTools',
-    '3. Test with: npx tsx bin/mcp-server.ts'
+    '3. Test with: npx tsx bin/mcp-server.ts',
   );
 
   return {
@@ -265,9 +229,7 @@ export function scaffoldAgent(
 
 // ─── Composite Scaffolding ─────────────────────────────────
 
-export function scaffoldComposite(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldComposite(options: ScaffoldOptions): ScaffoldResult {
   const powerResult = scaffoldPower(options);
   const agentResult = scaffoldAgent(options);
 
@@ -283,8 +245,7 @@ export function scaffoldComposite(
     `  - Shared MCP server: ${MCP_DOC_SERVER_NAME}`,
     '',
     'Both IDE power and CLI agent reference the same',
-    `MCP Documentation Server (${MCP_DOC_SERVER_COMMAND} ` +
-      `${MCP_DOC_SERVER_ARGS.join(' ')}).`,
+    `MCP Documentation Server (${MCP_DOC_SERVER_COMMAND} ` + `${MCP_DOC_SERVER_ARGS.join(' ')}).`,
     '',
     'Next steps:',
     '1. Customize POWER.md for IDE workflows',
@@ -298,35 +259,27 @@ export function scaffoldComposite(
 
 // ─── Skill Scaffolding ─────────────────────────────────────
 
-export function scaffoldSkill(
-  options: ScaffoldOptions
-): ScaffoldResult {
+export function scaffoldSkill(options: ScaffoldOptions): ScaffoldResult {
   const kebabName = toKebabCase(options.name);
 
   const descWarnings: string[] = [];
   if (options.description.length < SKILL_DESC_MIN_CHARS) {
     descWarnings.push(
       `Description is ${options.description.length} chars, ` +
-        `target ${SKILL_DESC_MIN_CHARS}-${SKILL_DESC_MAX_CHARS}`
+        `target ${SKILL_DESC_MIN_CHARS}-${SKILL_DESC_MAX_CHARS}`,
     );
   }
   if (options.description.length > SKILL_DESC_MAX_CHARS) {
     descWarnings.push(
       `Description is ${options.description.length} chars, ` +
-        `exceeds target max of ${SKILL_DESC_MAX_CHARS}`
+        `exceeds target max of ${SKILL_DESC_MAX_CHARS}`,
     );
   }
   if (!options.description.includes('Use when')) {
-    descWarnings.push(
-      'Description should include a "Use when:" section'
-    );
+    descWarnings.push('Description should include a "Use when:" section');
   }
 
-  const metadataSection = [
-    `# ${options.name}`,
-    '',
-    options.description,
-  ].join('\n');
+  const metadataSection = [`# ${options.name}`, '', options.description].join('\n');
 
   const instructionSection = [
     '',
@@ -347,14 +300,12 @@ export function scaffoldSkill(
   const tokenNotes: string[] = [];
   if (metadataTokens > SKILL_METADATA_TOKEN_TARGET) {
     tokenNotes.push(
-      `Metadata section ~${metadataTokens} tokens ` +
-        `(target ~${SKILL_METADATA_TOKEN_TARGET})`
+      `Metadata section ~${metadataTokens} tokens ` + `(target ~${SKILL_METADATA_TOKEN_TARGET})`,
     );
   }
   if (instructionTokens > SKILL_INSTRUCTION_TOKEN_LIMIT) {
     tokenNotes.push(
-      `Instructions ~${instructionTokens} tokens ` +
-        `(limit ${SKILL_INSTRUCTION_TOKEN_LIMIT})`
+      `Instructions ~${instructionTokens} tokens ` + `(limit ${SKILL_INSTRUCTION_TOKEN_LIMIT})`,
     );
   }
 
@@ -388,31 +339,21 @@ export function scaffoldSkill(
     }
   }
 
-  const instructionParts = [
-    `Skill "${kebabName}" scaffolded.`,
-  ];
+  const instructionParts = [`Skill "${kebabName}" scaffolded.`];
 
   if (!validation.isValid) {
     instructionParts.push(
       'Validation errors:',
-      ...validation.errors.map(
-        (e) => `  - ${e.field}: ${e.message}`
-      )
+      ...validation.errors.map((e) => `  - ${e.field}: ${e.message}`),
     );
   }
 
   if (descWarnings.length > 0) {
-    instructionParts.push(
-      'Description quality:',
-      ...descWarnings.map((w) => `  - ${w}`)
-    );
+    instructionParts.push('Description quality:', ...descWarnings.map((w) => `  - ${w}`));
   }
 
   if (tokenNotes.length > 0) {
-    instructionParts.push(
-      'Token budget:',
-      ...tokenNotes.map((n) => `  - ${n}`)
-    );
+    instructionParts.push('Token budget:', ...tokenNotes.map((n) => `  - ${n}`));
   }
 
   instructionParts.push(
@@ -425,8 +366,7 @@ export function scaffoldSkill(
     'Next steps:',
     '1. Write detailed instructions in SKILL.md',
     '2. Add reference files to references/ directory',
-    '3. Validate with: npx tsx bin/validate-skill.ts ' +
-      kebabName
+    `3. Validate with: npx tsx bin/validate-skill.ts ${kebabName}`,
   );
 
   return {

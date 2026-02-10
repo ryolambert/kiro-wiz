@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { KnowledgeBaseEntry, UrlCategory } from './types';
 import { categorizeUrl } from './urlRegistry';
@@ -63,7 +63,7 @@ function categoryDir(category: UrlCategory): string {
 
 export async function write(
   entry: KnowledgeBaseEntry,
-  baseDir: string = DEFAULT_BASE_DIR
+  baseDir: string = DEFAULT_BASE_DIR,
 ): Promise<string> {
   const dir = join(baseDir, categoryDir(entry.category));
   await mkdir(dir, { recursive: true });
@@ -92,7 +92,7 @@ export async function write(
 export async function read(
   category: UrlCategory,
   slug: string,
-  baseDir: string = DEFAULT_BASE_DIR
+  baseDir: string = DEFAULT_BASE_DIR,
 ): Promise<KnowledgeBaseEntry | null> {
   const dir = categoryDir(category);
   const filePath = join(baseDir, dir, `${slug}.md`);
@@ -114,9 +114,7 @@ export interface ListResult {
   files: string[];
 }
 
-export async function list(
-  baseDir: string = DEFAULT_BASE_DIR
-): Promise<ListResult[]> {
+export async function list(baseDir: string = DEFAULT_BASE_DIR): Promise<ListResult[]> {
   let dirs: string[];
   try {
     const entries = await readdir(baseDir, { withFileTypes: true });
@@ -153,15 +151,10 @@ export async function list(
 
 // ─── Update Index ───────────────────────────────────────────
 
-export async function updateIndex(
-  baseDir: string = DEFAULT_BASE_DIR
-): Promise<void> {
+export async function updateIndex(baseDir: string = DEFAULT_BASE_DIR): Promise<void> {
   const categories = await list(baseDir);
 
-  const lines: string[] = [
-    '# Knowledge Base Index',
-    '',
-  ];
+  const lines: string[] = ['# Knowledge Base Index', ''];
 
   for (const cat of categories) {
     lines.push(`## ${formatCategoryTitle(cat.category)}`);
@@ -180,11 +173,7 @@ export async function updateIndex(
 
 // ─── Helpers ────────────────────────────────────────────────
 
-function parseEntry(
-  raw: string,
-  slug: string,
-  category: UrlCategory
-): KnowledgeBaseEntry {
+function parseEntry(raw: string, slug: string, category: UrlCategory): KnowledgeBaseEntry {
   const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n/);
 
   let title = slug;
@@ -210,10 +199,7 @@ function parseEntry(
   };
 }
 
-function extractFmField(
-  fm: string,
-  field: string
-): string | undefined {
+function extractFmField(fm: string, field: string): string | undefined {
   const re = new RegExp(`^${field}:\\s*"?(.*?)"?\\s*$`, 'm');
   const match = fm.match(re);
   return match ? match[1] : undefined;

@@ -1,28 +1,26 @@
+import * as yaml from 'js-yaml';
+import {
+  VALID_INCLUSION_MODES,
+  validateHook,
+  validateMcpServer,
+  validatePower,
+  validateSkill,
+  validateSteering,
+} from './configGeneratorValidators';
 import type {
   AuditFinding,
   HookConfig,
-  SteeringConfig,
-  SkillFrontmatter,
-  PowerConfig,
   McpServerConfig,
+  PowerConfig,
+  SkillFrontmatter,
+  SteeringConfig,
 } from './types';
-import {
-  validateHook,
-  validateSteering,
-  validateSkill,
-  validatePower,
-  validateMcpServer,
-  VALID_INCLUSION_MODES,
-} from './configGeneratorValidators';
-import * as yaml from 'js-yaml';
 
 // ─── Frontmatter Parsing ───────────────────────────────────
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
-export function parseFrontmatter(
-  content: string
-): Record<string, unknown> | null {
+export function parseFrontmatter(content: string): Record<string, unknown> | null {
   const match = FRONTMATTER_RE.exec(content);
   if (!match) return null;
   try {
@@ -48,9 +46,7 @@ const SECRET_PATTERNS = [
   /Bearer\s+[A-Za-z0-9\-._~+/]+=*/,
 ];
 
-export function detectHardcodedSecrets(
-  content: string
-): string[] {
+export function detectHardcodedSecrets(content: string): string[] {
   const found: string[] = [];
   for (const pattern of SECRET_PATTERNS) {
     if (pattern.test(content)) {
@@ -62,10 +58,7 @@ export function detectHardcodedSecrets(
 
 // ─── Steering Check ────────────────────────────────────────
 
-export function checkSteering(
-  filePath: string,
-  content: string
-): AuditFinding[] {
+export function checkSteering(filePath: string, content: string): AuditFinding[] {
   const findings: AuditFinding[] = [];
   const fm = parseFrontmatter(content);
 
@@ -76,37 +69,29 @@ export function checkSteering(
       message: 'Missing or invalid YAML frontmatter',
       file: filePath,
       suggestion:
-        'Add valid YAML frontmatter with an inclusion mode ' +
-        '(always, fileMatch, or manual)',
+        'Add valid YAML frontmatter with an inclusion mode ' + '(always, fileMatch, or manual)',
       kbRef: 'steering/best-practices',
     });
     return findings;
   }
 
-  const inclusion = fm['inclusion'] as string | undefined;
-  if (
-    !inclusion ||
-    !(VALID_INCLUSION_MODES as readonly string[]).includes(
-      inclusion
-    )
-  ) {
+  const inclusion = fm.inclusion as string | undefined;
+  if (!inclusion || !(VALID_INCLUSION_MODES as readonly string[]).includes(inclusion)) {
     findings.push({
       severity: 'critical',
       category: 'steering',
       message: `Invalid or missing inclusion mode: "${inclusion ?? 'undefined'}"`,
       file: filePath,
-      suggestion:
-        `Set inclusion to one of: ${VALID_INCLUSION_MODES.join(', ')}`,
+      suggestion: `Set inclusion to one of: ${VALID_INCLUSION_MODES.join(', ')}`,
       kbRef: 'steering/best-practices',
     });
   }
 
-  if (inclusion === 'fileMatch' && !fm['fileMatchPattern']) {
+  if (inclusion === 'fileMatch' && !fm.fileMatchPattern) {
     findings.push({
       severity: 'recommended',
       category: 'steering',
-      message:
-        'fileMatch inclusion mode without fileMatchPattern',
+      message: 'fileMatch inclusion mode without fileMatchPattern',
       file: filePath,
       suggestion: 'Add a fileMatchPattern to specify which files trigger this steering doc',
       kbRef: 'steering/best-practices',
@@ -115,7 +100,7 @@ export function checkSteering(
 
   const steeringConfig: SteeringConfig = {
     inclusion: (inclusion as SteeringConfig['inclusion']) ?? 'always',
-    fileMatchPattern: fm['fileMatchPattern'] as string | undefined,
+    fileMatchPattern: fm.fileMatchPattern as string | undefined,
     content: content.replace(FRONTMATTER_RE, '').trim(),
   };
 
@@ -142,10 +127,7 @@ export function checkSteering(
 
 // ─── Hook Check ────────────────────────────────────────────
 
-export function checkHook(
-  filePath: string,
-  content: string
-): AuditFinding[] {
+export function checkHook(filePath: string, content: string): AuditFinding[] {
   const findings: AuditFinding[] = [];
 
   let parsed: unknown;
@@ -171,8 +153,7 @@ export function checkHook(
       category: 'hooks',
       message: 'Missing "when" block in hook',
       file: filePath,
-      suggestion:
-        'Add a "when" block with a valid trigger type',
+      suggestion: 'Add a "when" block with a valid trigger type',
       kbRef: 'hooks/best-practices',
     });
   }
@@ -183,8 +164,7 @@ export function checkHook(
       category: 'hooks',
       message: 'Missing "then" block in hook',
       file: filePath,
-      suggestion:
-        'Add a "then" block with a valid action type',
+      suggestion: 'Add a "then" block with a valid action type',
       kbRef: 'hooks/best-practices',
     });
   }
@@ -192,9 +172,7 @@ export function checkHook(
   const result = validateHook(hookConfig);
   for (const err of result.errors) {
     const severity =
-      err.field === 'when.type' || err.field === 'then.type'
-        ? 'critical'
-        : 'recommended';
+      err.field === 'when.type' || err.field === 'then.type' ? 'critical' : 'recommended';
     findings.push({
       severity,
       category: 'hooks',
@@ -213,7 +191,7 @@ export function checkHook(
 export function checkSkill(
   filePath: string,
   content: string,
-  directoryName: string
+  directoryName: string,
 ): AuditFinding[] {
   const findings: AuditFinding[] = [];
   const fm = parseFrontmatter(content);
@@ -224,31 +202,25 @@ export function checkSkill(
       category: 'skills',
       message: 'Missing or invalid YAML frontmatter in SKILL.md',
       file: filePath,
-      suggestion:
-        'Add valid YAML frontmatter with name and description fields',
+      suggestion: 'Add valid YAML frontmatter with name and description fields',
       kbRef: 'skills/best-practices',
     });
     return findings;
   }
 
   const skillFm: SkillFrontmatter = {
-    name: (fm['name'] as string) ?? '',
-    description: (fm['description'] as string) ?? '',
-    license: fm['license'] as string | undefined,
-    compatibility: fm['compatibility'] as string | undefined,
-    metadata: fm['metadata'] as
-      | Record<string, string>
-      | undefined,
-    allowedTools: (fm['allowed-tools'] ??
-      fm['allowedTools']) as string | undefined,
+    name: (fm.name as string) ?? '',
+    description: (fm.description as string) ?? '',
+    license: fm.license as string | undefined,
+    compatibility: fm.compatibility as string | undefined,
+    metadata: fm.metadata as Record<string, string> | undefined,
+    allowedTools: (fm['allowed-tools'] ?? fm.allowedTools) as string | undefined,
   };
 
   const result = validateSkill(skillFm);
   for (const err of result.errors) {
     findings.push({
-      severity: err.field === 'name' || err.field === 'description'
-        ? 'critical'
-        : 'recommended',
+      severity: err.field === 'name' || err.field === 'description' ? 'critical' : 'recommended',
       category: 'skills',
       message: `${err.field}: ${err.message}`,
       file: filePath,
@@ -257,19 +229,13 @@ export function checkSkill(
     });
   }
 
-  if (
-    skillFm.name &&
-    skillFm.name !== directoryName
-  ) {
+  if (skillFm.name && skillFm.name !== directoryName) {
     findings.push({
       severity: 'recommended',
       category: 'skills',
-      message:
-        `Skill name "${skillFm.name}" does not match ` +
-        `directory name "${directoryName}"`,
+      message: `Skill name "${skillFm.name}" does not match ` + `directory name "${directoryName}"`,
       file: filePath,
-      suggestion:
-        'Rename the directory or update the skill name to match',
+      suggestion: 'Rename the directory or update the skill name to match',
       kbRef: 'skills/best-practices',
     });
   }
@@ -279,10 +245,7 @@ export function checkSkill(
 
 // ─── Power Check ───────────────────────────────────────────
 
-export function checkPower(
-  filePath: string,
-  content: string
-): AuditFinding[] {
+export function checkPower(filePath: string, content: string): AuditFinding[] {
   const findings: AuditFinding[] = [];
   const fm = parseFrontmatter(content);
 
@@ -292,21 +255,20 @@ export function checkPower(
       category: 'powers',
       message: 'Missing or invalid YAML frontmatter in POWER.md',
       file: filePath,
-      suggestion:
-        'Add valid YAML frontmatter with name, displayName, description, and keywords',
+      suggestion: 'Add valid YAML frontmatter with name, displayName, description, and keywords',
       kbRef: 'powers/best-practices',
     });
     return findings;
   }
 
   const powerConfig: PowerConfig = {
-    name: (fm['name'] as string) ?? '',
-    displayName: (fm['displayName'] as string) ?? '',
-    description: (fm['description'] as string) ?? '',
-    keywords: Array.isArray(fm['keywords'])
-      ? (fm['keywords'] as string[])
-      : typeof fm['keywords'] === 'string'
-        ? (fm['keywords'] as string)
+    name: (fm.name as string) ?? '',
+    displayName: (fm.displayName as string) ?? '',
+    description: (fm.description as string) ?? '',
+    keywords: Array.isArray(fm.keywords)
+      ? (fm.keywords as string[])
+      : typeof fm.keywords === 'string'
+        ? (fm.keywords as string)
             .split(',')
             .map((k: string) => k.trim())
             .filter(Boolean)
@@ -330,10 +292,7 @@ export function checkPower(
 
 // ─── MCP Config Check ──────────────────────────────────────
 
-export function checkMcpConfig(
-  filePath: string,
-  content: string
-): AuditFinding[] {
+export function checkMcpConfig(filePath: string, content: string): AuditFinding[] {
   const findings: AuditFinding[] = [];
 
   let parsed: unknown;
@@ -356,25 +315,18 @@ export function checkMcpConfig(
     findings.push({
       severity: 'critical',
       category: 'mcp',
-      message:
-        'Possible hardcoded secrets detected in MCP config',
+      message: 'Possible hardcoded secrets detected in MCP config',
       file: filePath,
-      suggestion:
-        'Use environment variables instead of hardcoded secrets',
+      suggestion: 'Use environment variables instead of hardcoded secrets',
       kbRef: 'mcp/best-practices',
     });
   }
 
   const config = parsed as Record<string, unknown>;
-  const servers =
-    (config['mcpServers'] as
-      | Record<string, McpServerConfig>
-      | undefined) ?? {};
+  const servers = (config.mcpServers as Record<string, McpServerConfig> | undefined) ?? {};
 
   for (const [name, server] of Object.entries(servers)) {
-    const result = validateMcpServer(
-      server as McpServerConfig
-    );
+    const result = validateMcpServer(server as McpServerConfig);
     for (const err of result.errors) {
       findings.push({
         severity: 'critical',
@@ -392,10 +344,7 @@ export function checkMcpConfig(
 
 // ─── Settings Check ────────────────────────────────────────
 
-export function checkSettings(
-  filePath: string,
-  content: string
-): AuditFinding[] {
+export function checkSettings(filePath: string, content: string): AuditFinding[] {
   const findings: AuditFinding[] = [];
 
   try {

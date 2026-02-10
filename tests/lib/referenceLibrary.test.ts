@@ -1,13 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtemp, rm, readFile, readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import {
-  generate,
-  generateAll,
-  getForToolType,
-  writeAll,
-} from '../../lib/referenceLibrary.js';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { generate, generateAll, getForToolType, writeAll } from '../../lib/referenceLibrary.js';
 import { KIRO_TOOL_TYPES } from '../../lib/types.js';
 import type { DocType } from '../../lib/types.js';
 
@@ -28,24 +23,16 @@ describe('referenceLibrary', () => {
     it('includes cross-reference to master reference', () => {
       const doc = generate('skill', 'examples');
 
-      expect(doc.crossRefs).toContain(
-        '[Skills in Master Reference](../master-reference.md#skill)'
-      );
+      expect(doc.crossRefs).toContain('[Skills in Master Reference](../master-reference.md#skill)');
     });
 
     it('includes sibling doc cross-references', () => {
       const doc = generate('power', 'best-practices');
 
-      expect(doc.crossRefs).toContain(
-        '[Powers examples](./examples.md)'
-      );
-      expect(doc.crossRefs).toContain(
-        '[Powers templates](./templates.md)'
-      );
+      expect(doc.crossRefs).toContain('[Powers examples](./examples.md)');
+      expect(doc.crossRefs).toContain('[Powers templates](./templates.md)');
       // Should NOT include self
-      expect(doc.crossRefs).not.toContain(
-        '[Powers best-practices](./best-practices.md)'
-      );
+      expect(doc.crossRefs).not.toContain('[Powers best-practices](./best-practices.md)');
     });
 
     it('skill best-practices includes progressive disclosure', () => {
@@ -69,9 +56,14 @@ describe('referenceLibrary', () => {
     it('hook best-practices documents trigger types', () => {
       const doc = generate('hook', 'best-practices');
       const triggers = [
-        'fileEdited', 'fileCreated', 'fileDeleted',
-        'promptSubmit', 'agentStop', 'preToolUse',
-        'postToolUse', 'userTriggered',
+        'fileEdited',
+        'fileCreated',
+        'fileDeleted',
+        'promptSubmit',
+        'agentStop',
+        'preToolUse',
+        'postToolUse',
+        'userTriggered',
       ];
       for (const t of triggers) {
         expect(doc.content).toContain(t);
@@ -173,11 +165,7 @@ describe('referenceLibrary', () => {
 
     it('covers every doc type for each tool type', () => {
       const docs = generateAll();
-      const docTypes: DocType[] = [
-        'best-practices',
-        'examples',
-        'templates',
-      ];
+      const docTypes: DocType[] = ['best-practices', 'examples', 'templates'];
 
       for (const tt of KIRO_TOOL_TYPES) {
         const ttDocs = docs.filter((d) => d.toolType === tt);
@@ -265,9 +253,7 @@ describe('referenceLibrary', () => {
       const docs = generateAll();
 
       for (const doc of docs) {
-        const hasMasterRef = doc.crossRefs.some((r) =>
-          r.includes('master-reference.md')
-        );
+        const hasMasterRef = doc.crossRefs.some((r) => r.includes('master-reference.md'));
         expect(hasMasterRef).toBe(true);
       }
     });

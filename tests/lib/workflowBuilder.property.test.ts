@@ -1,33 +1,26 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import {
-  gatherRequirements,
-  buildIntegrationPlan,
-  buildCompositePackage,
-  generateBuildSummary,
-} from '../../lib/workflowBuilder.js';
+import { describe, expect, it } from 'vitest';
 import { scaffoldTool } from '../../lib/scaffoldingEngine.js';
 import {
-  MCP_DOC_SERVER_NAME,
-  MCP_DOC_SERVER_COMMAND,
   MCP_DOC_SERVER_ARGS,
+  MCP_DOC_SERVER_COMMAND,
+  MCP_DOC_SERVER_NAME,
 } from '../../lib/scaffoldingEngineUtils.js';
-import type {
-  PlatformTarget,
-  IntegrationRequirements,
-  KiroToolType,
-} from '../../lib/types.js';
+import type { IntegrationRequirements, KiroToolType, PlatformTarget } from '../../lib/types.js';
+import {
+  buildCompositePackage,
+  buildIntegrationPlan,
+  gatherRequirements,
+  generateBuildSummary,
+} from '../../lib/workflowBuilder.js';
 
 // ─── Arbitraries ───────────────────────────────────────────
 
-const VALID_PLATFORMS: ReadonlyArray<PlatformTarget> = [
-  'ide',
-  'cli',
-  'both',
-];
+const VALID_PLATFORMS: ReadonlyArray<PlatformTarget> = ['ide', 'cli', 'both'];
 
-const arbPlatform: fc.Arbitrary<PlatformTarget> =
-  fc.constantFrom<PlatformTarget>(...VALID_PLATFORMS);
+const arbPlatform: fc.Arbitrary<PlatformTarget> = fc.constantFrom<PlatformTarget>(
+  ...VALID_PLATFORMS,
+);
 
 const arbTargetTech: fc.Arbitrary<string> = fc
   .string({ minLength: 1, maxLength: 60 })
@@ -142,10 +135,7 @@ describe('Property 29: Recommendation includes usage patterns and trade-offs', (
   });
 
   it('compositePackage is false when preferredPlatform is not "both"', () => {
-    const arbNonBothPlatform = fc.constantFrom<PlatformTarget>(
-      'ide',
-      'cli',
-    );
+    const arbNonBothPlatform = fc.constantFrom<PlatformTarget>('ide', 'cli');
 
     const arbNonBothInput = fc.record({
       targetTech: arbTargetTech,
@@ -210,9 +200,7 @@ describe('Property 30: Workflow Builder generated files are valid', () => {
       'subagent',
     ];
 
-    const arbJsonToolType = fc.constantFrom<KiroToolType>(
-      ...jsonToolTypes,
-    );
+    const arbJsonToolType = fc.constantFrom<KiroToolType>(...jsonToolTypes);
 
     const arbScaffoldOptions = fc.record({
       toolType: arbJsonToolType,
@@ -224,9 +212,7 @@ describe('Property 30: Workflow Builder generated files are valid', () => {
       fc.property(arbScaffoldOptions, ({ toolType, name, description }) => {
         const result = scaffoldTool(toolType, { name, description });
 
-        const jsonFiles = result.files.filter(
-          (f) => f.path.endsWith('.json'),
-        );
+        const jsonFiles = result.files.filter((f) => f.path.endsWith('.json'));
 
         for (const file of jsonFiles) {
           expect(() => JSON.parse(file.content)).not.toThrow();
@@ -274,16 +260,12 @@ describe('Property 31: Build summary completeness', () => {
         const scaffold = buildCompositePackage(reqs);
         const summary = generateBuildSummary(plan, scaffold);
 
-        const createdPaths = summary.createdFiles.map(
-          (f) => f.path,
-        );
+        const createdPaths = summary.createdFiles.map((f) => f.path);
         for (const file of scaffold.files) {
           expect(createdPaths).toContain(file.path);
         }
 
-        expect(summary.createdFiles.length).toBe(
-          scaffold.files.length,
-        );
+        expect(summary.createdFiles.length).toBe(scaffold.files.length);
       }),
       { numRuns: 100 },
     );
@@ -317,9 +299,7 @@ describe('Property 31: Build summary completeness', () => {
         const summary = generateBuildSummary(plan, scaffold);
 
         expect(typeof summary.testingInstructions).toBe('string');
-        expect(
-          summary.testingInstructions.trim().length,
-        ).toBeGreaterThan(0);
+        expect(summary.testingInstructions.trim().length).toBeGreaterThan(0);
       }),
       { numRuns: 100 },
     );
@@ -341,15 +321,12 @@ describe('Property 31: Build summary completeness', () => {
         const summary = generateBuildSummary(plan, scaffold);
 
         expect(plan.compositePackage).toBe(true);
-        expect(
-          summary.testingInstructions.toLowerCase(),
-        ).toContain('cross-platform');
+        expect(summary.testingInstructions.toLowerCase()).toContain('cross-platform');
       }),
       { numRuns: 100 },
     );
   });
 });
-
 
 // ─── Property 41 ───────────────────────────────────────────
 
@@ -377,9 +354,7 @@ describe('Property 41: Workflow Builder platform-coordinated output', () => {
         const reqs = gatherRequirements(input);
         const result = buildCompositePackage(reqs);
 
-        const powerMdFiles = result.files.filter((f) =>
-          f.path.endsWith('POWER.md'),
-        );
+        const powerMdFiles = result.files.filter((f) => f.path.endsWith('POWER.md'));
         expect(powerMdFiles.length).toBeGreaterThanOrEqual(1);
         expect(powerMdFiles[0].content.length).toBeGreaterThan(0);
       }),
@@ -393,9 +368,7 @@ describe('Property 41: Workflow Builder platform-coordinated output', () => {
         const reqs = gatherRequirements(input);
         const result = buildCompositePackage(reqs);
 
-        const mcpJsonFiles = result.files.filter((f) =>
-          f.path.endsWith('mcp.json'),
-        );
+        const mcpJsonFiles = result.files.filter((f) => f.path.endsWith('mcp.json'));
         expect(mcpJsonFiles.length).toBeGreaterThanOrEqual(1);
         expect(mcpJsonFiles[0].content.length).toBeGreaterThan(0);
 
@@ -414,9 +387,7 @@ describe('Property 41: Workflow Builder platform-coordinated output', () => {
         const result = buildCompositePackage(reqs);
 
         const agentJsonFiles = result.files.filter(
-          (f) =>
-            f.path.endsWith('.json') &&
-            f.path.includes('agents/'),
+          (f) => f.path.endsWith('.json') && f.path.includes('agents/'),
         );
         expect(agentJsonFiles.length).toBeGreaterThanOrEqual(1);
         expect(agentJsonFiles[0].content.length).toBeGreaterThan(0);
@@ -436,20 +407,16 @@ describe('Property 41: Workflow Builder platform-coordinated output', () => {
         const result = buildCompositePackage(reqs);
 
         // Extract mcp.json from power
-        const mcpJsonFile = result.files.find((f) =>
-          f.path.endsWith('mcp.json'),
-        );
+        const mcpJsonFile = result.files.find((f) => f.path.endsWith('mcp.json'));
         expect(mcpJsonFile).toBeDefined();
-        const mcpJson = JSON.parse(mcpJsonFile!.content);
+        const mcpJson = JSON.parse(mcpJsonFile?.content);
 
         // Extract agent JSON
         const agentJsonFile = result.files.find(
-          (f) =>
-            f.path.endsWith('.json') &&
-            f.path.includes('agents/'),
+          (f) => f.path.endsWith('.json') && f.path.includes('agents/'),
         );
         expect(agentJsonFile).toBeDefined();
-        const agentJson = JSON.parse(agentJsonFile!.content);
+        const agentJson = JSON.parse(agentJsonFile?.content);
 
         // Both must reference the same MCP server name
         expect(mcpJson.mcpServers[MCP_DOC_SERVER_NAME]).toBeDefined();

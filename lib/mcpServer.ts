@@ -1,53 +1,38 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
-import type { CallToolRequest } from '@modelcontextprotocol/sdk/types.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import type { CallToolRequest } from '@modelcontextprotocol/sdk/types.js';
+import { fetchSitemap } from './changeDetector';
+import { validate } from './configGenerator';
+import { parseHtml } from './contentParser';
+import { fetchWithRetry } from './crawler';
+import { install, previewInstall } from './fileInstaller';
+import { updateIndex, urlToCategory, urlToSlug, write as writeKb } from './knowledgeBase';
+import { TEMPLATES_CONTENT } from './refDataTemplates';
+import { getDecisionMatrix } from './toolingAdvisor';
 import type {
   DocumentationSection,
-  PlatformGuide,
-  ScaffoldResult,
+  InstallTarget,
   KiroToolType,
+  PlatformGuide,
   PlatformTarget,
   ScaffoldOptions,
-  InstallTarget,
+  ScaffoldResult,
 } from './types';
-import { getDecisionMatrix } from './toolingAdvisor';
-import { validate } from './configGenerator';
+import type { RegistryEntry, UrlCategory } from './types';
 import {
-  scan,
-  generateReport,
-  compareAgainstBestPractices,
-} from './workspaceAuditor';
-import { TEMPLATES_CONTENT } from './refDataTemplates';
-import {
-  install,
-  previewInstall,
-} from './fileInstaller';
-import {
-  load as loadRegistry,
-  save as saveRegistry,
   getActive,
   getByCategory,
-  updateLastCrawled,
+  load as loadRegistry,
   markFailed,
-  seedSitemapUrls,
+  save as saveRegistry,
   seedAgentSkillsUrls,
+  seedSitemapUrls,
+  updateLastCrawled,
 } from './urlRegistry';
-import { fetchWithRetry } from './crawler';
-import { parseHtml } from './contentParser';
-import {
-  write as writeKb,
-  urlToSlug,
-  urlToCategory,
-  updateIndex,
-} from './knowledgeBase';
-import { fetchSitemap } from './changeDetector';
-import type { RegistryEntry, UrlCategory } from './types';
+import { compareAgainstBestPractices, generateReport, scan } from './workspaceAuditor';
 
 // ─── Cache Types ───────────────────────────────────────────
 
@@ -97,9 +82,7 @@ class ResponseCache {
 
 // ─── Knowledge Base Reader ─────────────────────────────────
 
-async function readKnowledgeBase(
-  basePath: string
-): Promise<Map<string, string>> {
+async function readKnowledgeBase(basePath: string): Promise<Map<string, string>> {
   const kbPath = path.join(basePath, 'knowledge-base');
   const files = new Map<string, string>();
 
@@ -112,10 +95,7 @@ async function readKnowledgeBase(
   return files;
 }
 
-async function walkDirectory(
-  dir: string,
-  files: Map<string, string>
-): Promise<void> {
+async function walkDirectory(dir: string, files: Map<string, string>): Promise<void> {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true });
 
@@ -143,7 +123,7 @@ async function queryKnowledgeBase(
     topic?: string;
     toolType?: KiroToolType;
     searchTerm?: string;
-  }
+  },
 ): Promise<DocumentationSection[]> {
   const cacheKey = `kb:${params.topic || ''}:${params.toolType || ''}:${params.searchTerm || ''}`;
   const cached = cache.get<DocumentationSection[]>(cacheKey);
@@ -175,7 +155,7 @@ function matchesQuery(
     topic?: string;
     toolType?: KiroToolType;
     searchTerm?: string;
-  }
+  },
 ): boolean {
   const lower = content.toLowerCase();
   const pathLower = filePath.toLowerCase();
@@ -184,17 +164,11 @@ function matchesQuery(
     return false;
   }
 
-  if (
-    params.toolType &&
-    !pathLower.includes(params.toolType.toLowerCase())
-  ) {
+  if (params.toolType && !pathLower.includes(params.toolType.toLowerCase())) {
     return false;
   }
 
-  if (
-    params.searchTerm &&
-    !lower.includes(params.searchTerm.toLowerCase())
-  ) {
+  if (params.searchTerm && !lower.includes(params.searchTerm.toLowerCase())) {
     return false;
   }
 
@@ -235,10 +209,7 @@ function getPlatformGuide(platform: PlatformTarget): PlatformGuide {
   const guides: Record<PlatformTarget, PlatformGuide> = {
     ide: {
       platform: 'ide',
-      setupInstructions:
-        'Install Kiro IDE. Create custom-powers/ directory. ' +
-        'Add POWER.md with frontmatter. Optionally add mcp.json ' +
-        'and steering/ files. ' + installNote,
+      setupInstructions: `Install Kiro IDE. Create custom-powers/ directory. Add POWER.md with frontmatter. Optionally add mcp.json and steering/ files. ${installNote}`,
       capabilities: [
         'Powers with POWER.md',
         'Specs with requirements/design/tasks',
@@ -267,10 +238,7 @@ function getPlatformGuide(platform: PlatformTarget): PlatformGuide {
     },
     cli: {
       platform: 'cli',
-      setupInstructions:
-        'Install Kiro CLI. Create AGENTS.md at workspace root. ' +
-        'Define custom agents with mcpServers, resources, hooks. ' +
-        installNote,
+      setupInstructions: `Install Kiro CLI. Create AGENTS.md at workspace root. Define custom agents with mcpServers, resources, hooks. ${installNote}`,
       capabilities: [
         'Custom agents (.kiro/agents/)',
         'Knowledge bases (file:// resources)',
@@ -298,10 +266,7 @@ function getPlatformGuide(platform: PlatformTarget): PlatformGuide {
     },
     both: {
       platform: 'both',
-      setupInstructions:
-        'Install both Kiro IDE and CLI. Use cross-platform ' +
-        'features: hooks, steering, skills, MCP servers. ' +
-        installNote,
+      setupInstructions: `Install both Kiro IDE and CLI. Use cross-platform features: hooks, steering, skills, MCP servers. ${installNote}`,
       capabilities: [
         'Hooks (both platforms)',
         'Steering docs (both platforms)',
@@ -330,10 +295,7 @@ function getPlatformGuide(platform: PlatformTarget): PlatformGuide {
 
 // ─── Scaffold Tool ─────────────────────────────────────────
 
-function scaffoldTool(
-  toolType: KiroToolType,
-  options: ScaffoldOptions
-): ScaffoldResult {
+function scaffoldTool(toolType: KiroToolType, options: ScaffoldOptions): ScaffoldResult {
   const template = TEMPLATES_CONTENT[toolType];
   const files: Array<{ path: string; content: string }> = [];
 
@@ -359,7 +321,7 @@ function scaffoldTool(
               },
             },
             null,
-            2
+            2,
           ),
         });
       }
@@ -451,7 +413,7 @@ export class KiroMcpServer {
         capabilities: {
           tools: {},
         },
-      }
+      },
     );
 
     this.setupHandlers();
@@ -459,543 +421,526 @@ export class KiroMcpServer {
 
   private setupHandlers(): void {
     // List tools
-    this.server.setRequestHandler(
-      ListToolsRequestSchema,
-      async () => ({
-        tools: [
-          {
-            name: 'query_knowledge_base',
-            description:
-              'Query the Kiro knowledge base by topic, tool type, or search term',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                topic: {
-                  type: 'string',
-                  description: 'Topic category to filter by',
-                },
-                toolType: {
-                  type: 'string',
-                  description: 'Kiro tool type to filter by',
-                  enum: [
-                    'spec',
-                    'hook',
-                    'steering-doc',
-                    'skill',
-                    'power',
-                    'mcp-server',
-                    'custom-agent',
-                    'autonomous-agent',
-                    'subagent',
-                    'context-provider',
-                  ],
-                },
-                searchTerm: {
-                  type: 'string',
-                  description: 'Search term to find in content',
-                },
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
+      tools: [
+        {
+          name: 'query_knowledge_base',
+          description: 'Query the Kiro knowledge base by topic, tool type, or search term',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              topic: {
+                type: 'string',
+                description: 'Topic category to filter by',
+              },
+              toolType: {
+                type: 'string',
+                description: 'Kiro tool type to filter by',
+                enum: [
+                  'spec',
+                  'hook',
+                  'steering-doc',
+                  'skill',
+                  'power',
+                  'mcp-server',
+                  'custom-agent',
+                  'autonomous-agent',
+                  'subagent',
+                  'context-provider',
+                ],
+              },
+              searchTerm: {
+                type: 'string',
+                description: 'Search term to find in content',
               },
             },
           },
-          {
-            name: 'get_decision_matrix',
-            description:
-              'Get the decision matrix comparing all Kiro tool types',
-            inputSchema: {
-              type: 'object',
-              properties: {},
-            },
+        },
+        {
+          name: 'get_decision_matrix',
+          description: 'Get the decision matrix comparing all Kiro tool types',
+          inputSchema: {
+            type: 'object',
+            properties: {},
           },
-          {
-            name: 'get_template',
-            description:
-              'Get a starter template for a specific Kiro tool type',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                toolType: {
-                  type: 'string',
-                  description: 'The Kiro tool type',
-                  enum: [
-                    'spec',
-                    'hook',
-                    'steering-doc',
-                    'skill',
-                    'power',
-                    'mcp-server',
-                    'custom-agent',
-                    'autonomous-agent',
-                    'subagent',
-                    'context-provider',
-                  ],
-                },
+        },
+        {
+          name: 'get_template',
+          description: 'Get a starter template for a specific Kiro tool type',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              toolType: {
+                type: 'string',
+                description: 'The Kiro tool type',
+                enum: [
+                  'spec',
+                  'hook',
+                  'steering-doc',
+                  'skill',
+                  'power',
+                  'mcp-server',
+                  'custom-agent',
+                  'autonomous-agent',
+                  'subagent',
+                  'context-provider',
+                ],
               },
-              required: ['toolType'],
             },
+            required: ['toolType'],
           },
-          {
-            name: 'scaffold_tool',
-            description:
-              'Scaffold a new Kiro tool with generated files',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                toolType: {
-                  type: 'string',
-                  description: 'The Kiro tool type to scaffold',
-                  enum: [
-                    'spec',
-                    'hook',
-                    'steering-doc',
-                    'skill',
-                    'power',
-                    'mcp-server',
-                    'custom-agent',
-                    'autonomous-agent',
-                    'subagent',
-                    'context-provider',
-                  ],
-                },
-                options: {
-                  type: 'object',
-                  properties: {
-                    name: {
-                      type: 'string',
-                      description: 'Name of the tool',
-                    },
-                    description: {
-                      type: 'string',
-                      description: 'Description of the tool',
-                    },
-                    platform: {
-                      type: 'string',
-                      description: 'Target platform',
-                      enum: ['ide', 'cli', 'both'],
-                    },
+        },
+        {
+          name: 'scaffold_tool',
+          description: 'Scaffold a new Kiro tool with generated files',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              toolType: {
+                type: 'string',
+                description: 'The Kiro tool type to scaffold',
+                enum: [
+                  'spec',
+                  'hook',
+                  'steering-doc',
+                  'skill',
+                  'power',
+                  'mcp-server',
+                  'custom-agent',
+                  'autonomous-agent',
+                  'subagent',
+                  'context-provider',
+                ],
+              },
+              options: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'Name of the tool',
                   },
-                  required: ['name', 'description'],
-                },
-              },
-              required: ['toolType', 'options'],
-            },
-          },
-          {
-            name: 'validate_config',
-            description:
-              'Validate a configuration against its schema',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                toolType: {
-                  type: 'string',
-                  description: 'The Kiro tool type',
-                  enum: [
-                    'spec',
-                    'hook',
-                    'steering-doc',
-                    'skill',
-                    'power',
-                    'mcp-server',
-                    'custom-agent',
-                  ],
-                },
-                config: {
-                  type: 'object',
-                  description: 'The configuration to validate',
-                },
-              },
-              required: ['toolType', 'config'],
-            },
-          },
-          {
-            name: 'audit_workspace',
-            description:
-              'Audit workspace Kiro configurations against best practices',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                workspacePath: {
-                  type: 'string',
-                  description: 'Path to workspace root',
-                },
-              },
-              required: ['workspacePath'],
-            },
-          },
-          {
-            name: 'get_platform_guide',
-            description:
-              'Get platform-specific setup instructions and capabilities',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                platform: {
-                  type: 'string',
-                  description: 'Target platform',
-                  enum: ['ide', 'cli', 'both'],
-                },
-              },
-              required: ['platform'],
-            },
-          },
-          {
-            name: 'install_tool',
-            description:
-              'Scaffold and install a Kiro tool to a target directory. ' +
-              'Supports workspace (.kiro/), global (~/.kiro), or custom path.',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                toolType: {
-                  type: 'string',
-                  description: 'The Kiro tool type to scaffold and install',
-                  enum: [
-                    'spec',
-                    'hook',
-                    'steering-doc',
-                    'skill',
-                    'power',
-                    'mcp-server',
-                    'custom-agent',
-                    'autonomous-agent',
-                    'subagent',
-                    'context-provider',
-                  ],
-                },
-                options: {
-                  type: 'object',
-                  properties: {
-                    name: {
-                      type: 'string',
-                      description: 'Name of the tool',
-                    },
-                    description: {
-                      type: 'string',
-                      description: 'Description of the tool',
-                    },
-                    platform: {
-                      type: 'string',
-                      description: 'Target platform',
-                      enum: ['ide', 'cli', 'both'],
-                    },
+                  description: {
+                    type: 'string',
+                    description: 'Description of the tool',
                   },
-                  required: ['name', 'description'],
-                },
-                installTarget: {
-                  type: 'object',
-                  description:
-                    'Where to install. scope: workspace (cwd .kiro/), ' +
-                    'global (~/.kiro), or custom (targetDir required).',
-                  properties: {
-                    scope: {
-                      type: 'string',
-                      description: 'Install scope',
-                      enum: ['workspace', 'global', 'custom'],
-                    },
-                    targetDir: {
-                      type: 'string',
-                      description:
-                        'Absolute path for custom scope. Ignored for workspace/global.',
-                    },
+                  platform: {
+                    type: 'string',
+                    description: 'Target platform',
+                    enum: ['ide', 'cli', 'both'],
                   },
-                  required: ['scope'],
                 },
-                dryRun: {
-                  type: 'boolean',
-                  description:
-                    'If true, returns file paths without writing. Default false.',
-                },
-              },
-              required: ['toolType', 'options', 'installTarget'],
-            },
-          },
-          {
-            name: 'sync_knowledge_base',
-            description:
-              'Sync the local knowledge base by crawling kiro.dev documentation. ' +
-              'Can sync all URLs, a specific URL, or a specific category.',
-            inputSchema: {
-              type: 'object',
-              properties: {
-                mode: {
-                  type: 'string',
-                  description: 'Sync mode: all (default), url, or category',
-                  enum: ['all', 'url', 'category'],
-                },
-                target: {
-                  type: 'string',
-                  description: 'URL or category name (required for url/category modes)',
-                },
+                required: ['name', 'description'],
               },
             },
+            required: ['toolType', 'options'],
           },
-        ],
-      })
-    );
+        },
+        {
+          name: 'validate_config',
+          description: 'Validate a configuration against its schema',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              toolType: {
+                type: 'string',
+                description: 'The Kiro tool type',
+                enum: [
+                  'spec',
+                  'hook',
+                  'steering-doc',
+                  'skill',
+                  'power',
+                  'mcp-server',
+                  'custom-agent',
+                ],
+              },
+              config: {
+                type: 'object',
+                description: 'The configuration to validate',
+              },
+            },
+            required: ['toolType', 'config'],
+          },
+        },
+        {
+          name: 'audit_workspace',
+          description: 'Audit workspace Kiro configurations against best practices',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              workspacePath: {
+                type: 'string',
+                description: 'Path to workspace root',
+              },
+            },
+            required: ['workspacePath'],
+          },
+        },
+        {
+          name: 'get_platform_guide',
+          description: 'Get platform-specific setup instructions and capabilities',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              platform: {
+                type: 'string',
+                description: 'Target platform',
+                enum: ['ide', 'cli', 'both'],
+              },
+            },
+            required: ['platform'],
+          },
+        },
+        {
+          name: 'install_tool',
+          description:
+            'Scaffold and install a Kiro tool to a target directory. ' +
+            'Supports workspace (.kiro/), global (~/.kiro), or custom path.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              toolType: {
+                type: 'string',
+                description: 'The Kiro tool type to scaffold and install',
+                enum: [
+                  'spec',
+                  'hook',
+                  'steering-doc',
+                  'skill',
+                  'power',
+                  'mcp-server',
+                  'custom-agent',
+                  'autonomous-agent',
+                  'subagent',
+                  'context-provider',
+                ],
+              },
+              options: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'Name of the tool',
+                  },
+                  description: {
+                    type: 'string',
+                    description: 'Description of the tool',
+                  },
+                  platform: {
+                    type: 'string',
+                    description: 'Target platform',
+                    enum: ['ide', 'cli', 'both'],
+                  },
+                },
+                required: ['name', 'description'],
+              },
+              installTarget: {
+                type: 'object',
+                description:
+                  'Where to install. scope: workspace (cwd .kiro/), ' +
+                  'global (~/.kiro), or custom (targetDir required).',
+                properties: {
+                  scope: {
+                    type: 'string',
+                    description: 'Install scope',
+                    enum: ['workspace', 'global', 'custom'],
+                  },
+                  targetDir: {
+                    type: 'string',
+                    description: 'Absolute path for custom scope. Ignored for workspace/global.',
+                  },
+                },
+                required: ['scope'],
+              },
+              dryRun: {
+                type: 'boolean',
+                description: 'If true, returns file paths without writing. Default false.',
+              },
+            },
+            required: ['toolType', 'options', 'installTarget'],
+          },
+        },
+        {
+          name: 'sync_knowledge_base',
+          description:
+            'Sync the local knowledge base by crawling kiro.dev documentation. ' +
+            'Can sync all URLs, a specific URL, or a specific category.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              mode: {
+                type: 'string',
+                description: 'Sync mode: all (default), url, or category',
+                enum: ['all', 'url', 'category'],
+              },
+              target: {
+                type: 'string',
+                description: 'URL or category name (required for url/category modes)',
+              },
+            },
+          },
+        },
+      ],
+    }));
 
     // Call tool
-    this.server.setRequestHandler(
-      CallToolRequestSchema,
-      async (request: CallToolRequest) => {
-        try {
-          const { name, arguments: args } = request.params;
+    this.server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
+      try {
+        const { name, arguments: args } = request.params;
 
-          switch (name) {
-            case 'query_knowledge_base': {
-              const sections = await queryKnowledgeBase(
-                this.config.basePath,
-                this.cache,
-                args as {
-                  topic?: string;
-                  toolType?: KiroToolType;
-                  searchTerm?: string;
-                }
-              );
-              return {
-                content: [
-                  {
-                    type: 'text',
-                    text: JSON.stringify(sections, null, 2),
-                  },
-                ],
-              };
-            }
+        switch (name) {
+          case 'query_knowledge_base': {
+            const sections = await queryKnowledgeBase(
+              this.config.basePath,
+              this.cache,
+              args as {
+                topic?: string;
+                toolType?: KiroToolType;
+                searchTerm?: string;
+              },
+            );
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(sections, null, 2),
+                },
+              ],
+            };
+          }
 
-            case 'get_decision_matrix': {
-              const matrix = getDecisionMatrix();
-              return {
-                content: [
-                  {
-                    type: 'text',
-                    text: JSON.stringify(matrix, null, 2),
-                  },
-                ],
-              };
-            }
+          case 'get_decision_matrix': {
+            const matrix = getDecisionMatrix();
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(matrix, null, 2),
+                },
+              ],
+            };
+          }
 
-            case 'get_template': {
-              const { toolType } = args as { toolType: KiroToolType };
-              const template = TEMPLATES_CONTENT[toolType];
-              return {
-                content: [
-                  {
-                    type: 'text',
-                    text: template,
-                  },
-                ],
-              };
-            }
+          case 'get_template': {
+            const { toolType } = args as { toolType: KiroToolType };
+            const template = TEMPLATES_CONTENT[toolType];
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: template,
+                },
+              ],
+            };
+          }
 
-            case 'scaffold_tool': {
-              const { toolType, options } = args as {
-                toolType: KiroToolType;
-                options: ScaffoldOptions;
-              };
-              const result = scaffoldTool(toolType, options);
-              return {
-                content: [
-                  {
-                    type: 'text',
-                    text: JSON.stringify(result, null, 2),
-                  },
-                ],
-              };
-            }
+          case 'scaffold_tool': {
+            const { toolType, options } = args as {
+              toolType: KiroToolType;
+              options: ScaffoldOptions;
+            };
+            const result = scaffoldTool(toolType, options);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(result, null, 2),
+                },
+              ],
+            };
+          }
 
-            case 'validate_config': {
-              const { toolType, config } = args as {
-                toolType: KiroToolType;
-                config: unknown;
-              };
-              const result = validate({ toolType, config } as never);
-              return {
-                content: [
-                  {
-                    type: 'text',
-                    text: JSON.stringify(result, null, 2),
-                  },
-                ],
-              };
-            }
+          case 'validate_config': {
+            const { toolType, config } = args as {
+              toolType: KiroToolType;
+              config: unknown;
+            };
+            const result = validate({ toolType, config } as never);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(result, null, 2),
+                },
+              ],
+            };
+          }
 
-            case 'audit_workspace': {
-              const { workspacePath } = args as {
-                workspacePath: string;
-              };
-              const scannedFiles = await scan(workspacePath);
-              const findings = await compareAgainstBestPractices(
-                workspacePath,
-                scannedFiles
-              );
-              const report = generateReport(findings, scannedFiles);
-              return {
-                content: [
-                  {
-                    type: 'text',
-                    text: JSON.stringify(report, null, 2),
-                  },
-                ],
-              };
-            }
+          case 'audit_workspace': {
+            const { workspacePath } = args as {
+              workspacePath: string;
+            };
+            const scannedFiles = await scan(workspacePath);
+            const findings = await compareAgainstBestPractices(workspacePath, scannedFiles);
+            const report = generateReport(findings, scannedFiles);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(report, null, 2),
+                },
+              ],
+            };
+          }
 
-            case 'get_platform_guide': {
-              const { platform } = args as {
-                platform: PlatformTarget;
-              };
-              const guide = getPlatformGuide(platform);
-              return {
-                content: [
-                  {
-                    type: 'text',
-                    text: JSON.stringify(guide, null, 2),
-                  },
-                ],
-              };
-            }
+          case 'get_platform_guide': {
+            const { platform } = args as {
+              platform: PlatformTarget;
+            };
+            const guide = getPlatformGuide(platform);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(guide, null, 2),
+                },
+              ],
+            };
+          }
 
-            case 'install_tool': {
-              const {
-                toolType,
-                options,
-                installTarget,
-                dryRun,
-              } = args as {
-                toolType: KiroToolType;
-                options: ScaffoldOptions;
-                installTarget: InstallTarget;
-                dryRun?: boolean;
-              };
+          case 'install_tool': {
+            const { toolType, options, installTarget, dryRun } = args as {
+              toolType: KiroToolType;
+              options: ScaffoldOptions;
+              installTarget: InstallTarget;
+              dryRun?: boolean;
+            };
 
-              const scaffoldResult = scaffoldTool(
-                toolType,
-                options
-              );
+            const scaffoldResult = scaffoldTool(toolType, options);
 
-              if (dryRun) {
-                const preview = previewInstall(
-                  scaffoldResult,
-                  installTarget
-                );
-                return {
-                  content: [
-                    {
-                      type: 'text',
-                      text: JSON.stringify(
-                        {
-                          dryRun: true,
-                          ...preview,
-                          instructions: scaffoldResult.instructions,
-                        },
-                        null,
-                        2
-                      ),
-                    },
-                  ],
-                };
-              }
-
-              const installResult = await install(
-                scaffoldResult,
-                installTarget
-              );
+            if (dryRun) {
+              const preview = previewInstall(scaffoldResult, installTarget);
               return {
                 content: [
                   {
                     type: 'text',
                     text: JSON.stringify(
                       {
-                        ...installResult,
+                        dryRun: true,
+                        ...preview,
                         instructions: scaffoldResult.instructions,
                       },
                       null,
-                      2
+                      2,
                     ),
                   },
                 ],
               };
             }
 
-            case 'sync_knowledge_base': {
-              const syncArgs = args as { mode?: string; target?: string };
-              const mode = syncArgs.mode ?? 'all';
-              const registryPath = path.resolve(this.config.basePath, 'knowledge-base/registry.json');
-              const kbBaseDir = path.resolve(this.config.basePath, 'knowledge-base');
+            const installResult = await install(scaffoldResult, installTarget);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    {
+                      ...installResult,
+                      instructions: scaffoldResult.instructions,
+                    },
+                    null,
+                    2,
+                  ),
+                },
+              ],
+            };
+          }
 
-              let entries: RegistryEntry[];
-              try { entries = await loadRegistry(registryPath); } catch { entries = []; }
+          case 'sync_knowledge_base': {
+            const syncArgs = args as { mode?: string; target?: string };
+            const mode = syncArgs.mode ?? 'all';
+            const registryPath = path.resolve(this.config.basePath, 'knowledge-base/registry.json');
+            const kbBaseDir = path.resolve(this.config.basePath, 'knowledge-base');
 
-              if (entries.length === 0 && mode === 'all') {
-                try {
-                  const sitemap = await fetchSitemap('https://kiro.dev/sitemap.xml');
-                  entries = seedSitemapUrls(entries, sitemap.map(e => ({ url: e.url, lastmod: e.lastmod })));
-                } catch { /* ignore */ }
-                entries = seedAgentSkillsUrls(entries);
-                await saveRegistry(entries, registryPath);
+            let entries: RegistryEntry[];
+            try {
+              entries = await loadRegistry(registryPath);
+            } catch {
+              entries = [];
+            }
+
+            if (entries.length === 0 && mode === 'all') {
+              try {
+                const sitemap = await fetchSitemap('https://kiro.dev/sitemap.xml');
+                entries = seedSitemapUrls(
+                  entries,
+                  sitemap.map((e) => ({ url: e.url, lastmod: e.lastmod })),
+                );
+              } catch {
+                /* ignore */
               }
+              entries = seedAgentSkillsUrls(entries);
+              await saveRegistry(entries, registryPath);
+            }
 
-              let targets: RegistryEntry[];
-              if (mode === 'url' && syncArgs.target) {
-                targets = entries.filter(e => e.url === syncArgs.target);
-              } else if (mode === 'category' && syncArgs.target) {
-                targets = getByCategory(getActive(entries), syncArgs.target as UrlCategory);
-              } else {
-                targets = getActive(entries);
-              }
+            let targets: RegistryEntry[];
+            if (mode === 'url' && syncArgs.target) {
+              targets = entries.filter((e) => e.url === syncArgs.target);
+            } else if (mode === 'category' && syncArgs.target) {
+              targets = getByCategory(getActive(entries), syncArgs.target as UrlCategory);
+            } else {
+              targets = getActive(entries);
+            }
 
-              const results: string[] = [];
-              for (const target of targets) {
-                try {
-                  const result = await fetchWithRetry(target.url);
-                  const parsed = parseHtml(result.html);
-                  await writeKb({
+            const results: string[] = [];
+            for (const target of targets) {
+              try {
+                const result = await fetchWithRetry(target.url);
+                const parsed = parseHtml(result.html);
+                await writeKb(
+                  {
                     slug: urlToSlug(target.url),
                     category: urlToCategory(target.url),
                     title: parsed.title,
                     content: parsed.markdown,
                     sourceUrl: target.url,
                     lastUpdated: new Date().toISOString(),
-                  }, kbBaseDir);
-                  entries = updateLastCrawled([...entries], target.url);
-                  results.push(`✓ ${urlToCategory(target.url)}/${urlToSlug(target.url)}`);
-                } catch (err) {
-                  entries = markFailed([...entries], target.url);
-                  results.push(`✗ ${target.url}: ${err instanceof Error ? err.message : String(err)}`);
-                }
+                  },
+                  kbBaseDir,
+                );
+                entries = updateLastCrawled([...entries], target.url);
+                results.push(`✓ ${urlToCategory(target.url)}/${urlToSlug(target.url)}`);
+              } catch (err) {
+                entries = markFailed([...entries], target.url);
+                results.push(
+                  `✗ ${target.url}: ${err instanceof Error ? err.message : String(err)}`,
+                );
               }
-
-              await saveRegistry(entries, registryPath);
-              await updateIndex(kbBaseDir);
-
-              return {
-                content: [{ type: 'text', text: `Synced ${targets.length} URLs:\n${results.join('\n')}` }],
-              };
             }
 
-            default:
-              throw new Error(`Unknown tool: ${name}`);
+            await saveRegistry(entries, registryPath);
+            await updateIndex(kbBaseDir);
+
+            return {
+              content: [
+                { type: 'text', text: `Synced ${targets.length} URLs:\n${results.join('\n')}` },
+              ],
+            };
           }
-        } catch (error) {
-          const message =
-            error instanceof Error ? error.message : String(error);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(
-                  {
-                    error: message,
-                    isRetryable: false,
-                  },
-                  null,
-                  2
-                ),
-              },
-            ],
-            isError: true,
-          };
+
+          default:
+            throw new Error(`Unknown tool: ${name}`);
         }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  error: message,
+                  isRetryable: false,
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+          isError: true,
+        };
       }
-    );
+    });
   }
 
   async start(): Promise<void> {
@@ -1012,9 +957,7 @@ export class KiroMcpServer {
   getHealthStatus(): { healthy: boolean; message: string } {
     return {
       healthy: this.isHealthy,
-      message: this.isHealthy
-        ? 'Server is healthy'
-        : 'Server is unhealthy',
+      message: this.isHealthy ? 'Server is healthy' : 'Server is unhealthy',
     };
   }
 
@@ -1025,8 +968,6 @@ export class KiroMcpServer {
 
 // ─── Export Factory ────────────────────────────────────────
 
-export function createMcpServer(
-  config: McpServerConfig
-): KiroMcpServer {
+export function createMcpServer(config: McpServerConfig): KiroMcpServer {
   return new KiroMcpServer(config);
 }

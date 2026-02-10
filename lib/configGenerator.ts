@@ -1,24 +1,24 @@
-import type {
-  HookConfig,
-  AgentConfig,
-  PowerConfig,
-  SteeringConfig,
-  SkillFrontmatter,
-  McpServerConfig,
-  ValidationResult,
-  PowerMcpJson,
-} from './types';
 import {
-  validateHook,
-  validateAgent,
-  validatePower,
-  validateSteering,
-  validateSkill,
-  validateMcpServer,
-  VALID_HOOK_TRIGGERS,
   VALID_HOOK_ACTIONS,
+  VALID_HOOK_TRIGGERS,
   VALID_INCLUSION_MODES,
+  validateAgent,
+  validateHook,
+  validateMcpServer,
+  validatePower,
+  validateSkill,
+  validateSteering,
 } from './configGeneratorValidators';
+import type {
+  AgentConfig,
+  HookConfig,
+  McpServerConfig,
+  PowerConfig,
+  PowerMcpJson,
+  SkillFrontmatter,
+  SteeringConfig,
+  ValidationResult,
+} from './types';
 
 // ─── Hook Generator ────────────────────────────────────────
 
@@ -33,9 +33,7 @@ interface GenerateHookOptions {
   command?: string;
 }
 
-export function generateHook(
-  options: GenerateHookOptions
-): HookConfig {
+export function generateHook(options: GenerateHookOptions): HookConfig {
   const config: HookConfig = {
     name: options.name,
     version: '1.0.0',
@@ -74,9 +72,7 @@ interface GenerateAgentOptions {
   welcomeMessage?: string;
 }
 
-export function generateAgent(
-  options: GenerateAgentOptions
-): AgentConfig {
+export function generateAgent(options: GenerateAgentOptions): AgentConfig {
   const config: AgentConfig = {
     name: options.name,
     description: options.description,
@@ -121,8 +117,7 @@ interface GeneratePowerOptions {
   bodyContent?: string;
   mcpServers?: Record<
     string,
-    | { command: string; args: string[] }
-    | { url: string; headers?: Record<string, string> }
+    { command: string; args: string[] } | { url: string; headers?: Record<string, string> }
   >;
   steeringFiles?: Array<{
     filename: string;
@@ -138,9 +133,7 @@ interface GeneratePowerResult {
   steeringFiles: Array<{ filename: string; content: string }>;
 }
 
-export function generatePower(
-  options: GeneratePowerOptions
-): GeneratePowerResult {
+export function generatePower(options: GeneratePowerOptions): GeneratePowerResult {
   const frontmatter = [
     '---',
     `name: ${options.name}`,
@@ -152,11 +145,7 @@ export function generatePower(
 
   const body = options.bodyContent
     ? options.bodyContent
-    : [
-        `# ${options.displayName}`,
-        '',
-        options.description,
-      ].join('\n');
+    : [`# ${options.displayName}`, '', options.description].join('\n');
 
   const powerMd = `${frontmatter}\n\n${body}\n`;
 
@@ -164,37 +153,25 @@ export function generatePower(
     ? { mcpServers: options.mcpServers }
     : null;
 
-  const steeringFiles = (options.steeringFiles ?? []).map(
-    (sf) => ({
-      filename: sf.filename,
-      content: generateSteering({
-        inclusion: sf.inclusion,
-        fileMatchPattern: sf.fileMatchPattern,
-        content: sf.content,
-      }),
-    })
-  );
+  const steeringFiles = (options.steeringFiles ?? []).map((sf) => ({
+    filename: sf.filename,
+    content: generateSteering({
+      inclusion: sf.inclusion,
+      fileMatchPattern: sf.fileMatchPattern,
+      content: sf.content,
+    }),
+  }));
 
   return { powerMd, mcpJson, steeringFiles };
 }
 
 // ─── Steering Generator ────────────────────────────────────
 
-export function generateSteering(
-  config: SteeringConfig
-): string {
-  const frontmatterLines = [
-    '---',
-    `inclusion: ${config.inclusion}`,
-  ];
+export function generateSteering(config: SteeringConfig): string {
+  const frontmatterLines = ['---', `inclusion: ${config.inclusion}`];
 
-  if (
-    config.inclusion === 'fileMatch' &&
-    config.fileMatchPattern
-  ) {
-    frontmatterLines.push(
-      `fileMatchPattern: "${config.fileMatchPattern}"`
-    );
+  if (config.inclusion === 'fileMatch' && config.fileMatchPattern) {
+    frontmatterLines.push(`fileMatchPattern: "${config.fileMatchPattern}"`);
   }
 
   frontmatterLines.push('---');
@@ -217,13 +194,11 @@ interface GenerateSkillResult {
   directories: string[];
 }
 
-export function generateSkill(
-  options: GenerateSkillOptions
-): GenerateSkillResult {
+export function generateSkill(options: GenerateSkillOptions): GenerateSkillResult {
   const fm = options.frontmatter;
   const fmLines = ['---', `name: ${fm.name}`];
 
-  fmLines.push(`description: >-`);
+  fmLines.push('description: >-');
   fmLines.push(`  ${fm.description}`);
 
   if (fm.license) {
@@ -280,9 +255,7 @@ interface McpConfigEntry {
   autoApprove?: string[];
 }
 
-export function generateMcpConfig(
-  servers: McpConfigEntry[]
-): PowerMcpJson {
+export function generateMcpConfig(servers: McpConfigEntry[]): PowerMcpJson {
   const mcpServers: PowerMcpJson['mcpServers'] = {};
 
   for (const server of servers) {
@@ -320,31 +293,16 @@ type ValidatableConfig =
   | { toolType: 'skill'; config: SkillFrontmatter }
   | { toolType: 'mcp-server'; config: McpServerConfig };
 
-const VALIDATOR_MAP: Record<
-  string,
-  (config: never) => ValidationResult
-> = {
+const VALIDATOR_MAP: Record<string, (config: never) => ValidationResult> = {
   hook: validateHook as (config: never) => ValidationResult,
-  'custom-agent': validateAgent as (
-    config: never
-  ) => ValidationResult,
-  power: validatePower as (
-    config: never
-  ) => ValidationResult,
-  'steering-doc': validateSteering as (
-    config: never
-  ) => ValidationResult,
-  skill: validateSkill as (
-    config: never
-  ) => ValidationResult,
-  'mcp-server': validateMcpServer as (
-    config: never
-  ) => ValidationResult,
+  'custom-agent': validateAgent as (config: never) => ValidationResult,
+  power: validatePower as (config: never) => ValidationResult,
+  'steering-doc': validateSteering as (config: never) => ValidationResult,
+  skill: validateSkill as (config: never) => ValidationResult,
+  'mcp-server': validateMcpServer as (config: never) => ValidationResult,
 };
 
-export function validate(
-  input: ValidatableConfig
-): ValidationResult {
+export function validate(input: ValidatableConfig): ValidationResult {
   const validator = VALIDATOR_MAP[input.toolType];
 
   if (!validator) {

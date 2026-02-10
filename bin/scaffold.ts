@@ -1,13 +1,9 @@
 #!/usr/bin/env npx tsx
 
-import type {
-  KiroToolType,
-  InstallScope,
-  InstallTarget,
-} from '../lib/types.js';
-import { KIRO_TOOL_TYPES } from '../lib/types.js';
-import { scaffoldTool, scaffoldComposite } from '../lib/scaffoldingEngine.js';
 import { install, previewInstall } from '../lib/fileInstaller.js';
+import { scaffoldComposite, scaffoldTool } from '../lib/scaffoldingEngine.js';
+import type { InstallScope, InstallTarget, KiroToolType } from '../lib/types.js';
+import { KIRO_TOOL_TYPES } from '../lib/types.js';
 
 // ─── Arg Parsing ───────────────────────────────────────────
 
@@ -62,7 +58,7 @@ function parseArgs(argv: string[]): CliArgs | null {
   }
 
   const allTypes = [...KIRO_TOOL_TYPES, 'composite'] as const;
-  if (!allTypes.includes(positional as typeof allTypes[number])) {
+  if (!allTypes.includes(positional as (typeof allTypes)[number])) {
     console.error(`Unknown tool type: ${positional}`);
     console.error(`Valid types: ${allTypes.join(', ')}`);
     return null;
@@ -85,7 +81,7 @@ function parseArgs(argv: string[]): CliArgs | null {
         break;
       case '--scope':
         scope = argv[++i] as InstallScope;
-        if (!VALID_SCOPES.includes(scope as typeof VALID_SCOPES[number])) {
+        if (!VALID_SCOPES.includes(scope as (typeof VALID_SCOPES)[number])) {
           console.error(`Invalid scope: ${scope}`);
           return null;
         }
