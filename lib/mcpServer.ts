@@ -86,7 +86,10 @@ async function readKnowledgeBase(_basePath: string): Promise<Map<string, string>
   const files = new Map<string, string>();
   for (const entry of getEntries()) {
     const key = `${entry.category}/${entry.slug}.md`;
-    files.set(key, `---\ntitle: "${entry.title}"\nsourceUrl: "${entry.sourceUrl}"\ncategory: "${entry.category}"\nlastUpdated: "${entry.lastUpdated}"\n---\n\n${entry.content}`);
+    files.set(
+      key,
+      `---\ntitle: "${entry.title}"\nsourceUrl: "${entry.sourceUrl}"\ncategory: "${entry.category}"\nlastUpdated: "${entry.lastUpdated}"\n---\n\n${entry.content}`,
+    );
   }
   return files;
 }

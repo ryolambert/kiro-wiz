@@ -250,7 +250,10 @@ describe('Knowledge Base operations', () => {
       write(makeEntry());
       expect(list()).toHaveLength(1);
 
-      initKB([makeEntry({ category: 'mcp', slug: 'a' }), makeEntry({ category: 'mcp', slug: 'b' })]);
+      initKB([
+        makeEntry({ category: 'mcp', slug: 'a' }),
+        makeEntry({ category: 'mcp', slug: 'b' }),
+      ]);
       expect(list()).toHaveLength(1); // one category
       expect(read('hooks', 'overview')).toBeNull();
       expect(read('mcp', 'a')).not.toBeNull();

@@ -1,10 +1,10 @@
-import * as scaffold from './commands/scaffold.js';
 import * as audit from './commands/audit.js';
-import * as sync from './commands/sync.js';
-import * as query from './commands/query.js';
 import * as install from './commands/install.js';
-import * as validate from './commands/validate.js';
+import * as query from './commands/query.js';
 import * as recommend from './commands/recommend.js';
+import * as scaffold from './commands/scaffold.js';
+import * as sync from './commands/sync.js';
+import * as validate from './commands/validate.js';
 
 const COMMANDS: Record<string, { run: (args: string[], flags: Set<string>) => Promise<void> }> = {
   scaffold,

@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import type { KnowledgeBaseEntry, UrlCategory } from './types';
 import { categorizeUrl } from './urlRegistry';
@@ -87,10 +87,7 @@ export function write(entry: KnowledgeBaseEntry): void {
 
 // ─── Read ───────────────────────────────────────────────────
 
-export function read(
-  category: UrlCategory | string,
-  slug: string,
-): KnowledgeBaseEntry | null {
+export function read(category: UrlCategory | string, slug: string): KnowledgeBaseEntry | null {
   return db.find((e) => e.category === category && e.slug === slug) ?? null;
 }
 

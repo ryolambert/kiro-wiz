@@ -3,7 +3,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import fc from 'fast-check';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { initKB, list, saveKB, loadKB, urlToCategory, urlToSlug, write } from '../../lib/knowledgeBase.js';
+import {
+  initKB,
+  list,
+  loadKB,
+  saveKB,
+  urlToCategory,
+  urlToSlug,
+  write,
+} from '../../lib/knowledgeBase.js';
 import { URL_CATEGORIES } from '../../lib/types.js';
 import type { KnowledgeBaseEntry, UrlCategory } from '../../lib/types.js';
 

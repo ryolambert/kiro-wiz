@@ -78,8 +78,16 @@ async function main(): Promise<void> {
   }
 
   let entries: RegistryEntry[];
-  try { entries = await load(REGISTRY_PATH); } catch { entries = []; }
-  try { await loadKB(KB_JSON); } catch { /* fresh start */ }
+  try {
+    entries = await load(REGISTRY_PATH);
+  } catch {
+    entries = [];
+  }
+  try {
+    await loadKB(KB_JSON);
+  } catch {
+    /* fresh start */
+  }
 
   // Auto-seed registry on first run with --all
   if (entries.length === 0 && all) {

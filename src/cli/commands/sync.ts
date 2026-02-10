@@ -30,16 +30,27 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
   }
 
   // Load existing KB
-  try { await loadKB(KB_JSON); } catch { /* fresh start */ }
+  try {
+    await loadKB(KB_JSON);
+  } catch {
+    /* fresh start */
+  }
 
   let entries: RegistryEntry[];
-  try { entries = await load(REGISTRY_PATH); } catch { entries = []; }
+  try {
+    entries = await load(REGISTRY_PATH);
+  } catch {
+    entries = [];
+  }
 
   if (entries.length === 0 && all) {
     console.error('No registry found. Seeding from sitemap...');
     try {
       const sitemapEntries = await fetchSitemap(SITEMAP_URL);
-      entries = seedSitemapUrls(entries, sitemapEntries.map((e) => ({ url: e.url, lastmod: e.lastmod })));
+      entries = seedSitemapUrls(
+        entries,
+        sitemapEntries.map((e) => ({ url: e.url, lastmod: e.lastmod })),
+      );
       console.error(`  Seeded ${sitemapEntries.length} URLs from sitemap`);
     } catch (err) {
       console.error(`  Failed to fetch sitemap: ${(err as Error).message}`);

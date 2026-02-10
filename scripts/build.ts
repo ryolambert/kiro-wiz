@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
+import fs from 'node:fs';
+import path from 'node:path';
 import { $ } from 'bun';
-import path from 'path';
-import fs from 'fs';
 
 const pkg = await Bun.file('package.json').json();
 const version = process.env.PKG_VERSION || pkg.version;

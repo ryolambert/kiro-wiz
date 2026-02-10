@@ -131,9 +131,7 @@ const DEFAULT_OPTIONS: CompilerOptions = {
   toolTypes: null,
 };
 
-export async function compile(
-  options: Partial<CompilerOptions> = {},
-): Promise<CompiledReference> {
+export async function compile(options: Partial<CompilerOptions> = {}): Promise<CompiledReference> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const entries = readAllEntries();
   const sections = buildSections(entries, opts.toolTypes);

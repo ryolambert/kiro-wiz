@@ -104,7 +104,6 @@ describe('buildDecisionMatrix', () => {
 
 describe('compile', () => {
   it('compiles an empty knowledge base', async () => {
-    
     const ref = await compile();
 
     expect(ref.toc).toBeDefined();
@@ -114,8 +113,6 @@ describe('compile', () => {
   });
 
   it('includes entries organized by tool type', async () => {
-    
-
     write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
     write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }));
 
@@ -131,8 +128,6 @@ describe('compile', () => {
   });
 
   it('places uncategorized entries in General Reference', async () => {
-    
-
     write(makeEntry({ slug: 'blog-post', category: 'blog', title: 'Blog Post' }));
 
     const ref = await compile();
@@ -143,8 +138,6 @@ describe('compile', () => {
   });
 
   it('respects toolTypes filter option', async () => {
-    
-
     write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
     write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }));
 
@@ -156,13 +149,11 @@ describe('compile', () => {
   });
 
   it('respects includeDecisionMatrix=false', async () => {
-    
     const ref = await compile({ includeDecisionMatrix: false });
     expect(ref.decisionMatrix).toHaveLength(0);
   });
 
   it('respects includeQuickReference=false', async () => {
-    
     const ref = await compile({ includeQuickReference: false });
     expect(ref.quickReference).toHaveLength(0);
   });
@@ -172,7 +163,6 @@ describe('compile', () => {
 
 describe('serialize', () => {
   it('produces valid markdown with TOC', async () => {
-    
     write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
 
     const ref = await compile();
@@ -187,7 +177,6 @@ describe('serialize', () => {
   });
 
   it('includes decision matrix table', async () => {
-    
     const ref = await compile();
     const md = serialize(ref);
 
@@ -197,7 +186,6 @@ describe('serialize', () => {
   });
 
   it('includes quick reference table', async () => {
-    
     const ref = await compile();
     const md = serialize(ref);
 
@@ -208,7 +196,6 @@ describe('serialize', () => {
 
 describe('deserialize', () => {
   it('parses serialized markdown back to CompiledReference', async () => {
-    
     write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
 
     const ref = await compile();
@@ -221,7 +208,6 @@ describe('deserialize', () => {
   });
 
   it('preserves decision matrix entries on round-trip', async () => {
-    
     const ref = await compile();
     const md = serialize(ref);
     const parsed = deserialize(md);
@@ -235,7 +221,6 @@ describe('deserialize', () => {
   });
 
   it('preserves quick reference entries on round-trip', async () => {
-    
     const ref = await compile();
     const md = serialize(ref);
     const parsed = deserialize(md);
@@ -248,7 +233,6 @@ describe('deserialize', () => {
   });
 
   it('preserves section structure on round-trip', async () => {
-    
     write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
     write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }));
 

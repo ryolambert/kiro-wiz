@@ -28,11 +28,7 @@ export const KB_REFS: Record<KiroToolType, string[]> = {
   spec: ['kb:specs', 'reference-library/spec/best-practices.md'],
   hook: ['kb:hooks', 'reference-library/hook/best-practices.md'],
   'steering-doc': ['kb:steering', 'reference-library/steering-doc/best-practices.md'],
-  skill: [
-    'kb:skills',
-    'kb:agent-skills-spec',
-    'reference-library/skill/best-practices.md',
-  ],
+  skill: ['kb:skills', 'kb:agent-skills-spec', 'reference-library/skill/best-practices.md'],
   power: ['kb:powers', 'reference-library/power/best-practices.md'],
   'mcp-server': ['kb:mcp', 'reference-library/mcp-server/best-practices.md'],
   'custom-agent': ['kb:cli', 'reference-library/custom-agent/best-practices.md'],

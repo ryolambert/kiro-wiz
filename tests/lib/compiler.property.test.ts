@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { buildDecisionMatrix, compile, deserialize, serialize } from '../../lib/compiler.js';
 import { initKB, write } from '../../lib/knowledgeBase.js';
-import type { KnowledgeBaseEntry, KiroToolType, UrlCategory } from '../../lib/types.js';
+import type { KiroToolType, KnowledgeBaseEntry, UrlCategory } from '../../lib/types.js';
 import { KIRO_TOOL_TYPES } from '../../lib/types.js';
 
 /**
@@ -203,7 +203,10 @@ describe('Property 13: Decision matrix completeness per tool type', () => {
         const matrix = buildDecisionMatrix(null);
         expect(matrix).toHaveLength(KIRO_TOOL_TYPES.length);
         for (const tt of KIRO_TOOL_TYPES) {
-          expect(matrix.find((e) => e.toolType === tt), `Missing entry for "${tt}"`).toBeDefined();
+          expect(
+            matrix.find((e) => e.toolType === tt),
+            `Missing entry for "${tt}"`,
+          ).toBeDefined();
         }
       }),
       { numRuns: 1 },
