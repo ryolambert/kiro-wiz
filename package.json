@@ -1,6 +1,6 @@
 {
   "name": "kiro-wiz",
-  "version": "0.0.0-development",
+  "version": "1.0.0",
   "description": "Kiro scaffold generator — create agents, hooks, prompts, steering docs, skills, MCP configs, and settings for CLI and IDE",
   "type": "module",
   "main": "dist/main.js",
@@ -50,7 +50,15 @@
     "release": "semantic-release",
     "release:dry": "semantic-release --dry-run"
   },
-  "keywords": ["kiro", "cli", "ide", "agent", "scaffold", "mcp", "tui"],
+  "keywords": [
+    "kiro",
+    "cli",
+    "ide",
+    "agent",
+    "scaffold",
+    "mcp",
+    "tui"
+  ],
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
