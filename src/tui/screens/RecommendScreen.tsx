@@ -12,14 +12,17 @@ export function RecommendScreen({ onBack: _onBack }: Props) {
 
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
-      <text fg="#00FFAA">
-        <strong>Recommend</strong> — Describe your use case
-      </text>
-      <text fg="#666666">ESC to go back</text>
-      <box title="Use case" style={{ border: true, height: 3, width: 60, marginTop: 1 }}>
+      <box style={{ marginBottom: 1 }}>
+        <text fg="#00FFAA">
+          <strong>💡 Recommend</strong>
+        </text>
+        <text fg="#555555"> — Describe your use case</text>
+        <text fg="#444444">{'\n'}  ESC to go back</text>
+      </box>
+      <box title="Use case" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 60 }}>
         <input
           placeholder="e.g. enforce code review standards..."
-          focused={true}
+          focused
           onInput={setInput}
           onSubmit={() => {
             if (input.trim()) setResults(recommend(input));
@@ -32,9 +35,9 @@ export function RecommendScreen({ onBack: _onBack }: Props) {
           {results.map((r, i) => (
             <box key={i} style={{ marginBottom: 1 }}>
               <text fg="#00FFAA">
-                <strong>{r.toolType}</strong>
+                <strong>  🔧 {r.toolType}</strong>
               </text>
-              <text fg="#AAAAAA"> {r.rationale}</text>
+              <text fg="#AAAAAA">{'     '}{r.rationale}</text>
             </box>
           ))}
         </scrollbox>

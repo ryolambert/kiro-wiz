@@ -31,6 +31,8 @@
     "install:global": "bun run src/main.ts install --scope global",
     "clean": "rm -rf dist",
     "test": "vitest run",
+    "test:tui": "bun test tests/tui/",
+    "test:all": "vitest run && bun test tests/tui/",
     "test:watch": "vitest",
     "lint": "biome lint",
     "lint:fix": "biome lint --fix",

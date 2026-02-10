@@ -14,6 +14,7 @@ import {
   seedSitemapUrls,
   updateLastCrawled,
 } from '../../../lib/urlRegistry.js';
+import { Spinner } from '../components/Spinner.js';
 
 const REGISTRY_PATH = resolve('crawl-registry.json');
 const KB_JSON = resolve('dist/knowledge-base.json');
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export function SyncScreen({ onBack: _onBack }: Props) {
-  const [status, setStatus] = useState('Press Enter to start sync');
+  const [status, setStatus] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
   const [running, setRunning] = useState(false);
 
@@ -96,26 +97,31 @@ export function SyncScreen({ onBack: _onBack }: Props) {
 
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
-      <text fg="#00FFAA">
-        <strong>Sync KB</strong> — Crawl kiro.dev documentation
-      </text>
-      <text fg="#666666">ESC to go back</text>
-      <text fg="#FFFF00">{status}</text>
+      <box style={{ marginBottom: 1 }}>
+        <text fg="#00FFAA">
+          <strong>🔄 Sync KB</strong>
+        </text>
+        <text fg="#555555"> — Crawl kiro.dev documentation</text>
+        <text fg="#444444">{'\n'}  ESC to go back</text>
+      </box>
+
+      {running && <Spinner label={status} />}
+      {!running && status && <text fg={status.startsWith('Error') ? '#FF4444' : '#00FF00'}>{'  '}{status}</text>}
 
       {!running && logs.length === 0 && (
-        <box title="Start" style={{ border: true, height: 3, width: 40, marginTop: 1 }}>
-          <input placeholder="Press Enter to sync..." focused={true} onSubmit={doSync} />
+        <box title="Start" style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 3, width: 40, marginTop: 1 }}>
+          <input placeholder="Press Enter to sync..." focused onSubmit={doSync} />
         </box>
       )}
 
       {logs.length > 0 && (
-        <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }} focused>
+        <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' }, marginTop: 1 }} focused>
           {logs.map((log, i) => (
             <text
               key={i}
               fg={log.startsWith('✓') ? '#00FF00' : log.startsWith('✗') ? '#FF4444' : '#AAAAAA'}
             >
-              {log}
+              {'  '}{log}
             </text>
           ))}
         </scrollbox>
