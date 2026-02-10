@@ -9,7 +9,7 @@ import { validate } from './configGenerator';
 import { parseHtml } from './contentParser';
 import { fetchWithRetry } from './crawler';
 import { install, previewInstall } from './fileInstaller';
-import { updateIndex, urlToCategory, urlToSlug, write as writeKb } from './knowledgeBase';
+import { getEntries, saveKB, urlToCategory, urlToSlug, write as writeKb } from './knowledgeBase';
 import { TEMPLATES_CONTENT } from './refDataTemplates';
 import { getDecisionMatrix } from './toolingAdvisor';
 import type {
@@ -82,36 +82,13 @@ class ResponseCache {
 
 // ─── Knowledge Base Reader ─────────────────────────────────
 
-async function readKnowledgeBase(basePath: string): Promise<Map<string, string>> {
-  const kbPath = path.join(basePath, 'knowledge-base');
+async function readKnowledgeBase(_basePath: string): Promise<Map<string, string>> {
   const files = new Map<string, string>();
-
-  try {
-    await walkDirectory(kbPath, files);
-  } catch (error) {
-    console.error('Failed to read knowledge base:', error);
+  for (const entry of getEntries()) {
+    const key = `${entry.category}/${entry.slug}.md`;
+    files.set(key, `---\ntitle: "${entry.title}"\nsourceUrl: "${entry.sourceUrl}"\ncategory: "${entry.category}"\nlastUpdated: "${entry.lastUpdated}"\n---\n\n${entry.content}`);
   }
-
   return files;
-}
-
-async function walkDirectory(dir: string, files: Map<string, string>): Promise<void> {
-  try {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-
-      if (entry.isDirectory()) {
-        await walkDirectory(fullPath, files);
-      } else if (entry.isFile() && entry.name.endsWith('.md')) {
-        const content = await fs.readFile(fullPath, 'utf-8');
-        files.set(fullPath, content);
-      }
-    }
-  } catch (error) {
-    // Directory doesn't exist or not accessible
-  }
 }
 
 // ─── Query Knowledge Base ──────────────────────────────────
@@ -177,9 +154,9 @@ function matchesQuery(
 
 function extractTopic(filePath: string): string {
   const parts = filePath.split(path.sep);
-  const kbIndex = parts.indexOf('knowledge-base');
-  if (kbIndex >= 0 && kbIndex < parts.length - 1) {
-    return parts[kbIndex + 1];
+  // filePath is "category/slug.md" from readKnowledgeBase
+  if (parts.length >= 1) {
+    return parts[0];
   }
   return 'general';
 }
@@ -849,8 +826,8 @@ export class KiroMcpServer {
           case 'sync_knowledge_base': {
             const syncArgs = args as { mode?: string; target?: string };
             const mode = syncArgs.mode ?? 'all';
-            const registryPath = path.resolve(this.config.basePath, 'knowledge-base/registry.json');
-            const kbBaseDir = path.resolve(this.config.basePath, 'knowledge-base');
+            const registryPath = path.resolve(this.config.basePath, 'crawl-registry.json');
+            const kbJsonPath = path.resolve(this.config.basePath, 'dist/knowledge-base.json');
 
             let entries: RegistryEntry[];
             try {
@@ -887,17 +864,14 @@ export class KiroMcpServer {
               try {
                 const result = await fetchWithRetry(target.url);
                 const parsed = parseHtml(result.html);
-                await writeKb(
-                  {
-                    slug: urlToSlug(target.url),
-                    category: urlToCategory(target.url),
-                    title: parsed.title,
-                    content: parsed.markdown,
-                    sourceUrl: target.url,
-                    lastUpdated: new Date().toISOString(),
-                  },
-                  kbBaseDir,
-                );
+                writeKb({
+                  slug: urlToSlug(target.url),
+                  category: urlToCategory(target.url),
+                  title: parsed.title,
+                  content: parsed.markdown,
+                  sourceUrl: target.url,
+                  lastUpdated: new Date().toISOString(),
+                });
                 entries = updateLastCrawled([...entries], target.url);
                 results.push(`✓ ${urlToCategory(target.url)}/${urlToSlug(target.url)}`);
               } catch (err) {
@@ -909,7 +883,7 @@ export class KiroMcpServer {
             }
 
             await saveRegistry(entries, registryPath);
-            await updateIndex(kbBaseDir);
+            await saveKB(kbJsonPath);
 
             return {
               content: [

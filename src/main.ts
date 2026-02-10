@@ -1,14 +1,21 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 declare const PKG_VERSION: string;
-
-import { resolve } from 'node:path';
 
 const args = process.argv.slice(2);
 const flags = new Set(args.filter((a) => a.startsWith('--')));
 const positional = args.filter((a) => !a.startsWith('--'));
 
 async function main(): Promise<void> {
+  // Load KB: try knowledge-base.json (compiled into binary or on disk)
+  try {
+    const { initKB } = await import('../lib/knowledgeBase.js');
+    const data = await import('../dist/knowledge-base.json');
+    initKB(data.default);
+  } catch {
+    // No KB data available — query/recommend will be empty until sync
+  }
+
   // MCP server mode
   if (flags.has('--mcp')) {
     const { runMcp } = await import('./cli/commands/mcp.js');
@@ -41,8 +48,10 @@ async function main(): Promise<void> {
     const { launch } = await import('./tui/index.js');
     await launch();
   } catch (err) {
-    console.error('Failed to start TUI:', (err as Error).message);
-    console.error('Use "kiro-wiz --help" for CLI subcommands instead.');
+    console.error('TUI failed to start:', err instanceof Error ? err.message : err);
+    console.error('Use CLI commands instead:');
+    console.error('  kiro-wiz <command> [options]');
+    console.error('  kiro-wiz --help');
     process.exit(1);
   }
 }

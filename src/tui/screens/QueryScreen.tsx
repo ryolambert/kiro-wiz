@@ -1,9 +1,6 @@
-import { resolve } from 'node:path';
 import { useEffect, useState } from 'react';
-import { list, read } from '../../../lib/knowledgeBase.js';
+import { list, read, search } from '../../../lib/knowledgeBase.js';
 import type { KnowledgeBaseEntry } from '../../../lib/types.js';
-
-const KB_BASE_DIR = resolve('knowledge-base');
 
 interface Props {
   onBack: () => void;
@@ -16,7 +13,7 @@ export function QueryScreen({ onBack: _onBack }: Props) {
   const [results, setResults] = useState<Array<{ category: string; file: string }>>([]);
 
   useEffect(() => {
-    list(KB_BASE_DIR).then(setCategories);
+    setCategories(list());
   }, []);
 
   useEffect(() => {
@@ -25,14 +22,8 @@ export function QueryScreen({ onBack: _onBack }: Props) {
         categories.flatMap((c) => c.files.map((f) => ({ category: c.category, file: f }))),
       );
     } else {
-      const q = query.toLowerCase();
-      setResults(
-        categories.flatMap((c) =>
-          c.files
-            .filter((f) => f.toLowerCase().includes(q) || c.category.toLowerCase().includes(q))
-            .map((f) => ({ category: c.category, file: f })),
-        ),
-      );
+      const matches = search(query);
+      setResults(matches.map((e) => ({ category: e.category, file: e.slug })));
     }
   }, [query, categories]);
 
@@ -64,10 +55,10 @@ export function QueryScreen({ onBack: _onBack }: Props) {
           placeholder="Filter..."
           focused={true}
           onInput={setQuery}
-          onSubmit={async () => {
+          onSubmit={() => {
             if (results.length > 0) {
               const r = results[0];
-              const entry = await read(r.category as any, r.file, KB_BASE_DIR);
+              const entry = read(r.category as any, r.file);
               if (entry) setSelected(entry);
             }
           }}

@@ -1,0 +1,60 @@
+#!/usr/bin/env node
+
+const childProcess = require("child_process")
+const fs = require("fs")
+const path = require("path")
+const os = require("os")
+
+function run(target) {
+  const result = childProcess.spawnSync(target, process.argv.slice(2), {
+    stdio: "inherit",
+  })
+  if (result.error) {
+    console.error(result.error.message)
+    process.exit(1)
+  }
+  process.exit(typeof result.status === "number" ? result.status : 0)
+}
+
+// Allow override via environment variable
+if (process.env.KIRO_WIZ_BIN_PATH) {
+  run(process.env.KIRO_WIZ_BIN_PATH)
+}
+
+const scriptDir = path.dirname(fs.realpathSync(__filename))
+
+const platformMap = { darwin: "darwin", linux: "linux", win32: "windows" }
+const archMap = { x64: "x64", arm64: "arm64" }
+
+const platform = platformMap[os.platform()] || os.platform()
+const arch = archMap[os.arch()] || os.arch()
+const base = "kiro-wiz-" + platform + "-" + arch
+const binary = platform === "windows" ? "kiro-wiz.exe" : "kiro-wiz"
+
+function findBinary(startDir) {
+  let current = startDir
+  for (;;) {
+    const modules = path.join(current, "node_modules")
+    if (fs.existsSync(modules)) {
+      for (const entry of fs.readdirSync(modules)) {
+        if (!entry.startsWith(base)) continue
+        const candidate = path.join(modules, entry, "bin", binary)
+        if (fs.existsSync(candidate)) return candidate
+      }
+    }
+    const parent = path.dirname(current)
+    if (parent === current) return
+    current = parent
+  }
+}
+
+const resolved = findBinary(scriptDir)
+if (!resolved) {
+  console.error(
+    "No binary found for " + platform + "-" + arch + ". " +
+    "Try: npm install " + base
+  )
+  process.exit(1)
+}
+
+run(resolved)

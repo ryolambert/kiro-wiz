@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { fetchSitemap } from '../../../lib/changeDetector.js';
 import { parseHtml } from '../../../lib/contentParser.js';
 import { fetchWithRetry } from '../../../lib/crawler.js';
-import { updateIndex, urlToCategory, urlToSlug, write } from '../../../lib/knowledgeBase.js';
+import { saveKB, urlToCategory, urlToSlug, write } from '../../../lib/knowledgeBase.js';
 import type { RegistryEntry } from '../../../lib/types.js';
 import {
   getActive,
@@ -15,8 +15,8 @@ import {
   updateLastCrawled,
 } from '../../../lib/urlRegistry.js';
 
-const REGISTRY_PATH = resolve('knowledge-base/registry.json');
-const KB_BASE_DIR = resolve('knowledge-base');
+const REGISTRY_PATH = resolve('crawl-registry.json');
+const KB_JSON = resolve('dist/knowledge-base.json');
 
 interface Props {
   onBack: () => void;
@@ -68,17 +68,14 @@ export function SyncScreen({ onBack: _onBack }: Props) {
         try {
           const result = await fetchWithRetry(target.url);
           const parsed = parseHtml(result.html);
-          await write(
-            {
-              slug: urlToSlug(target.url),
-              category: urlToCategory(target.url),
-              title: parsed.title,
-              content: parsed.markdown,
-              sourceUrl: target.url,
-              lastUpdated: new Date().toISOString(),
-            },
-            KB_BASE_DIR,
-          );
+          write({
+            slug: urlToSlug(target.url),
+            category: urlToCategory(target.url),
+            title: parsed.title,
+            content: parsed.markdown,
+            sourceUrl: target.url,
+            lastUpdated: new Date().toISOString(),
+          });
           entries = updateLastCrawled([...entries], target.url);
           addLog(`✓ ${urlToCategory(target.url)}/${urlToSlug(target.url)}`);
         } catch (err) {
@@ -88,7 +85,7 @@ export function SyncScreen({ onBack: _onBack }: Props) {
       }
 
       await save(entries, REGISTRY_PATH);
-      await updateIndex(KB_BASE_DIR);
+      await saveKB(KB_JSON);
       setStatus('Sync complete');
     } catch (err) {
       setStatus(`Error: ${(err as Error).message}`);

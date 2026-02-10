@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { fetchSitemap } from '../lib/changeDetector.js';
 import { parseHtml } from '../lib/contentParser.js';
 import { fetchWithRetry } from '../lib/crawler.js';
-import { urlToCategory, urlToSlug, write } from '../lib/knowledgeBase.js';
+import { loadKB, saveKB, urlToCategory, urlToSlug, write } from '../lib/knowledgeBase.js';
 import type { RegistryEntry, UrlCategory } from '../lib/types.js';
 import {
   getActive,
@@ -17,8 +17,8 @@ import {
   updateLastCrawled,
 } from '../lib/urlRegistry.js';
 
-const REGISTRY_PATH = resolve('knowledge-base/registry.json');
-const KB_BASE_DIR = resolve('knowledge-base');
+const REGISTRY_PATH = resolve('crawl-registry.json');
+const KB_JSON = resolve('dist/knowledge-base.json');
 
 function parseArgs(argv: string[]): {
   url: string | null;
@@ -51,19 +51,16 @@ async function crawlUrl(url: string, entries: readonly RegistryEntry[]): Promise
     const slug = urlToSlug(url);
     const category = urlToCategory(url);
 
-    await write(
-      {
-        slug,
-        category,
-        title: parsed.title,
-        content: parsed.markdown,
-        sourceUrl: url,
-        lastUpdated: new Date().toISOString(),
-      },
-      KB_BASE_DIR,
-    );
+    write({
+      slug,
+      category,
+      title: parsed.title,
+      content: parsed.markdown,
+      sourceUrl: url,
+      lastUpdated: new Date().toISOString(),
+    });
 
-    console.error(`  ✓ Saved: ${category}/${slug}.md`);
+    console.error(`  ✓ Saved: ${category}/${slug}`);
     return updateLastCrawled([...entries], url);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -81,11 +78,8 @@ async function main(): Promise<void> {
   }
 
   let entries: RegistryEntry[];
-  try {
-    entries = await load(REGISTRY_PATH);
-  } catch {
-    entries = [];
-  }
+  try { entries = await load(REGISTRY_PATH); } catch { entries = []; }
+  try { await loadKB(KB_JSON); } catch { /* fresh start */ }
 
   // Auto-seed registry on first run with --all
   if (entries.length === 0 && all) {
@@ -118,6 +112,7 @@ async function main(): Promise<void> {
       console.error(`URL not in registry, crawling directly: ${url}`);
       const result = await crawlUrl(url, entries);
       await save(result, REGISTRY_PATH);
+      await saveKB(KB_JSON);
       return;
     }
   } else if (category) {
@@ -134,6 +129,7 @@ async function main(): Promise<void> {
   }
 
   await save(current, REGISTRY_PATH);
+  await saveKB(KB_JSON);
   console.error('Done.');
 }
 

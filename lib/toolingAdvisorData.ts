@@ -25,24 +25,24 @@ export const HOOK_ACTION_CREDIT_COST = {
 // ─── KB Reference Paths ────────────────────────────────────
 
 export const KB_REFS: Record<KiroToolType, string[]> = {
-  spec: ['knowledge-base/specs/', 'reference-library/spec/best-practices.md'],
-  hook: ['knowledge-base/hooks/', 'reference-library/hook/best-practices.md'],
-  'steering-doc': ['knowledge-base/steering/', 'reference-library/steering-doc/best-practices.md'],
+  spec: ['kb:specs', 'reference-library/spec/best-practices.md'],
+  hook: ['kb:hooks', 'reference-library/hook/best-practices.md'],
+  'steering-doc': ['kb:steering', 'reference-library/steering-doc/best-practices.md'],
   skill: [
-    'knowledge-base/skills/',
-    'knowledge-base/agent-skills-spec/',
+    'kb:skills',
+    'kb:agent-skills-spec',
     'reference-library/skill/best-practices.md',
   ],
-  power: ['knowledge-base/powers/', 'reference-library/power/best-practices.md'],
-  'mcp-server': ['knowledge-base/mcp/', 'reference-library/mcp-server/best-practices.md'],
-  'custom-agent': ['knowledge-base/cli/', 'reference-library/custom-agent/best-practices.md'],
+  power: ['kb:powers', 'reference-library/power/best-practices.md'],
+  'mcp-server': ['kb:mcp', 'reference-library/mcp-server/best-practices.md'],
+  'custom-agent': ['kb:cli', 'reference-library/custom-agent/best-practices.md'],
   'autonomous-agent': [
-    'knowledge-base/autonomous-agent/',
+    'kb:autonomous-agent',
     'reference-library/autonomous-agent/best-practices.md',
   ],
   subagent: ['reference-library/subagent/best-practices.md'],
   'context-provider': [
-    'knowledge-base/context-providers/',
+    'kb:context-providers',
     'reference-library/context-provider/best-practices.md',
   ],
 } as const;

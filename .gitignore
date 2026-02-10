@@ -147,6 +147,7 @@ dist
 *.code-workspace
 .resync
 .cursor*
+*.bun-build
 
 # PNPM
 pnpm-lock.yaml
@@ -156,3 +157,9 @@ yarn.lock
 
 # Certs
 /certs
+
+# Generated at build time
+
+crawl-registry.json
+crawl-state.json
+master-reference.md

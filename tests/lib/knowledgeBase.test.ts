@@ -1,11 +1,14 @@
-import { mkdir, readFile, rm } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  initKB,
   list,
+  loadKB,
   read,
-  updateIndex,
+  saveKB,
+  search,
   urlToCategory,
   urlToSlug,
   write,
@@ -80,11 +83,9 @@ describe('urlToCategory', () => {
   });
 });
 
-// ─── write / read / list / updateIndex ──────────────────────
+// ─── write / read / list / search / persistence ─────────────
 
-describe('Knowledge Base FS operations', () => {
-  const baseDir = join(tmpdir(), `kb-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-
+describe('Knowledge Base operations', () => {
   const makeEntry = (overrides: Partial<KnowledgeBaseEntry> = {}): KnowledgeBaseEntry => ({
     slug: 'overview',
     category: 'hooks',
@@ -95,203 +96,164 @@ describe('Knowledge Base FS operations', () => {
     ...overrides,
   });
 
-  afterEach(async () => {
-    await rm(baseDir, { recursive: true, force: true });
+  beforeEach(() => {
+    initKB([]);
   });
 
   describe('write', () => {
-    it('creates file in correct category directory', async () => {
+    it('adds entry to the database', () => {
+      write(makeEntry());
+      const result = read('hooks', 'overview');
+      expect(result).not.toBeNull();
+      expect(result?.title).toBe('Hooks Overview');
+    });
+
+    it('upserts existing entry', () => {
+      write(makeEntry());
+      write(makeEntry({ title: 'Updated Title' }));
+      const result = read('hooks', 'overview');
+      expect(result?.title).toBe('Updated Title');
+      expect(list()).toHaveLength(1);
+    });
+
+    it('stores all entry fields', () => {
       const entry = makeEntry();
-      const filePath = await write(entry, baseDir);
-      expect(filePath).toBe(join(baseDir, 'hooks', 'overview.md'));
-
-      const raw = await readFile(filePath, 'utf-8');
-      expect(raw).toContain('title: "Hooks Overview"');
-      expect(raw).toContain('# Hooks');
-    });
-
-    it('creates parent directories automatically', async () => {
-      const entry = makeEntry({ category: 'mcp', slug: 'setup' });
-      const filePath = await write(entry, baseDir);
-      const raw = await readFile(filePath, 'utf-8');
-      expect(raw).toContain('category: "mcp"');
-    });
-
-    it('writes agent-skills-spec to agent-skills-spec dir', async () => {
-      const entry = makeEntry({
-        category: 'agent-skills-spec',
-        slug: 'specification',
-        title: 'Agent Skills Spec',
-        sourceUrl: 'https://agentskills.io/specification',
-      });
-      const filePath = await write(entry, baseDir);
-      expect(filePath).toBe(join(baseDir, 'agent-skills-spec', 'specification.md'));
-    });
-
-    it('writes unknown category to uncategorized dir', async () => {
-      const entry = makeEntry({
-        category: 'unknown',
-        slug: 'misc',
-      });
-      const filePath = await write(entry, baseDir);
-      expect(filePath).toContain('uncategorized');
-    });
-
-    it('includes frontmatter with metadata', async () => {
-      const entry = makeEntry();
-      const filePath = await write(entry, baseDir);
-      const raw = await readFile(filePath, 'utf-8');
-      expect(raw).toMatch(/^---\n/);
-      expect(raw).toContain('sourceUrl:');
-      expect(raw).toContain('lastUpdated:');
-    });
-
-    it('escapes double quotes in title', async () => {
-      const entry = makeEntry({ title: 'My "Special" Hook' });
-      const filePath = await write(entry, baseDir);
-      const raw = await readFile(filePath, 'utf-8');
-      expect(raw).toContain('title: "My \\"Special\\" Hook"');
+      write(entry);
+      const result = read('hooks', 'overview');
+      expect(result?.slug).toBe('overview');
+      expect(result?.category).toBe('hooks');
+      expect(result?.content).toContain('# Hooks');
+      expect(result?.sourceUrl).toBe('https://kiro.dev/docs/hooks/overview');
+      expect(result?.lastUpdated).toBe('2024-06-01T00:00:00.000Z');
     });
   });
 
   describe('read', () => {
-    it('reads back a written entry', async () => {
-      const entry = makeEntry();
-      await write(entry, baseDir);
-      const result = await read('hooks', 'overview', baseDir);
+    it('reads back a written entry', () => {
+      write(makeEntry());
+      const result = read('hooks', 'overview');
       expect(result).not.toBeNull();
       expect(result?.title).toBe('Hooks Overview');
-      expect(result?.slug).toBe('overview');
-      expect(result?.category).toBe('hooks');
-      expect(result?.content).toContain('# Hooks');
     });
 
-    it('returns null for non-existent file', async () => {
-      const result = await read('hooks', 'nonexistent', baseDir);
-      expect(result).toBeNull();
+    it('returns null for non-existent entry', () => {
+      expect(read('hooks', 'nonexistent')).toBeNull();
     });
 
-    it('returns null for non-existent category', async () => {
-      const result = await read('mcp', 'overview', baseDir);
-      expect(result).toBeNull();
+    it('returns null for non-existent category', () => {
+      expect(read('mcp', 'overview')).toBeNull();
     });
   });
 
   describe('list', () => {
-    it('lists all categories and files', async () => {
-      await write(makeEntry(), baseDir);
-      await write(
-        makeEntry({
-          category: 'mcp',
-          slug: 'setup',
-          title: 'MCP Setup',
-        }),
-        baseDir,
-      );
+    it('lists all categories and files', () => {
+      write(makeEntry());
+      write(makeEntry({ category: 'mcp', slug: 'setup', title: 'MCP Setup' }));
 
-      const result = await list(baseDir);
+      const result = list();
       expect(result).toHaveLength(2);
-
-      const hooks = result.find((r) => r.category === 'hooks');
-      expect(hooks).toBeDefined();
-      expect(hooks?.files).toContain('overview');
-
-      const mcp = result.find((r) => r.category === 'mcp');
-      expect(mcp).toBeDefined();
-      expect(mcp?.files).toContain('setup');
+      expect(result.find((r) => r.category === 'hooks')?.files).toContain('overview');
+      expect(result.find((r) => r.category === 'mcp')?.files).toContain('setup');
     });
 
-    it('returns empty array for non-existent base dir', async () => {
-      const result = await list(join(baseDir, 'nonexistent'));
-      expect(result).toEqual([]);
+    it('returns empty array when no entries', () => {
+      expect(list()).toEqual([]);
     });
 
-    it('skips empty directories', async () => {
-      await mkdir(join(baseDir, 'empty-cat'), { recursive: true });
-      await write(makeEntry(), baseDir);
+    it('sorts categories and files alphabetically', () => {
+      write(makeEntry({ category: 'steering', slug: 'beta' }));
+      write(makeEntry({ category: 'hooks', slug: 'alpha' }));
+      write(makeEntry({ category: 'hooks', slug: 'zeta' }));
 
-      const result = await list(baseDir);
-      expect(result).toHaveLength(1);
-      expect(result[0].category).toBe('hooks');
-    });
-
-    it('sorts categories and files alphabetically', async () => {
-      await write(makeEntry({ category: 'steering', slug: 'beta' }), baseDir);
-      await write(makeEntry({ category: 'hooks', slug: 'alpha' }), baseDir);
-      await write(makeEntry({ category: 'hooks', slug: 'zeta' }), baseDir);
-
-      const result = await list(baseDir);
+      const result = list();
       expect(result[0].category).toBe('hooks');
       expect(result[1].category).toBe('steering');
       expect(result[0].files).toEqual(['alpha', 'zeta']);
     });
+
+    it('deduplicates slugs within a category', () => {
+      write(makeEntry({ slug: 'overview' }));
+      write(makeEntry({ slug: 'overview', title: 'Updated' }));
+      const result = list();
+      expect(result[0].files).toEqual(['overview']);
+    });
   });
 
-  describe('updateIndex', () => {
-    it('generates index.md with all categories and files', async () => {
-      await write(makeEntry(), baseDir);
-      await write(
-        makeEntry({
-          category: 'mcp',
-          slug: 'setup',
-          title: 'MCP Setup',
-        }),
-        baseDir,
-      );
-
-      await updateIndex(baseDir);
-
-      const indexPath = join(baseDir, 'index.md');
-      const raw = await readFile(indexPath, 'utf-8');
-
-      expect(raw).toContain('# Knowledge Base Index');
-      expect(raw).toContain('## Hooks');
-      expect(raw).toContain('## Mcp');
-      expect(raw).toContain('[Overview](hooks/overview.md)');
-      expect(raw).toContain('[Setup](mcp/setup.md)');
+  describe('search', () => {
+    it('finds entries by slug', () => {
+      write(makeEntry());
+      expect(search('overview')).toHaveLength(1);
     });
 
-    it('creates index.md even for empty knowledge base', async () => {
-      await mkdir(baseDir, { recursive: true });
-      await updateIndex(baseDir);
-
-      const indexPath = join(baseDir, 'index.md');
-      const raw = await readFile(indexPath, 'utf-8');
-      expect(raw).toContain('# Knowledge Base Index');
+    it('finds entries by category', () => {
+      write(makeEntry());
+      expect(search('hooks')).toHaveLength(1);
     });
 
-    it('updates index when new file is added', async () => {
-      await write(makeEntry(), baseDir);
-      await updateIndex(baseDir);
-
-      await write(
-        makeEntry({
-          category: 'cli',
-          slug: 'custom-agents',
-          title: 'Custom Agents',
-        }),
-        baseDir,
-      );
-      await updateIndex(baseDir);
-
-      const raw = await readFile(join(baseDir, 'index.md'), 'utf-8');
-      expect(raw).toContain('## Cli');
-      expect(raw).toContain('[Custom Agents](cli/custom-agents.md)');
-      expect(raw).toContain('[Overview](hooks/overview.md)');
+    it('finds entries by title', () => {
+      write(makeEntry());
+      expect(search('Hooks Overview')).toHaveLength(1);
     });
 
-    it('formats multi-word category titles', async () => {
-      await write(
-        makeEntry({
-          category: 'agent-skills-spec',
-          slug: 'intro',
-        }),
-        baseDir,
-      );
-      await updateIndex(baseDir);
+    it('finds entries by content', () => {
+      write(makeEntry());
+      expect(search('automate actions')).toHaveLength(1);
+    });
 
-      const raw = await readFile(join(baseDir, 'index.md'), 'utf-8');
-      expect(raw).toContain('## Agent Skills Spec');
+    it('returns empty for no match', () => {
+      write(makeEntry());
+      expect(search('nonexistent-xyz')).toHaveLength(0);
+    });
+
+    it('is case-insensitive', () => {
+      write(makeEntry());
+      expect(search('HOOKS')).toHaveLength(1);
+    });
+  });
+
+  describe('persistence', () => {
+    const tmpPath = join(
+      tmpdir(),
+      `kb-test-${Date.now()}-${Math.random().toString(36).slice(2)}.json`,
+    );
+
+    afterEach(async () => {
+      await rm(tmpPath, { force: true });
+    });
+
+    it('saves and loads from JSON file', async () => {
+      write(makeEntry());
+      write(makeEntry({ category: 'mcp', slug: 'setup', title: 'MCP Setup' }));
+      await saveKB(tmpPath);
+
+      initKB([]);
+      expect(list()).toHaveLength(0);
+
+      await loadKB(tmpPath);
+      expect(list()).toHaveLength(2);
+      expect(read('hooks', 'overview')?.title).toBe('Hooks Overview');
+      expect(read('mcp', 'setup')?.title).toBe('MCP Setup');
+    });
+
+    it('persists as valid JSON', async () => {
+      write(makeEntry());
+      await saveKB(tmpPath);
+
+      const raw = await readFile(tmpPath, 'utf-8');
+      const parsed = JSON.parse(raw);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(1);
+      expect(parsed[0].slug).toBe('overview');
+    });
+
+    it('initKB replaces all data', () => {
+      write(makeEntry());
+      expect(list()).toHaveLength(1);
+
+      initKB([makeEntry({ category: 'mcp', slug: 'a' }), makeEntry({ category: 'mcp', slug: 'b' })]);
+      expect(list()).toHaveLength(1); // one category
+      expect(read('hooks', 'overview')).toBeNull();
+      expect(read('mcp', 'a')).not.toBeNull();
     });
   });
 });

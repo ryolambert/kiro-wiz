@@ -1,7 +1,4 @@
-import { rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   QUICK_REFERENCE_SCENARIOS,
   TOOL_TYPE_DISPLAY,
@@ -12,23 +9,14 @@ import {
   serialize,
   toAnchor,
 } from '../../lib/compiler.js';
-import { write } from '../../lib/knowledgeBase.js';
+import { initKB, write } from '../../lib/knowledgeBase.js';
 import type { KnowledgeBaseEntry } from '../../lib/types.js';
 import { KIRO_TOOL_TYPES } from '../../lib/types.js';
 
 // ─── Helpers ────────────────────────────────────────────────
 
-const baseDirs: string[] = [];
-
-function freshBaseDir(): string {
-  const dir = join(tmpdir(), `kb-compiler-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-  baseDirs.push(dir);
-  return dir;
-}
-
-afterEach(async () => {
-  await Promise.all(baseDirs.map((d) => rm(d, { recursive: true, force: true })));
-  baseDirs.length = 0;
+beforeEach(() => {
+  initKB([]);
 });
 
 function makeEntry(overrides: Partial<KnowledgeBaseEntry>): KnowledgeBaseEntry {
@@ -116,8 +104,8 @@ describe('buildDecisionMatrix', () => {
 
 describe('compile', () => {
   it('compiles an empty knowledge base', async () => {
-    const baseDir = freshBaseDir();
-    const ref = await compile(baseDir);
+    
+    const ref = await compile();
 
     expect(ref.toc).toBeDefined();
     expect(ref.sections).toBeDefined();
@@ -126,12 +114,12 @@ describe('compile', () => {
   });
 
   it('includes entries organized by tool type', async () => {
-    const baseDir = freshBaseDir();
+    
 
-    await write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }), baseDir);
-    await write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }), baseDir);
+    write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
+    write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }));
 
-    const ref = await compile(baseDir);
+    const ref = await compile();
 
     const hookSection = ref.sections.find((s) => s.toolType === 'hook');
     expect(hookSection).toBeDefined();
@@ -143,11 +131,11 @@ describe('compile', () => {
   });
 
   it('places uncategorized entries in General Reference', async () => {
-    const baseDir = freshBaseDir();
+    
 
-    await write(makeEntry({ slug: 'blog-post', category: 'blog', title: 'Blog Post' }), baseDir);
+    write(makeEntry({ slug: 'blog-post', category: 'blog', title: 'Blog Post' }));
 
-    const ref = await compile(baseDir);
+    const ref = await compile();
 
     const generalSection = ref.sections.find((s) => s.title === 'General Reference');
     expect(generalSection).toBeDefined();
@@ -155,12 +143,12 @@ describe('compile', () => {
   });
 
   it('respects toolTypes filter option', async () => {
-    const baseDir = freshBaseDir();
+    
 
-    await write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }), baseDir);
-    await write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }), baseDir);
+    write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
+    write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }));
 
-    const ref = await compile(baseDir, { toolTypes: ['hook'] });
+    const ref = await compile({ toolTypes: ['hook'] });
 
     const toolSections = ref.sections.filter((s) => s.toolType !== null);
     expect(toolSections).toHaveLength(1);
@@ -168,14 +156,14 @@ describe('compile', () => {
   });
 
   it('respects includeDecisionMatrix=false', async () => {
-    const baseDir = freshBaseDir();
-    const ref = await compile(baseDir, { includeDecisionMatrix: false });
+    
+    const ref = await compile({ includeDecisionMatrix: false });
     expect(ref.decisionMatrix).toHaveLength(0);
   });
 
   it('respects includeQuickReference=false', async () => {
-    const baseDir = freshBaseDir();
-    const ref = await compile(baseDir, { includeQuickReference: false });
+    
+    const ref = await compile({ includeQuickReference: false });
     expect(ref.quickReference).toHaveLength(0);
   });
 });
@@ -184,10 +172,10 @@ describe('compile', () => {
 
 describe('serialize', () => {
   it('produces valid markdown with TOC', async () => {
-    const baseDir = freshBaseDir();
-    await write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }), baseDir);
+    
+    write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
 
-    const ref = await compile(baseDir);
+    const ref = await compile();
     const md = serialize(ref);
 
     expect(md).toContain('# Kiro Master Reference');
@@ -199,8 +187,8 @@ describe('serialize', () => {
   });
 
   it('includes decision matrix table', async () => {
-    const baseDir = freshBaseDir();
-    const ref = await compile(baseDir);
+    
+    const ref = await compile();
     const md = serialize(ref);
 
     expect(md).toContain('| Tool Type | What | When to Use');
@@ -209,8 +197,8 @@ describe('serialize', () => {
   });
 
   it('includes quick reference table', async () => {
-    const baseDir = freshBaseDir();
-    const ref = await compile(baseDir);
+    
+    const ref = await compile();
     const md = serialize(ref);
 
     expect(md).toContain('| Scenario | Recommended Tools | Rationale |');
@@ -220,10 +208,10 @@ describe('serialize', () => {
 
 describe('deserialize', () => {
   it('parses serialized markdown back to CompiledReference', async () => {
-    const baseDir = freshBaseDir();
-    await write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }), baseDir);
+    
+    write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
 
-    const ref = await compile(baseDir);
+    const ref = await compile();
     const md = serialize(ref);
     const parsed = deserialize(md);
 
@@ -233,8 +221,8 @@ describe('deserialize', () => {
   });
 
   it('preserves decision matrix entries on round-trip', async () => {
-    const baseDir = freshBaseDir();
-    const ref = await compile(baseDir);
+    
+    const ref = await compile();
     const md = serialize(ref);
     const parsed = deserialize(md);
 
@@ -247,8 +235,8 @@ describe('deserialize', () => {
   });
 
   it('preserves quick reference entries on round-trip', async () => {
-    const baseDir = freshBaseDir();
-    const ref = await compile(baseDir);
+    
+    const ref = await compile();
     const md = serialize(ref);
     const parsed = deserialize(md);
 
@@ -260,11 +248,11 @@ describe('deserialize', () => {
   });
 
   it('preserves section structure on round-trip', async () => {
-    const baseDir = freshBaseDir();
-    await write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }), baseDir);
-    await write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }), baseDir);
+    
+    write(makeEntry({ slug: 'hook-a', category: 'hooks', title: 'Hook A' }));
+    write(makeEntry({ slug: 'spec-a', category: 'specs', title: 'Spec A' }));
 
-    const ref = await compile(baseDir);
+    const ref = await compile();
     const md = serialize(ref);
     const parsed = deserialize(md);
 

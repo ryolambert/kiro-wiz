@@ -9,7 +9,7 @@
     }
   },
   "resources": [
-    "file://knowledge-base/**",
+    "file://knowledge-base.json",
     "file://reference-library/**"
   ],
   "tools": ["read", "write", "shell"],

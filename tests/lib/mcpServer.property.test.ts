@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as fc from 'fast-check';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { initKB, write } from '../../lib/knowledgeBase.js';
 import { type KiroMcpServer, createMcpServer } from '../../lib/mcpServer.js';
 import type { KiroToolType, PlatformTarget, ScaffoldOptions } from '../../lib/types.js';
 import { KIRO_TOOL_TYPES } from '../../lib/types.js';
@@ -23,19 +24,18 @@ describe('Property 36: MCP server tool completeness', () => {
   let testDir: string;
 
   beforeEach(async () => {
-    testDir = path.join(process.cwd(), 'test-workspace-pbt');
-    await fs.mkdir(testDir, { recursive: true });
-    await fs.mkdir(path.join(testDir, 'knowledge-base'), {
-      recursive: true,
+    initKB([]);
+    write({
+      slug: 'hook-basics',
+      category: 'hooks',
+      title: 'Hook Basics',
+      content: 'Hooks are event-driven automations.',
+      sourceUrl: 'https://kiro.dev/docs/hooks/basics',
+      lastUpdated: new Date().toISOString(),
     });
 
-    // Create sample knowledge base content
-    const kbDir = path.join(testDir, 'knowledge-base', 'hooks');
-    await fs.mkdir(kbDir, { recursive: true });
-    await fs.writeFile(
-      path.join(kbDir, 'hook-basics.md'),
-      '# Hook Basics\n\nHooks are event-driven automations.',
-    );
+    testDir = path.join(process.cwd(), 'test-workspace-pbt');
+    await fs.mkdir(testDir, { recursive: true });
 
     server = createMcpServer({
       basePath: testDir,
@@ -324,18 +324,18 @@ describe('Property 37: MCP server cache idempotence', () => {
   let testDir: string;
 
   beforeEach(async () => {
-    testDir = path.join(process.cwd(), 'test-cache-pbt');
-    await fs.mkdir(testDir, { recursive: true });
-    await fs.mkdir(path.join(testDir, 'knowledge-base'), {
-      recursive: true,
+    initKB([]);
+    write({
+      slug: 'hook-basics',
+      category: 'hooks',
+      title: 'Hook Basics',
+      content: 'Hooks are event-driven automations.',
+      sourceUrl: 'https://kiro.dev/docs/hooks/basics',
+      lastUpdated: new Date().toISOString(),
     });
 
-    const kbDir = path.join(testDir, 'knowledge-base', 'hooks');
-    await fs.mkdir(kbDir, { recursive: true });
-    await fs.writeFile(
-      path.join(kbDir, 'hook-basics.md'),
-      '# Hook Basics\n\nHooks are event-driven automations.',
-    );
+    testDir = path.join(process.cwd(), 'test-cache-pbt');
+    await fs.mkdir(testDir, { recursive: true });
 
     server = createMcpServer({
       basePath: testDir,

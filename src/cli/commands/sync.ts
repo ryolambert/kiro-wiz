@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { fetchSitemap } from '../../../lib/changeDetector.js';
 import { parseHtml } from '../../../lib/contentParser.js';
 import { fetchWithRetry } from '../../../lib/crawler.js';
-import { updateIndex, urlToCategory, urlToSlug, write } from '../../../lib/knowledgeBase.js';
+import { loadKB, saveKB, urlToCategory, urlToSlug, write } from '../../../lib/knowledgeBase.js';
 import type { RegistryEntry, UrlCategory } from '../../../lib/types.js';
 import {
   getActive,
@@ -15,8 +15,8 @@ import {
   updateLastCrawled,
 } from '../../../lib/urlRegistry.js';
 
-const REGISTRY_PATH = resolve('knowledge-base/registry.json');
-const KB_BASE_DIR = resolve('knowledge-base');
+const KB_JSON = resolve('dist/knowledge-base.json');
+const REGISTRY_PATH = resolve('crawl-registry.json');
 const SITEMAP_URL = 'https://kiro.dev/sitemap.xml';
 
 export async function run(args: string[], flags: Set<string>): Promise<void> {
@@ -29,22 +29,17 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
     process.exit(1);
   }
 
-  let entries: RegistryEntry[];
-  try {
-    entries = await load(REGISTRY_PATH);
-  } catch {
-    entries = [];
-  }
+  // Load existing KB
+  try { await loadKB(KB_JSON); } catch { /* fresh start */ }
 
-  // Auto-seed on first --all run
+  let entries: RegistryEntry[];
+  try { entries = await load(REGISTRY_PATH); } catch { entries = []; }
+
   if (entries.length === 0 && all) {
     console.error('No registry found. Seeding from sitemap...');
     try {
       const sitemapEntries = await fetchSitemap(SITEMAP_URL);
-      entries = seedSitemapUrls(
-        entries,
-        sitemapEntries.map((e) => ({ url: e.url, lastmod: e.lastmod })),
-      );
+      entries = seedSitemapUrls(entries, sitemapEntries.map((e) => ({ url: e.url, lastmod: e.lastmod })));
       console.error(`  Seeded ${sitemapEntries.length} URLs from sitemap`);
     } catch (err) {
       console.error(`  Failed to fetch sitemap: ${(err as Error).message}`);
@@ -60,6 +55,7 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
       console.error(`URL not in registry, crawling directly: ${url}`);
       entries = await crawlUrl(url, entries);
       await save(entries, REGISTRY_PATH);
+      await saveKB(KB_JSON);
       return;
     }
   } else if (category) {
@@ -74,7 +70,7 @@ export async function run(args: string[], flags: Set<string>): Promise<void> {
   }
 
   await save(entries, REGISTRY_PATH);
-  await updateIndex(KB_BASE_DIR);
+  await saveKB(KB_JSON);
   console.error('Done.');
 }
 
@@ -83,22 +79,15 @@ async function crawlUrl(url: string, entries: RegistryEntry[]): Promise<Registry
   try {
     const result = await fetchWithRetry(url);
     const parsed = parseHtml(result.html);
-    const slug = urlToSlug(url);
-    const category = urlToCategory(url);
-
-    await write(
-      {
-        slug,
-        category,
-        title: parsed.title,
-        content: parsed.markdown,
-        sourceUrl: url,
-        lastUpdated: new Date().toISOString(),
-      },
-      KB_BASE_DIR,
-    );
-
-    console.error(`  ✓ Saved: ${category}/${slug}.md`);
+    write({
+      slug: urlToSlug(url),
+      category: urlToCategory(url),
+      title: parsed.title,
+      content: parsed.markdown,
+      sourceUrl: url,
+      lastUpdated: new Date().toISOString(),
+    });
+    console.error(`  ✓ Saved: ${urlToCategory(url)}/${urlToSlug(url)}`);
     return updateLastCrawled([...entries], url);
   } catch (err) {
     console.error(`  ✗ Failed: ${(err as Error).message}`);

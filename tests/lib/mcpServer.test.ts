@@ -1,6 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { initKB, write } from '../../lib/knowledgeBase.js';
 import { type KiroMcpServer, createMcpServer } from '../../lib/mcpServer.js';
 import type { KiroToolType, PlatformTarget } from '../../lib/types.js';
 
@@ -9,11 +10,9 @@ describe('KiroMcpServer', () => {
   let testDir: string;
 
   beforeEach(async () => {
+    initKB([]);
     testDir = path.join(process.cwd(), 'test-workspace');
     await fs.mkdir(testDir, { recursive: true });
-    await fs.mkdir(path.join(testDir, 'knowledge-base'), {
-      recursive: true,
-    });
 
     server = createMcpServer({
       basePath: testDir,
@@ -203,13 +202,15 @@ describe('KiroMcpServer', () => {
   });
 
   describe('Knowledge Base Query', () => {
-    beforeEach(async () => {
-      const kbDir = path.join(testDir, 'knowledge-base', 'hooks');
-      await fs.mkdir(kbDir, { recursive: true });
-      await fs.writeFile(
-        path.join(kbDir, 'hook-basics.md'),
-        '# Hook Basics\n\nHooks are event-driven automations.',
-      );
+    beforeEach(() => {
+      write({
+        slug: 'hook-basics',
+        category: 'hooks',
+        title: 'Hook Basics',
+        content: 'Hooks are event-driven automations.',
+        sourceUrl: 'https://kiro.dev/docs/hooks/basics',
+        lastUpdated: new Date().toISOString(),
+      });
     });
 
     it('should read knowledge base files', async () => {

@@ -1,11 +1,9 @@
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import fc from 'fast-check';
-import { afterEach, describe, expect, it } from 'vitest';
-import { compile, serialize } from '../../lib/compiler.js';
-import { write } from '../../lib/knowledgeBase.js';
-import type { KnowledgeBaseEntry, UrlCategory } from '../../lib/types.js';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { buildDecisionMatrix, compile, deserialize, serialize } from '../../lib/compiler.js';
+import { initKB, write } from '../../lib/knowledgeBase.js';
+import type { KnowledgeBaseEntry, KiroToolType, UrlCategory } from '../../lib/types.js';
+import { KIRO_TOOL_TYPES } from '../../lib/types.js';
 
 /**
  * **Feature: kiro-knowledge-base, Property 11: Compilation content coverage**
@@ -52,7 +50,7 @@ const arbEntry: fc.Arbitrary<KnowledgeBaseEntry> = fc.record({
   lastUpdated: arbTimestamp,
 });
 
-// Deduplicate entries by slug+category to avoid file overwrites
+// Deduplicate entries by slug+category to avoid overwrites
 function dedup(entries: KnowledgeBaseEntry[]): KnowledgeBaseEntry[] {
   const seen = new Set<string>();
   return entries.filter((e) => {
@@ -63,11 +61,8 @@ function dedup(entries: KnowledgeBaseEntry[]): KnowledgeBaseEntry[] {
   });
 }
 
-const dirs: string[] = [];
-
-afterEach(async () => {
-  await Promise.all(dirs.map((d) => rm(d, { recursive: true, force: true })));
-  dirs.length = 0;
+beforeEach(() => {
+  initKB([]);
 });
 
 describe('Property 11: Compilation content coverage', () => {
@@ -77,14 +72,12 @@ describe('Property 11: Compilation content coverage', () => {
         const entries = dedup(rawEntries);
         if (entries.length === 0) return;
 
-        const tmpDir = await mkdtemp(join(tmpdir(), 'kb-prop11-'));
-        dirs.push(tmpDir);
-
+        initKB([]);
         for (const entry of entries) {
-          await write(entry, tmpDir);
+          write(entry);
         }
 
-        const compiled = await compile(tmpDir);
+        const compiled = await compile();
         const output = serialize(compiled);
 
         for (const entry of entries) {
@@ -115,19 +108,16 @@ describe('Property 12: Table of contents completeness', () => {
         const entries = dedup(rawEntries);
         if (entries.length === 0) return;
 
-        const tmpDir = await mkdtemp(join(tmpdir(), 'kb-prop12-'));
-        dirs.push(tmpDir);
-
+        initKB([]);
         for (const entry of entries) {
-          await write(entry, tmpDir);
+          write(entry);
         }
 
-        const compiled = await compile(tmpDir);
+        const compiled = await compile();
         const output = serialize(compiled);
 
         const tocTitles = new Set(compiled.toc.map((t) => t.title));
 
-        // 1) Every section/subsection title appears in the TOC
         for (const section of compiled.sections) {
           expect(tocTitles.has(section.title), `Section "${section.title}" missing from TOC`).toBe(
             true,
@@ -140,8 +130,6 @@ describe('Property 12: Table of contents completeness', () => {
           }
         }
 
-        // 2) Every TOC anchor corresponds to a heading in
-        //    the serialized markdown
         const headingPattern = /^#{1,6}\s+(.+)$/gm;
         const headings = new Set<string>();
         let match: RegExpExecArray | null;
@@ -164,16 +152,7 @@ describe('Property 12: Table of contents completeness', () => {
 /**
  * **Feature: kiro-knowledge-base, Property 13: Decision matrix completeness per tool type**
  * **Validates: Requirements 4.4**
- *
- * For any subset of KiroToolType values, `buildDecisionMatrix()`
- * SHALL return an entry for each requested type, and each entry
- * SHALL have non-empty whatItIs, whenToUse, whenNotToUse, a
- * non-empty alternatives array, and a valid platform value.
  */
-
-import { buildDecisionMatrix } from '../../lib/compiler.js';
-import { KIRO_TOOL_TYPES } from '../../lib/types.js';
-import type { KiroToolType } from '../../lib/types.js';
 
 const VALID_PLATFORMS = ['ide', 'cli', 'both'] as const;
 
@@ -187,7 +166,6 @@ describe('Property 13: Decision matrix completeness per tool type', () => {
       fc.property(arbNonEmptySubset, (toolTypes) => {
         const matrix = buildDecisionMatrix(toolTypes);
 
-        // 1) One entry per requested type
         expect(matrix).toHaveLength(toolTypes.length);
 
         const returnedTypes = matrix.map((e) => e.toolType);
@@ -195,25 +173,20 @@ describe('Property 13: Decision matrix completeness per tool type', () => {
           expect(returnedTypes.includes(tt), `Missing entry for tool type "${tt}"`).toBe(true);
         }
 
-        // 2) Each entry has all required non-empty fields
         for (const entry of matrix) {
           expect(entry.whatItIs.trim().length > 0, `whatItIs empty for "${entry.toolType}"`).toBe(
             true,
           );
-
           expect(entry.whenToUse.trim().length > 0, `whenToUse empty for "${entry.toolType}"`).toBe(
             true,
           );
-
           expect(
             entry.whenNotToUse.trim().length > 0,
             `whenNotToUse empty for "${entry.toolType}"`,
           ).toBe(true);
-
           expect(entry.alternatives.length > 0, `alternatives empty for "${entry.toolType}"`).toBe(
             true,
           );
-
           expect(
             (VALID_PLATFORMS as readonly string[]).includes(entry.platform),
             `Invalid platform "${entry.platform}" for "${entry.toolType}"`,
@@ -228,12 +201,9 @@ describe('Property 13: Decision matrix completeness per tool type', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         const matrix = buildDecisionMatrix(null);
-
         expect(matrix).toHaveLength(KIRO_TOOL_TYPES.length);
-
         for (const tt of KIRO_TOOL_TYPES) {
-          const entry = matrix.find((e) => e.toolType === tt);
-          expect(entry, `Missing entry for "${tt}" when called with null`).toBeDefined();
+          expect(matrix.find((e) => e.toolType === tt), `Missing entry for "${tt}"`).toBeDefined();
         }
       }),
       { numRuns: 1 },
@@ -244,16 +214,8 @@ describe('Property 13: Decision matrix completeness per tool type', () => {
 /**
  * **Feature: kiro-knowledge-base, Property 14: Master reference round-trip**
  * **Validates: Requirements 4.6**
- *
- * For any compiled reference, `deserialize(serialize(ref))` SHALL
- * produce a CompiledReference with the same decision matrix entries,
- * quick reference entries, and section structure as the original.
  */
 
-import { deserialize } from '../../lib/compiler.js';
-
-// Title arbitrary that avoids trailing whitespace (trimmed by
-// markdown heading round-trip) for round-trip fidelity.
 const arbTrimmedTitle = fc
   .stringMatching(/^[A-Z][A-Za-z0-9 ]{4,30}$/)
   .filter((s) => s === s.trim() && s.trim().length >= 5);
@@ -276,18 +238,15 @@ describe('Property 14: Master reference round-trip', () => {
           const entries = dedup(rawEntries);
           if (entries.length === 0) return;
 
-          const tmpDir = await mkdtemp(join(tmpdir(), 'kb-prop14-'));
-          dirs.push(tmpDir);
-
+          initKB([]);
           for (const entry of entries) {
-            await write(entry, tmpDir);
+            write(entry);
           }
 
-          const compiled = await compile(tmpDir);
+          const compiled = await compile();
           const markdown = serialize(compiled);
           const restored = deserialize(markdown);
 
-          // 1) Decision matrix entries match
           expect(restored.decisionMatrix).toHaveLength(compiled.decisionMatrix.length);
           for (let i = 0; i < compiled.decisionMatrix.length; i++) {
             const orig = compiled.decisionMatrix[i];
@@ -300,7 +259,6 @@ describe('Property 14: Master reference round-trip', () => {
             expect(rest.platform).toBe(orig.platform);
           }
 
-          // 2) Quick reference entries match
           expect(restored.quickReference).toHaveLength(compiled.quickReference.length);
           for (let i = 0; i < compiled.quickReference.length; i++) {
             const orig = compiled.quickReference[i];
@@ -310,25 +268,19 @@ describe('Property 14: Master reference round-trip', () => {
             expect(rest.rationale).toBe(orig.rationale);
           }
 
-          // 3) Section titles and tool types match
           expect(restored.sections).toHaveLength(compiled.sections.length);
           for (let i = 0; i < compiled.sections.length; i++) {
             const origSec = compiled.sections[i];
             const restSec = restored.sections[i];
             expect(restSec.title).toBe(origSec.title);
             expect(restSec.toolType).toBe(origSec.toolType);
-
-            // Subsection titles and tool types match
             expect(restSec.subsections).toHaveLength(origSec.subsections.length);
             for (let j = 0; j < origSec.subsections.length; j++) {
-              const origSub = origSec.subsections[j];
-              const restSub = restSec.subsections[j];
-              expect(restSub.title).toBe(origSub.title);
-              expect(restSub.toolType).toBe(origSub.toolType);
+              expect(restSec.subsections[j].title).toBe(origSec.subsections[j].title);
+              expect(restSec.subsections[j].toolType).toBe(origSec.subsections[j].toolType);
             }
           }
 
-          // 4) TOC entries match
           expect(restored.toc).toHaveLength(compiled.toc.length);
           for (let i = 0; i < compiled.toc.length; i++) {
             expect(restored.toc[i].title).toBe(compiled.toc[i].title);

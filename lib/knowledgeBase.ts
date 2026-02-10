@@ -1,11 +1,33 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import type { KnowledgeBaseEntry, UrlCategory } from './types';
 import { categorizeUrl } from './urlRegistry';
 
-// ─── Constants ──────────────────────────────────────────────
+// ─── In-memory database ─────────────────────────────────────
 
-const DEFAULT_BASE_DIR = 'knowledge-base';
+let db: KnowledgeBaseEntry[] = [];
+
+/** Load KB from a JSON file. */
+export async function loadKB(jsonPath: string): Promise<void> {
+  const raw = await readFile(jsonPath, 'utf-8');
+  db = JSON.parse(raw);
+}
+
+/** Initialize KB from data directly (for compiled binaries). */
+export function initKB(data: KnowledgeBaseEntry[]): void {
+  db = data;
+}
+
+/** Save KB to a JSON file. */
+export async function saveKB(jsonPath: string): Promise<void> {
+  await mkdir(dirname(jsonPath), { recursive: true });
+  await writeFile(jsonPath, JSON.stringify(db, null, 2), 'utf-8');
+}
+
+/** Get all entries. */
+export function getEntries(): KnowledgeBaseEntry[] {
+  return db;
+}
 
 // ─── URL → Slug ─────────────────────────────────────────────
 
@@ -52,59 +74,24 @@ export function urlToCategory(url: string): UrlCategory {
   return categorizeUrl(url);
 }
 
-// ─── Category → Directory Name ──────────────────────────────
+// ─── Write (upsert) ────────────────────────────────────────
 
-function categoryDir(category: UrlCategory): string {
-  if (category === 'unknown') return 'uncategorized';
-  return category;
-}
-
-// ─── Write ──────────────────────────────────────────────────
-
-export async function write(
-  entry: KnowledgeBaseEntry,
-  baseDir: string = DEFAULT_BASE_DIR,
-): Promise<string> {
-  const dir = join(baseDir, categoryDir(entry.category));
-  await mkdir(dir, { recursive: true });
-
-  const filename = `${entry.slug}.md`;
-  const filePath = join(dir, filename);
-
-  const frontmatter = [
-    '---',
-    `title: "${entry.title.replace(/"/g, '\\"')}"`,
-    `sourceUrl: "${entry.sourceUrl}"`,
-    `category: "${entry.category}"`,
-    `lastUpdated: "${entry.lastUpdated}"`,
-    '---',
-    '',
-  ].join('\n');
-
-  const content = frontmatter + entry.content;
-  await writeFile(filePath, content, 'utf-8');
-
-  return filePath;
+export function write(entry: KnowledgeBaseEntry): void {
+  const idx = db.findIndex((e) => e.category === entry.category && e.slug === entry.slug);
+  if (idx >= 0) {
+    db[idx] = entry;
+  } else {
+    db.push(entry);
+  }
 }
 
 // ─── Read ───────────────────────────────────────────────────
 
-export async function read(
-  category: UrlCategory,
+export function read(
+  category: UrlCategory | string,
   slug: string,
-  baseDir: string = DEFAULT_BASE_DIR,
-): Promise<KnowledgeBaseEntry | null> {
-  const dir = categoryDir(category);
-  const filePath = join(baseDir, dir, `${slug}.md`);
-
-  let raw: string;
-  try {
-    raw = await readFile(filePath, 'utf-8');
-  } catch {
-    return null;
-  }
-
-  return parseEntry(raw, slug, category);
+): KnowledgeBaseEntry | null {
+  return db.find((e) => e.category === category && e.slug === slug) ?? null;
 }
 
 // ─── List ───────────────────────────────────────────────────
@@ -114,107 +101,27 @@ export interface ListResult {
   files: string[];
 }
 
-export async function list(baseDir: string = DEFAULT_BASE_DIR): Promise<ListResult[]> {
-  let dirs: string[];
-  try {
-    const entries = await readdir(baseDir, { withFileTypes: true });
-    dirs = entries
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name)
-      .sort();
-  } catch {
-    return [];
+export function list(): ListResult[] {
+  const map = new Map<string, string[]>();
+  for (const e of db) {
+    const files = map.get(e.category) ?? [];
+    files.push(e.slug);
+    map.set(e.category, files);
   }
-
-  const results: ListResult[] = [];
-
-  for (const dir of dirs) {
-    const dirPath = join(baseDir, dir);
-    let files: string[];
-    try {
-      const dirEntries = await readdir(dirPath);
-      files = dirEntries
-        .filter((f) => f.endsWith('.md'))
-        .map((f) => f.replace(/\.md$/, ''))
-        .sort();
-    } catch {
-      files = [];
-    }
-
-    if (files.length > 0) {
-      results.push({ category: dir, files });
-    }
-  }
-
-  return results;
+  return [...map.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([category, files]) => ({ category, files: [...new Set(files)].sort() }));
 }
 
-// ─── Update Index ───────────────────────────────────────────
+// ─── Search ─────────────────────────────────────────────────
 
-export async function updateIndex(baseDir: string = DEFAULT_BASE_DIR): Promise<void> {
-  const categories = await list(baseDir);
-
-  const lines: string[] = ['# Knowledge Base Index', ''];
-
-  for (const cat of categories) {
-    lines.push(`## ${formatCategoryTitle(cat.category)}`);
-    lines.push('');
-    for (const file of cat.files) {
-      const title = formatFileTitle(file);
-      lines.push(`- [${title}](${cat.category}/${file}.md)`);
-    }
-    lines.push('');
-  }
-
-  const indexPath = join(baseDir, 'index.md');
-  await mkdir(baseDir, { recursive: true });
-  await writeFile(indexPath, lines.join('\n'), 'utf-8');
-}
-
-// ─── Helpers ────────────────────────────────────────────────
-
-function parseEntry(raw: string, slug: string, category: UrlCategory): KnowledgeBaseEntry {
-  const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n/);
-
-  let title = slug;
-  let sourceUrl = '';
-  let lastUpdated = '';
-  let content = raw;
-
-  if (fmMatch) {
-    const fm = fmMatch[1];
-    title = extractFmField(fm, 'title') ?? slug;
-    sourceUrl = extractFmField(fm, 'sourceUrl') ?? '';
-    lastUpdated = extractFmField(fm, 'lastUpdated') ?? '';
-    content = raw.slice(fmMatch[0].length);
-  }
-
-  return {
-    slug,
-    category,
-    title,
-    content,
-    sourceUrl,
-    lastUpdated,
-  };
-}
-
-function extractFmField(fm: string, field: string): string | undefined {
-  const re = new RegExp(`^${field}:\\s*"?(.*?)"?\\s*$`, 'm');
-  const match = fm.match(re);
-  return match ? match[1] : undefined;
-}
-
-function formatCategoryTitle(category: string): string {
-  return category
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
-function formatFileTitle(slug: string): string {
-  return slug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+export function search(term: string): KnowledgeBaseEntry[] {
+  const lower = term.toLowerCase();
+  return db.filter(
+    (e) =>
+      e.slug.includes(lower) ||
+      e.category.includes(lower) ||
+      e.title.toLowerCase().includes(lower) ||
+      e.content.toLowerCase().includes(lower),
+  );
 }

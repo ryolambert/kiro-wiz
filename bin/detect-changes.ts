@@ -4,8 +4,8 @@ import { resolve } from 'node:path';
 import { run } from '../lib/changeDetector.js';
 import { load, save } from '../lib/urlRegistry.js';
 
-const STATE_PATH = resolve('knowledge-base/change-state.json');
-const REGISTRY_PATH = resolve('knowledge-base/registry.json');
+const STATE_PATH = resolve('crawl-state.json');
+const REGISTRY_PATH = resolve('crawl-registry.json');
 
 async function main(): Promise<void> {
   console.error('Loading registry...');

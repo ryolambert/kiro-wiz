@@ -5,17 +5,14 @@ import {
   categoryToToolType,
   toAnchor,
 } from './compilerData';
-import { list, read } from './knowledgeBase';
+import { getEntries } from './knowledgeBase';
 import type {
   CompiledReference,
   CompilerOptions,
   KiroToolType,
   KnowledgeBaseEntry,
-  PlatformTarget,
   ReferenceSection,
-  ScenarioMapping,
   TocEntry,
-  UrlCategory,
 } from './types';
 import { KIRO_TOOL_TYPES } from './types';
 
@@ -30,20 +27,8 @@ export {
 
 // ─── Read All KB Entries ───────────────────────────────────
 
-export async function readAllEntries(baseDir?: string): Promise<KnowledgeBaseEntry[]> {
-  const categories = await list(baseDir);
-  const entries: KnowledgeBaseEntry[] = [];
-
-  for (const cat of categories) {
-    for (const slug of cat.files) {
-      const entry = await read(cat.category as UrlCategory, slug, baseDir);
-      if (entry) {
-        entries.push(entry);
-      }
-    }
-  }
-
-  return entries;
+export function readAllEntries(): KnowledgeBaseEntry[] {
+  return [...getEntries()];
 }
 
 // ─── Build Sections by Tool Type ───────────────────────────
@@ -147,11 +132,10 @@ const DEFAULT_OPTIONS: CompilerOptions = {
 };
 
 export async function compile(
-  baseDir?: string,
   options: Partial<CompilerOptions> = {},
 ): Promise<CompiledReference> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
-  const entries = await readAllEntries(baseDir);
+  const entries = readAllEntries();
   const sections = buildSections(entries, opts.toolTypes);
   const decisionMatrix = opts.includeDecisionMatrix ? buildDecisionMatrix(opts.toolTypes) : [];
   const quickReference = opts.includeQuickReference ? QUICK_REFERENCE_SCENARIOS : [];
