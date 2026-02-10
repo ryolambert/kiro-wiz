@@ -1,10 +1,11 @@
 ---
-inclusion: always
+inclusion: fileMatch
+fileMatchPattern: ["*.js", "*.jsx", "*.ts", "*.tsx"]
 ---
 # OpenTUI Docs
 
 ## Overview
-This doc is a comprehensive doc on how to setup an opentui terminal ui. 
+This doc is a comprehensive doc on how to setup an opentui terminal ui.
 
 ## Info
 

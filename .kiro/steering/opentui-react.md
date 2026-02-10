@@ -1,10 +1,11 @@
 ---
-inclusion: always
+inclusion: fileMatch
+fileMatchPattern: ["*.js", "*.jsx", "*.ts", "*.tsx"]
 ---
 # OpenTUI React Docs
 
 ## Overview
-This doc is a comprehensive doc specifically for setting up a 
+This doc is a comprehensive doc specifically for setting up a
 
 ### Basic React App with OpenTUI
 
