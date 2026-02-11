@@ -6,14 +6,61 @@ import { Logo } from '../components/Logo.js';
 import { theme } from '../theme.js';
 
 const MENU_OPTIONS: (SelectOption & { value: Screen | 'exit'; longDesc: string })[] = [
-  { name: '🔧  Scaffold', description: 'Create a new Kiro tool', value: 'scaffold', longDesc: 'Generate scaffolding for hooks, steering docs, skills, powers, MCP servers, agents, and more. Walks you through type selection, naming, and installs to your workspace.' },
-  { name: '🔍  Audit', description: 'Audit workspace', value: 'audit', longDesc: 'Scan your workspace for Kiro best practices. Checks agent configs, steering docs, hooks, and directory structure for common issues.' },
-  { name: '🔄  Sync KB', description: 'Sync knowledge base', value: 'sync', longDesc: 'Crawl kiro.dev documentation and update the local knowledge base. Keeps your tool recommendations and query results current.' },
-  { name: '📖  Query KB', description: 'Search knowledge base', value: 'query', longDesc: 'Browse and search the local knowledge base by category or keyword. View full documentation entries inline.' },
-  { name: '💡  Recommend', description: 'Get tool recommendations', value: 'recommend', longDesc: 'Describe a use case and get recommendations for which Kiro tool types (hooks, skills, agents, etc.) best fit your needs.' },
-  { name: '✅  Validate', description: 'Validate a config file', value: 'validate', longDesc: 'Check a Kiro JSON config file for schema errors, missing fields, and invalid values.' },
-  { name: '📦  Install', description: 'Install pre-built configs', value: 'install', longDesc: 'Install curated agents, steering docs, and skills to your workspace or global .kiro directory.' },
-  { name: '🚪  Exit', description: 'Quit kiro-wiz', value: 'exit', longDesc: 'Exit the application.' },
+  {
+    name: '🔧  Scaffold',
+    description: 'Create a new Kiro tool',
+    value: 'scaffold',
+    longDesc:
+      'Generate scaffolding for hooks, steering docs, skills, powers, MCP servers, agents, and more. Walks you through type selection, naming, and installs to your workspace.',
+  },
+  {
+    name: '🔍  Audit',
+    description: 'Audit workspace',
+    value: 'audit',
+    longDesc:
+      'Scan your workspace for Kiro best practices. Checks agent configs, steering docs, hooks, and directory structure for common issues.',
+  },
+  {
+    name: '🔄  Sync KB',
+    description: 'Sync knowledge base',
+    value: 'sync',
+    longDesc:
+      'Crawl kiro.dev documentation and update the local knowledge base. Keeps your tool recommendations and query results current.',
+  },
+  {
+    name: '📖  Query KB',
+    description: 'Search knowledge base',
+    value: 'query',
+    longDesc:
+      'Browse and search the local knowledge base by category or keyword. View full documentation entries inline.',
+  },
+  {
+    name: '💡  Recommend',
+    description: 'Get tool recommendations',
+    value: 'recommend',
+    longDesc:
+      'Describe a use case and get recommendations for which Kiro tool types (hooks, skills, agents, etc.) best fit your needs.',
+  },
+  {
+    name: '✅  Validate',
+    description: 'Validate a config file',
+    value: 'validate',
+    longDesc:
+      'Check a Kiro JSON config file for schema errors, missing fields, and invalid values.',
+  },
+  {
+    name: '📦  Install',
+    description: 'Install pre-built configs',
+    value: 'install',
+    longDesc:
+      'Install curated agents, steering docs, and skills to your workspace or global .kiro directory.',
+  },
+  {
+    name: '🚪  Exit',
+    description: 'Quit kiro-wiz',
+    value: 'exit',
+    longDesc: 'Exit the application.',
+  },
 ];
 
 interface Props {
@@ -26,7 +73,7 @@ export function MainMenu({ onSelect }: Props) {
 
   useKeyboard((key) => {
     // Number keys 1-8 for direct jump
-    const num = parseInt(key.name, 10);
+    const num = Number.parseInt(key.name, 10);
     if (num >= 1 && num <= MENU_OPTIONS.length) {
       const opt = MENU_OPTIONS[num - 1];
       if (opt.value === 'exit') {

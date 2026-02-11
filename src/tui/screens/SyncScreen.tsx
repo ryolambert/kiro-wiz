@@ -130,11 +130,16 @@ export function SyncScreen({ onBack: _onBack }: Props) {
       )}
 
       {logs.length > 0 && (
-        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
+        <scrollbox
+          style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }}
+          focused
+        >
           {logs.map((log, i) => (
             <text
               key={i}
-              fg={log.startsWith('✓') ? theme.success : log.startsWith('✗') ? theme.error : theme.text}
+              fg={
+                log.startsWith('✓') ? theme.success : log.startsWith('✗') ? theme.error : theme.text
+              }
             >
               {'  '}
               {log}

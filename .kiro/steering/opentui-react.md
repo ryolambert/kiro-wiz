@@ -4548,7 +4548,7 @@ const fileMenu = Select({
     { name: "Save", description: "Save file (Ctrl+S)" },
     { name: "Save As...", description: "Save with new name" },
     { name: "---", description: "" }, // Separator (visual only)
-    { name: "Exit", description: "Quit application (Ctrl+Q)" },
+    { name: "Exit", description: "Quit application (Ctrl+C)" },
   ],
 })
 

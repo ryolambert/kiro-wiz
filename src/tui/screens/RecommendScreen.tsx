@@ -40,7 +40,10 @@ export function RecommendScreen({ onBack: _onBack }: Props) {
       </box>
 
       {results.length > 0 && (
-        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
+        <scrollbox
+          style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }}
+          focused
+        >
           {results.map((r, i) => (
             <box key={i} style={{ marginBottom: 1 }}>
               <text fg={theme.primary}>

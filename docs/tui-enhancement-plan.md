@@ -104,20 +104,20 @@ Add left arrow as "back" and right arrow / Enter as "forward/select" across all 
 
 ### Proposed Additions
 
-| Key | Action | Context |
-|-----|--------|---------|
-| `←` / `h` | Go back (same as ESC) | Any non-menu screen |
+| Key       | Action                       | Context                |
+| --------- | ---------------------------- | ---------------------- |
+| `←` / `h` | Go back (same as ESC)        | Any non-menu screen    |
 | `→` / `l` | Select/enter (same as Enter) | Menu items, list items |
-| `?` | Toggle help overlay | Global |
-| `Ctrl+Q` | Quit | Global |
-| `1-9` | Jump to menu item by number | Main menu only |
+| `?`       | Toggle help overlay          | Global                 |
+| `Ctrl+C`  | Quit                         | Global                 |
+| `1-9`     | Jump to menu item by number  | Main menu only         |
 
 ### Implementation
 
 1. In `App.tsx` `useKeyboard`: add `left` as alias for `escape` back navigation
 2. In `MainMenu.tsx`: add `right` key handler that triggers selection of current item
 3. In `MainMenu.tsx`: add number key handlers (`1`-`8`) for direct menu item jump
-4. Add `Ctrl+Q` global quit handler in `App.tsx`
+4. Add `Ctrl+C` global quit handler in `App.tsx`
 
 ### Code Pattern
 
@@ -143,7 +143,7 @@ Add a persistent footer bar visible on every screen showing context-sensitive ke
 
 ```
 ─────────────────────────────────────────────
- ←/ESC back  ↑↓ navigate  Enter select  ? help  Ctrl+Q quit
+ ←/ESC back  ↑↓ navigate  Enter select  ? help  Ctrl+C quit
 ```
 
 ### Implementation
@@ -162,7 +162,7 @@ Add a persistent footer bar visible on every screen showing context-sensitive ke
 
 ```ts
 // MainMenu
-[{ keys: '↑↓', action: 'navigate' }, { keys: 'Enter/→', action: 'select' }, { keys: '1-8', action: 'jump' }, { keys: '?', action: 'help' }, { keys: 'Ctrl+Q', action: 'quit' }]
+[{ keys: '↑↓', action: 'navigate' }, { keys: 'Enter/→', action: 'select' }, { keys: '1-8', action: 'jump' }, { keys: '?', action: 'help' }, { keys: 'Ctrl+C', action: 'quit' }]
 
 // Sub-screens (default)
 [{ keys: '←/ESC', action: 'back' }, { keys: '↑↓', action: 'scroll' }, { keys: 'Enter', action: 'confirm' }, { keys: '?', action: 'help' }]
@@ -258,13 +258,13 @@ const MENU_OPTIONS = [
 
 ## 6. Implementation Order
 
-| Phase | Items | Effort |
-|-------|-------|--------|
-| 1 | Theme tokens + apply to all screens | Small — create file, find/replace colors |
-| 2 | HelpBar + Layout wrapper | Small — two new components, wrap App |
-| 3 | Keyboard shortcuts (←/→, number keys, Ctrl+Q) | Small — add handlers in App + MainMenu |
-| 4 | Ghost wizard logo | Small — one component, swap in MainMenu |
-| 5 | Description panel / toast | Small — track index, render panel |
+| Phase | Items                                         | Effort                                   |
+| ----- | --------------------------------------------- | ---------------------------------------- |
+| 1     | Theme tokens + apply to all screens           | Small — create file, find/replace colors |
+| 2     | HelpBar + Layout wrapper                      | Small — two new components, wrap App     |
+| 3     | Keyboard shortcuts (←/→, number keys, Ctrl+C) | Small — add handlers in App + MainMenu   |
+| 4     | Ghost wizard logo                             | Small — one component, swap in MainMenu  |
+| 5     | Description panel / toast                     | Small — track index, render panel        |
 
 Each phase is independent and can be done in any order. Phase 1 (theme) is recommended first since all other phases reference theme tokens.
 
@@ -274,18 +274,18 @@ Each phase is independent and can be done in any order. Phase 1 (theme) is recom
 
 ### New Files
 
-| File | Purpose |
-|------|---------|
-| `src/tui/theme.ts` | Centralized color tokens |
-| `src/tui/components/Logo.tsx` | Ghost wizard ASCII art + title |
+| File                             | Purpose                          |
+| -------------------------------- | -------------------------------- |
+| `src/tui/theme.ts`               | Centralized color tokens         |
+| `src/tui/components/Logo.tsx`    | Ghost wizard ASCII art + title   |
 | `src/tui/components/HelpBar.tsx` | Persistent keyboard hints footer |
-| `src/tui/components/Layout.tsx` | Header/content/footer wrapper |
+| `src/tui/components/Layout.tsx`  | Header/content/footer wrapper    |
 
 ### Modified Files
 
-| File | Changes |
-|------|---------|
-| `src/tui/App.tsx` | Wrap in Layout, add ←/Ctrl+Q handlers |
-| `src/tui/screens/MainMenu.tsx` | Logo, description panel, number keys, → key |
-| `src/tui/screens/*.tsx` | Replace hardcoded colors with theme tokens |
-| `src/tui/components/Spinner.tsx` | Use theme.primary for default color |
+| File                             | Changes                                     |
+| -------------------------------- | ------------------------------------------- |
+| `src/tui/App.tsx`                | Wrap in Layout, add ←/Ctrl+C handlers       |
+| `src/tui/screens/MainMenu.tsx`   | Logo, description panel, number keys, → key |
+| `src/tui/screens/*.tsx`          | Replace hardcoded colors with theme tokens  |
+| `src/tui/components/Spinner.tsx` | Use theme.primary for default color         |

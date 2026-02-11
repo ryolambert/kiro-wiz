@@ -63,7 +63,9 @@ export function ScaffoldScreen({ onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         {header('Select tool type')}
-        <box style={{ border: true, borderStyle: 'rounded', borderColor: theme.border, height: 14 }}>
+        <box
+          style={{ border: true, borderStyle: 'rounded', borderColor: theme.border, height: 14 }}
+        >
           <select
             style={{ height: 12 }}
             options={TYPE_OPTIONS}
@@ -165,7 +167,10 @@ export function ScaffoldScreen({ onBack }: Props) {
         <text fg={theme.dim}>
           Files to create ({preview.scope} → {preview.targetRoot}):
         </text>
-        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
+        <scrollbox
+          style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }}
+          focused
+        >
           {preview.installedFiles.map((f, i) => (
             <text key={i} fg={theme.text}>
               {'  📄 '}

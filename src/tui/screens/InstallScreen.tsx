@@ -1,8 +1,8 @@
-import type { SelectOption } from '@opentui/core';
-import { useCallback, useState } from 'react';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { SelectOption } from '@opentui/core';
+import { useCallback, useState } from 'react';
 import { Spinner } from '../components/Spinner.js';
 import { theme } from '../theme.js';
 
@@ -45,9 +45,7 @@ export function InstallScreen({ onBack: _onBack }: Props) {
 
   const targetRoot = useCallback(
     (s: string) =>
-      s === 'global'
-        ? join(process.env.HOME ?? '~', '.kiro')
-        : join(process.cwd(), '.kiro'),
+      s === 'global' ? join(process.env.HOME ?? '~', '.kiro') : join(process.cwd(), '.kiro'),
     [],
   );
 
@@ -121,7 +119,10 @@ export function InstallScreen({ onBack: _onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         {header(`Preview (${scope} → ${targetRoot(scope)})`)}
-        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
+        <scrollbox
+          style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }}
+          focused
+        >
           {files.map((f, i) => (
             <text key={i} fg={theme.text}>
               {'  📄 '}
@@ -167,8 +168,18 @@ export function InstallScreen({ onBack: _onBack }: Props) {
       )}
       <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
         {results.map((line, i) => (
-          <text key={i} fg={line.startsWith('✓') ? theme.success : line.startsWith('✗') ? theme.error : theme.warning}>
-            {'  '}{line}
+          <text
+            key={i}
+            fg={
+              line.startsWith('✓')
+                ? theme.success
+                : line.startsWith('✗')
+                  ? theme.error
+                  : theme.warning
+            }
+          >
+            {'  '}
+            {line}
           </text>
         ))}
       </scrollbox>
