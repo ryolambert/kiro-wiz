@@ -1,3 +1,16 @@
+# [1.3.0](https://github.com/ryolambert/kiro-wiz/compare/v1.2.0...v1.3.0) (2026-02-11)
+
+
+### Bug Fixes
+
+* build error ([d1b6cc9](https://github.com/ryolambert/kiro-wiz/commit/d1b6cc9121d6addd9245a8715a1b605717ba3fd4))
+
+
+### Features
+
+* add cool logo & fix exit shortcut ([f5afad1](https://github.com/ryolambert/kiro-wiz/commit/f5afad16819002003eafb019caf314139effea47))
+* setup install tui & ui fixes ([2187422](https://github.com/ryolambert/kiro-wiz/commit/2187422e9194da74988c9e19108bc6350e04c1b2))
+
 # [1.2.0](https://github.com/ryolambert/kiro-wiz/compare/v1.1.0...v1.2.0) (2026-02-10)
 
 
