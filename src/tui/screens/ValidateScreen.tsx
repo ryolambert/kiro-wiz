@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { validate } from '../../../lib/configGenerator.js';
 import type { ValidationResult } from '../../../lib/types.js';
 import { Spinner } from '../components/Spinner.js';
+import { theme } from '../theme.js';
 
 interface Props {
   onBack: () => void;
@@ -38,18 +39,17 @@ export function ValidateScreen({ onBack: _onBack }: Props) {
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
       <box style={{ marginBottom: 1 }}>
-        <text fg="#00FFAA">
+        <text fg={theme.primary}>
           <strong>✅ Validate</strong>
         </text>
-        <text fg="#555555"> — Check a Kiro config file</text>
-        <text fg="#444444">{'\n'} ESC to go back</text>
+        <text fg={theme.dim}> — Check a Kiro config file</text>
       </box>
       <box
         title="File path"
         style={{
           border: true,
           borderStyle: 'rounded',
-          borderColor: '#333333',
+          borderColor: theme.border,
           height: 3,
           width: 60,
         }}
@@ -64,7 +64,7 @@ export function ValidateScreen({ onBack: _onBack }: Props) {
 
       {loading && <Spinner label="Validating..." />}
       {error && (
-        <text fg="#FF4444">
+        <text fg={theme.error}>
           {'  '}❌ {error}
         </text>
       )}
@@ -72,12 +72,12 @@ export function ValidateScreen({ onBack: _onBack }: Props) {
       {result && (
         <box style={{ marginTop: 1 }}>
           {result.isValid ? (
-            <text fg="#00FF00">{'  '}✅ Config is valid.</text>
+            <text fg={theme.success}>{'  '}✅ Config is valid.</text>
           ) : (
-            <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }}>
-              <text fg="#FF4444">{'  '}❌ Validation errors:</text>
+            <scrollbox style={{ rootOptions: { backgroundColor: theme.surface } }}>
+              <text fg={theme.error}>{'  '}❌ Validation errors:</text>
               {result.errors.map((e, i) => (
-                <text key={i} fg="#FFAA00">
+                <text key={i} fg={theme.warning}>
                   {'    '}• {e.field}: {e.message}
                 </text>
               ))}

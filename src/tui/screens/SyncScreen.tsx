@@ -15,6 +15,7 @@ import {
   updateLastCrawled,
 } from '../../../lib/urlRegistry.js';
 import { Spinner } from '../components/Spinner.js';
+import { theme } from '../theme.js';
 
 const REGISTRY_PATH = resolve('crawl-registry.json');
 const KB_JSON = resolve('dist/knowledge-base.json');
@@ -98,16 +99,15 @@ export function SyncScreen({ onBack: _onBack }: Props) {
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
       <box style={{ marginBottom: 1 }}>
-        <text fg="#00FFAA">
+        <text fg={theme.primary}>
           <strong>🔄 Sync KB</strong>
         </text>
-        <text fg="#555555"> — Crawl kiro.dev documentation</text>
-        <text fg="#444444">{'\n'} ESC to go back</text>
+        <text fg={theme.dim}> — Crawl kiro.dev documentation</text>
       </box>
 
       {running && <Spinner label={status} />}
       {!running && status && (
-        <text fg={status.startsWith('Error') ? '#FF4444' : '#00FF00'}>
+        <text fg={status.startsWith('Error') ? theme.error : theme.success}>
           {'  '}
           {status}
         </text>
@@ -119,7 +119,7 @@ export function SyncScreen({ onBack: _onBack }: Props) {
           style={{
             border: true,
             borderStyle: 'rounded',
-            borderColor: '#333333',
+            borderColor: theme.border,
             height: 3,
             width: 40,
             marginTop: 1,
@@ -130,11 +130,11 @@ export function SyncScreen({ onBack: _onBack }: Props) {
       )}
 
       {logs.length > 0 && (
-        <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' }, marginTop: 1 }} focused>
+        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
           {logs.map((log, i) => (
             <text
               key={i}
-              fg={log.startsWith('✓') ? '#00FF00' : log.startsWith('✗') ? '#FF4444' : '#AAAAAA'}
+              fg={log.startsWith('✓') ? theme.success : log.startsWith('✗') ? theme.error : theme.text}
             >
               {'  '}
               {log}

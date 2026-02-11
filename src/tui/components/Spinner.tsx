@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { theme } from '../theme.js';
 
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
@@ -7,7 +8,7 @@ interface SpinnerProps {
   color?: string;
 }
 
-export function Spinner({ label = 'Loading...', color = '#00FFAA' }: SpinnerProps) {
+export function Spinner({ label = 'Loading...', color = theme.primary }: SpinnerProps) {
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {

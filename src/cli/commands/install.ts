@@ -1,7 +1,8 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const INSTALL_DIR = resolve(import.meta.dirname ?? '.', '../../src/templates/_install');
+const INSTALL_DIR = resolve(fileURLToPath(import.meta.url), '../../../src/templates/_install');
 
 export async function run(args: string[], flags: Set<string>): Promise<void> {
   const scope = getFlagValue(args, '--scope') ?? 'local';

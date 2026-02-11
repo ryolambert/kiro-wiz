@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { list, read, search } from '../../../lib/knowledgeBase.js';
 import type { KnowledgeBaseEntry } from '../../../lib/types.js';
 import { Spinner } from '../components/Spinner.js';
+import { theme } from '../theme.js';
 
 interface Props {
   onBack: () => void;
@@ -34,16 +35,15 @@ export function QueryScreen({ onBack: _onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         <box style={{ marginBottom: 1 }}>
-          <text fg="#00FFAA">
+          <text fg={theme.primary}>
             <strong>📄 {selected.title}</strong>
           </text>
-          <text fg="#555555">
+          <text fg={theme.dim}>
             {'\n'} Source: {selected.sourceUrl} | Updated: {selected.lastUpdated}
           </text>
-          <text fg="#444444">{'\n'} ESC to go back</text>
         </box>
-        <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }} focused>
-          <text>{selected.content}</text>
+        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface } }} focused>
+          <text fg={theme.text}>{selected.content}</text>
         </scrollbox>
       </box>
     );
@@ -52,11 +52,10 @@ export function QueryScreen({ onBack: _onBack }: Props) {
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
       <box style={{ marginBottom: 1 }}>
-        <text fg="#00FFAA">
+        <text fg={theme.primary}>
           <strong>📖 Query KB</strong>
         </text>
-        <text fg="#555555"> — Search knowledge base ({results.length} entries)</text>
-        <text fg="#444444">{'\n'} ESC to go back</text>
+        <text fg={theme.dim}> — Search knowledge base ({results.length} entries)</text>
       </box>
 
       {loading ? (
@@ -68,7 +67,7 @@ export function QueryScreen({ onBack: _onBack }: Props) {
             style={{
               border: true,
               borderStyle: 'rounded',
-              borderColor: '#333333',
+              borderColor: theme.border,
               height: 3,
               width: 50,
             }}
@@ -86,15 +85,15 @@ export function QueryScreen({ onBack: _onBack }: Props) {
               }}
             />
           </box>
-          <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' }, marginTop: 1 }}>
+          <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }}>
             {results.map((r, i) => (
-              <text key={i} fg="#AAAAAA">
+              <text key={i} fg={theme.text}>
                 {'  '}
                 {r.category}/{r.file}
               </text>
             ))}
             {results.length === 0 && (
-              <text fg="#666666">
+              <text fg={theme.textMuted}>
                 {'  '}No entries found. Run "kiro-wiz sync --all" to populate.
               </text>
             )}

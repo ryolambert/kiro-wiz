@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { recommend } from '../../../lib/toolingAdvisor.js';
 import type { ToolRecommendation } from '../../../lib/types.js';
+import { theme } from '../theme.js';
 
 interface Props {
   onBack: () => void;
@@ -13,18 +14,17 @@ export function RecommendScreen({ onBack: _onBack }: Props) {
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
       <box style={{ marginBottom: 1 }}>
-        <text fg="#00FFAA">
+        <text fg={theme.primary}>
           <strong>💡 Recommend</strong>
         </text>
-        <text fg="#555555"> — Describe your use case</text>
-        <text fg="#444444">{'\n'} ESC to go back</text>
+        <text fg={theme.dim}> — Describe your use case</text>
       </box>
       <box
         title="Use case"
         style={{
           border: true,
           borderStyle: 'rounded',
-          borderColor: '#333333',
+          borderColor: theme.border,
           height: 3,
           width: 60,
         }}
@@ -40,13 +40,13 @@ export function RecommendScreen({ onBack: _onBack }: Props) {
       </box>
 
       {results.length > 0 && (
-        <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' }, marginTop: 1 }} focused>
+        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
           {results.map((r, i) => (
             <box key={i} style={{ marginBottom: 1 }}>
-              <text fg="#00FFAA">
+              <text fg={theme.primary}>
                 <strong> 🔧 {r.toolType}</strong>
               </text>
-              <text fg="#AAAAAA">
+              <text fg={theme.text}>
                 {'     '}
                 {r.rationale}
               </text>

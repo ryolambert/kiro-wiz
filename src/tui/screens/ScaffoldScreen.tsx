@@ -5,6 +5,7 @@ import { scaffoldTool } from '../../../lib/scaffoldingEngine.js';
 import { KIRO_TOOL_TYPES } from '../../../lib/types.js';
 import type { KiroToolType, ScaffoldResult } from '../../../lib/types.js';
 import { Spinner } from '../components/Spinner.js';
+import { theme } from '../theme.js';
 
 type Step = 'type' | 'name' | 'desc' | 'scope' | 'preview' | 'installing' | 'done';
 
@@ -51,11 +52,10 @@ export function ScaffoldScreen({ onBack }: Props) {
 
   const header = (subtitle: string) => (
     <box style={{ marginBottom: 1 }}>
-      <text fg="#00FFAA">
+      <text fg={theme.primary}>
         <strong>🔧 Scaffold{toolType ? ` ${toolType}` : ''}</strong>
       </text>
-      <text fg="#555555"> — {subtitle}</text>
-      <text fg="#444444">{'\n'} ESC to go back</text>
+      <text fg={theme.dim}> — {subtitle}</text>
     </box>
   );
 
@@ -63,13 +63,13 @@ export function ScaffoldScreen({ onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         {header('Select tool type')}
-        <box style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 14 }}>
+        <box style={{ border: true, borderStyle: 'rounded', borderColor: theme.border, height: 14 }}>
           <select
             style={{ height: 12 }}
             options={TYPE_OPTIONS}
             focused
-            selectedBackgroundColor="#1a3a2a"
-            selectedTextColor="#00FFAA"
+            selectedBackgroundColor={theme.surfaceAlt}
+            selectedTextColor={theme.primary}
             onSelect={(_i, opt) => {
               if (opt?.value) {
                 setToolType(opt.value as KiroToolType);
@@ -91,7 +91,7 @@ export function ScaffoldScreen({ onBack }: Props) {
           style={{
             border: true,
             borderStyle: 'rounded',
-            borderColor: '#333333',
+            borderColor: theme.border,
             height: 3,
             width: 50,
           }}
@@ -118,7 +118,7 @@ export function ScaffoldScreen({ onBack }: Props) {
           style={{
             border: true,
             borderStyle: 'rounded',
-            borderColor: '#333333',
+            borderColor: theme.border,
             height: 3,
             width: 60,
           }}
@@ -138,13 +138,13 @@ export function ScaffoldScreen({ onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         {header('Install scope')}
-        <box style={{ border: true, borderStyle: 'rounded', borderColor: '#333333', height: 6 }}>
+        <box style={{ border: true, borderStyle: 'rounded', borderColor: theme.border, height: 6 }}>
           <select
             style={{ height: 4 }}
             options={SCOPE_OPTIONS}
             focused
-            selectedBackgroundColor="#1a3a2a"
-            selectedTextColor="#00FFAA"
+            selectedBackgroundColor={theme.surfaceAlt}
+            selectedTextColor={theme.primary}
             onSelect={(_i, opt) => {
               if (opt?.value) {
                 setScope(opt.value as 'workspace' | 'global');
@@ -162,26 +162,26 @@ export function ScaffoldScreen({ onBack }: Props) {
     return (
       <box style={{ flexDirection: 'column', padding: 1 }}>
         {header('Preview')}
-        <text fg="#555555">
+        <text fg={theme.dim}>
           Files to create ({preview.scope} → {preview.targetRoot}):
         </text>
-        <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' }, marginTop: 1 }} focused>
+        <scrollbox style={{ rootOptions: { backgroundColor: theme.surface }, marginTop: 1 }} focused>
           {preview.installedFiles.map((f, i) => (
-            <text key={i} fg="#AAAAAA">
+            <text key={i} fg={theme.text}>
               {'  📄 '}
               {f.relativePath}
             </text>
           ))}
         </scrollbox>
         <box style={{ marginTop: 1 }}>
-          <text fg="#FFFF00">Press Enter to install, ESC to cancel</text>
+          <text fg={theme.warning}>Press Enter to install, ESC to cancel</text>
         </box>
         <box
           title="Confirm"
           style={{
             border: true,
             borderStyle: 'rounded',
-            borderColor: '#333333',
+            borderColor: theme.border,
             height: 3,
             marginTop: 1,
           }}
@@ -210,12 +210,12 @@ export function ScaffoldScreen({ onBack }: Props) {
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
       <box style={{ marginBottom: 1 }}>
-        <text fg="#00FF00">
+        <text fg={theme.success}>
           <strong>✅ Scaffold complete!</strong>
         </text>
       </box>
-      <text>{status}</text>
-      <text fg="#444444">{'\n'} Press ESC to return to menu</text>
+      <text fg={theme.text}>{status}</text>
+      <text fg={theme.textMuted}>{'\n'} Press ESC to return to menu</text>
     </box>
   );
 }

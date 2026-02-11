@@ -6,15 +6,16 @@ import {
   scan,
 } from '../../../lib/workspaceAuditor.js';
 import { Spinner } from '../components/Spinner.js';
+import { theme } from '../theme.js';
 
 interface Props {
   onBack: () => void;
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: '#FF4444',
-  recommended: '#FFAA00',
-  optional: '#666666',
+  critical: theme.error,
+  recommended: theme.warning,
+  optional: theme.textMuted,
 };
 
 const SEVERITY_ICONS: Record<string, string> = {
@@ -48,46 +49,45 @@ export function AuditScreen({ onBack: _onBack }: Props) {
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
       <box style={{ marginBottom: 1 }}>
-        <text fg="#00FFAA">
+        <text fg={theme.primary}>
           <strong>🔍 Audit</strong>
         </text>
-        <text fg="#555555"> — Workspace best practices</text>
-        <text fg="#444444">{'\n'} ESC to go back</text>
+        <text fg={theme.dim}> — Workspace best practices</text>
       </box>
 
       {loading ? (
         <Spinner label={status || 'Scanning workspace...'} />
       ) : !report ? (
-        <text fg="#FF4444">{status}</text>
+        <text fg={theme.error}>{status}</text>
       ) : (
         <>
           <box
             style={{
               border: true,
               borderStyle: 'rounded',
-              borderColor: '#333333',
+              borderColor: theme.border,
               padding: 1,
               marginBottom: 1,
             }}
           >
-            <text>
+            <text fg={theme.text}>
               📊 Scanned {report.scannedFiles.length} files — {report.findings.length} findings (
               {report.summary.critical} critical, {report.summary.recommended} recommended,{' '}
               {report.summary.optional} optional)
             </text>
           </box>
-          <scrollbox style={{ rootOptions: { backgroundColor: '#1a1a26' } }} focused>
+          <scrollbox style={{ rootOptions: { backgroundColor: theme.surface } }} focused>
             {report.findings.map((f, i) => (
               <box key={i} style={{ marginBottom: 1 }}>
-                <text fg={SEVERITY_COLORS[f.severity] ?? '#AAAAAA'}>
+                <text fg={SEVERITY_COLORS[f.severity] ?? theme.text}>
                   {SEVERITY_ICONS[f.severity] ?? '·'} [{f.severity}] [{f.category}] {f.message}
                 </text>
-                {f.file && <text fg="#555555"> 📄 {f.file}</text>}
-                <text fg="#666666"> → {f.suggestion}</text>
+                {f.file && <text fg={theme.dim}> 📄 {f.file}</text>}
+                <text fg={theme.textMuted}> → {f.suggestion}</text>
               </box>
             ))}
             {report.findings.length === 0 && (
-              <text fg="#00FF00">✅ All scanned configurations follow best practices.</text>
+              <text fg={theme.success}>✅ All scanned configurations follow best practices.</text>
             )}
           </scrollbox>
         </>

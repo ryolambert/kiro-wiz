@@ -1,15 +1,19 @@
 import type { SelectOption } from '@opentui/core';
-import { useRenderer } from '@opentui/react';
+import { useKeyboard, useRenderer } from '@opentui/react';
+import { useState } from 'react';
 import type { Screen } from '../App.js';
+import { Logo } from '../components/Logo.js';
+import { theme } from '../theme.js';
 
-const MENU_OPTIONS: (SelectOption & { value: Screen | 'exit' })[] = [
-  { name: '🔧  Scaffold', description: 'Create a new Kiro tool', value: 'scaffold' },
-  { name: '🔍  Audit', description: 'Audit workspace for best practices', value: 'audit' },
-  { name: '🔄  Sync KB', description: 'Sync knowledge base from kiro.dev', value: 'sync' },
-  { name: '📖  Query KB', description: 'Search the knowledge base', value: 'query' },
-  { name: '💡  Recommend', description: 'Get tool recommendations', value: 'recommend' },
-  { name: '✅  Validate', description: 'Validate a config file', value: 'validate' },
-  { name: '🚪  Exit', description: 'Quit kiro-wiz', value: 'exit' },
+const MENU_OPTIONS: (SelectOption & { value: Screen | 'exit'; longDesc: string })[] = [
+  { name: '🔧  Scaffold', description: 'Create a new Kiro tool', value: 'scaffold', longDesc: 'Generate scaffolding for hooks, steering docs, skills, powers, MCP servers, agents, and more. Walks you through type selection, naming, and installs to your workspace.' },
+  { name: '🔍  Audit', description: 'Audit workspace', value: 'audit', longDesc: 'Scan your workspace for Kiro best practices. Checks agent configs, steering docs, hooks, and directory structure for common issues.' },
+  { name: '🔄  Sync KB', description: 'Sync knowledge base', value: 'sync', longDesc: 'Crawl kiro.dev documentation and update the local knowledge base. Keeps your tool recommendations and query results current.' },
+  { name: '📖  Query KB', description: 'Search knowledge base', value: 'query', longDesc: 'Browse and search the local knowledge base by category or keyword. View full documentation entries inline.' },
+  { name: '💡  Recommend', description: 'Get tool recommendations', value: 'recommend', longDesc: 'Describe a use case and get recommendations for which Kiro tool types (hooks, skills, agents, etc.) best fit your needs.' },
+  { name: '✅  Validate', description: 'Validate a config file', value: 'validate', longDesc: 'Check a Kiro JSON config file for schema errors, missing fields, and invalid values.' },
+  { name: '📦  Install', description: 'Install pre-built configs', value: 'install', longDesc: 'Install curated agents, steering docs, and skills to your workspace or global .kiro directory.' },
+  { name: '🚪  Exit', description: 'Quit kiro-wiz', value: 'exit', longDesc: 'Exit the application.' },
 ];
 
 interface Props {
@@ -18,30 +22,29 @@ interface Props {
 
 export function MainMenu({ onSelect }: Props) {
   const renderer = useRenderer();
+  const [hoveredIndex, setHoveredIndex] = useState(0);
+
+  useKeyboard((key) => {
+    // Number keys 1-8 for direct jump
+    const num = parseInt(key.name, 10);
+    if (num >= 1 && num <= MENU_OPTIONS.length) {
+      const opt = MENU_OPTIONS[num - 1];
+      if (opt.value === 'exit') {
+        renderer.destroy();
+      } else {
+        onSelect(opt.value as Screen);
+      }
+    }
+  });
 
   return (
     <box style={{ flexDirection: 'column', padding: 1 }}>
+      <Logo />
       <box
         style={{
           border: true,
           borderStyle: 'rounded',
-          borderColor: '#00FFAA',
-          padding: 1,
-          marginBottom: 1,
-        }}
-      >
-        <text fg="#00FFAA">
-          <strong>⚡ kiro-wiz</strong>
-        </text>
-        <text fg="#555555"> — Kiro Ecosystem Wizard</text>
-      </box>
-      <text fg="#555555"> ↑↓ navigate · Enter select · Ctrl+C quit</text>
-      <box
-        style={{
-          border: true,
-          borderStyle: 'rounded',
-          borderColor: '#333333',
-          marginTop: 1,
+          borderColor: theme.border,
           height: 18,
         }}
       >
@@ -49,8 +52,9 @@ export function MainMenu({ onSelect }: Props) {
           style={{ height: 16 }}
           options={MENU_OPTIONS}
           focused
-          selectedBackgroundColor="#1a3a2a"
-          selectedTextColor="#00FFAA"
+          selectedBackgroundColor={theme.surfaceAlt}
+          selectedTextColor={theme.primary}
+          onIndexChange={setHoveredIndex}
           onSelect={(_index, option) => {
             if (option?.value === 'exit') {
               renderer.destroy();
@@ -61,6 +65,18 @@ export function MainMenu({ onSelect }: Props) {
             }
           }}
         />
+      </box>
+      <box
+        style={{
+          border: true,
+          borderStyle: 'rounded',
+          borderColor: theme.border,
+          padding: 1,
+          marginTop: 1,
+          backgroundColor: theme.surfaceAlt,
+        }}
+      >
+        <text fg={theme.dim}>{MENU_OPTIONS[hoveredIndex]?.longDesc}</text>
       </box>
     </box>
   );
